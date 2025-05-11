@@ -75,6 +75,7 @@ Color = Green
 Shape = Quadruped
 Habitat = Grassland
 Category = Semilla
+GoldenForm = 1
 Pokedex = Según parece, la flor de Venusaur adquiere unos colores muy vivos con una buena nutrición y mucho sol. El aroma delicado de esta flor calma los ánimos.
 Generation = 1
 #-------------------------------

@@ -7,3 +7,27 @@ Price = 50000
 FieldUse = OnPokemon
 Description = Misterioso té de color dorado que activa la mejor habilidad del Pokémon en su época dorada.
 #-------------------------------
+[GOLDENFRAGMENT]
+Name = Fragmento Dorado
+NamePlural = Fragmento Dorado
+Pocket = 8
+Price = 0
+Flags = KeyItem
+Description = Descripcion que tiene que ponerle Carma.
+#-------------------------------
+[GOLDENSTONE]
+Name = Piedra Dorada
+NamePlural = Piedra Dorada
+Pocket = 8
+Price = 0
+Flags = KeyItem
+Description = Descripcion que tiene que ponerle Carma.
+#-------------------------------
+[GOLDENSRING]
+Name = Anillo Dorado
+NamePlural = Anillo Dorado
+Pocket = 8
+Price = 0
+Flags = KeyItem
+Description = Descripcion que tiene que ponerle Carma.
+#-------------------------------
