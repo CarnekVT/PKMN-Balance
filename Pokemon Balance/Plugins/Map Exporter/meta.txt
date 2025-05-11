@@ -1,0 +1,4 @@
+Name         = Map Exporter
+Version      = 1.1
+Essentials   = 21,21.1
+Credits      = Marin, Dracrixco

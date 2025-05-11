@@ -1,0 +1,9 @@
+﻿#-------------------------------
+[ARCANETEA]
+Name = Té Arcano
+NamePlural = Tés Arcano
+Pocket = 2
+Price = 50000
+FieldUse = OnPokemon
+Description = Misterioso té de color dorado que activa la mejor habilidad del Pokémon en su época dorada.
+#-------------------------------

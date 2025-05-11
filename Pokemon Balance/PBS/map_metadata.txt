@@ -1,0 +1,7 @@
+﻿# Consulta la documentación en la wiki para aprender cómo editar este archivo.
+#-------------------------------
+[028]   # Ruta 1
+Name = Ruta 1
+Outdoor = true
+ShowArea = true
+SnapEdges = true

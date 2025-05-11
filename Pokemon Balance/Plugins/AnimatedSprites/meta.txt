@@ -1,0 +1,4 @@
+Name         = Sprites Animados
+Version      = 1.0
+Essentials   = 21.1
+Credits      = Luka S.J., Tenshi of War, DPertierra, Skyflyer, Hellfire_raptor, Antiant, AshnixsLaw, AyanoCloud, Azrita, BR0DE0, Caruban, Creobnil, DanEx, Diegotoon20, dimbly, ekurepu, Ebaru, EricLostie, Falcon7, Federico97_ez, Fleimer_, Franark122k, Hellfire0raptor, HM100, HyperactiveFlummi, iametrine, Involuntary-Twitch, ItsYugen, jinta, justnyxnow, KingOfThe-X-Roads, kiriaura, Legitimate Username, localghost, lucasomi, MallowOut, mangalos810, MCH4R1Z4RD, N-Kin, NoelleMBrooks, Noobiess, Nolo33, OldSoulja, OmegalingYT, PKMarioG, PomPomKing, Poki Papillon, PumpkinPastel, RetroNC, RadicalCharizard, seleccion, SelenaArmorclaw, SkidMarc25, Snivy101, Sopita_Yorita, SoulWardenInfinity, TheAetherPlayer, TheCynicalPoet, Typhlito, uppababy.
