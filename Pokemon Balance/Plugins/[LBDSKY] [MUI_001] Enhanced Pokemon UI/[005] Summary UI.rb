@@ -22,7 +22,7 @@ class PokemonSummary_Scene
     enhanced_drawPageOne
     return if !Settings::SUMMARY_HAPPINESS_METER
     overlay = @sprites["overlay"].bitmap
-    coords = (PluginManager.installed?("BW Summary Screen")) ? [220, 294] : [242, 340]
+    coords = [242, 346]
     pbDisplayHappiness(@pokemon, overlay, coords[0], coords[1])
   end
   
@@ -48,17 +48,13 @@ class PokemonSummary_Scene
   #-----------------------------------------------------------------------------
   alias enhanced_pbPageCustomUse pbPageCustomUse
   def pbPageCustomUse(page_id)
-    if page_id == :page_skills 
+    if page_id == :page_skills
       if defined?(Settings::DISPLAY_ENHANCED_STATS) && Settings::DISPLAY_ENHANCED_STATS
         @statToggle = !@statToggle
         drawPage(:page_skills)
         pbPlayDecisionSE
         return true
-      else
-        return true
       end
-    elsif page_id == :page_allstats
-      return true
     end
     return enhanced_pbPageCustomUse(page_id)
   end
@@ -70,7 +66,7 @@ class PokemonSummary_Scene
   def pbStartScene(*args)
     if Settings::SUMMARY_LEGACY_DATA
       UIHandlers.edit_hash(:summary, :page_memo, "options", 
-        [:item, :nickname, :pokedex, :legacy, :mark]
+        [:item, :nickname, :pokedex, _INTL("Ver Histórico"), :mark]
       )
     end
     @statToggle = false
@@ -84,17 +80,11 @@ class PokemonSummary_Scene
 
   alias enhanced_pbPageCustomOption pbPageCustomOption
   def pbPageCustomOption(cmd)
-    echoln cmd
-    if cmd == :legacy
+    if cmd == _INTL("Ver Histórico")
       pbLegacyMenu
       return true
     end
     return enhanced_pbPageCustomOption(cmd)
-  end
-
-  def show_legacy()
-    pbLegacyMenu
-    return true
   end
   
   #-----------------------------------------------------------------------------

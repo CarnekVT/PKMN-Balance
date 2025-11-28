@@ -6,7 +6,7 @@ class Battle::Scene
   # Handles the controls for the Battle Info UI.
   #-----------------------------------------------------------------------------
   def pbOpenBattlerInfo(battler, battlers)
-    return if !@infoUIToggle
+    return if @enhancedUIToggle != :battler
     ret = nil
     idx = 0
     battlerTotal = battlers.flatten
@@ -19,11 +19,15 @@ class Battle::Scene
     effctSize = effects.length - 1
     pbUpdateBattlerInfo(battler, effects, idxEffect)
     cw = @sprites["fightWindow"]
+    @sprites["leftarrow"].x = -2
+    @sprites["leftarrow"].y = 71
     @sprites["leftarrow"].visible = true
+    @sprites["rightarrow"].x = Graphics.width - 38
+    @sprites["rightarrow"].y = 71
     @sprites["rightarrow"].visible = true
     loop do
       pbUpdate(cw)
-      pbUpdateSpriteHash(@sprites)
+      pbUpdateInfoSprites
       break if Input.trigger?(Input::BACK)
       if Input.trigger?(Input::LEFT)
         idx -= 1
@@ -41,9 +45,14 @@ class Battle::Scene
         idxEffect += 1
         idxEffect = 0 if idxEffect > effctSize
         doRefresh = true
-      elsif Input.trigger?(Input::JUMPDOWN) && cw.visible
-        ret = 1
-        break
+      elsif Input.trigger?(Input::JUMPDOWN)
+        if cw.visible
+          ret = 1
+          break
+        elsif @battle.pbCanUsePokeBall?(@sprites["enhancedUIPrompts"].battler)
+          ret = 2
+          break
+        end
       elsif Input.trigger?(Input::JUMPUP) || Input.trigger?(Input::USE)
         ret = []
         if battler.opposes?
@@ -85,9 +94,9 @@ class Battle::Scene
   # Draws the Battle Info UI.
   #-----------------------------------------------------------------------------
   def pbUpdateBattlerInfo(battler, effects, idxEffect = 0)
-    @infoUIOverlay.clear
+    @enhancedUIOverlay.clear
     pbUpdateBattlerIcons
-    return if !@infoUIToggle
+    return if @enhancedUIToggle != :battler
     xpos = 28
     ypos = 24
     iconX = xpos + 28
@@ -96,12 +105,21 @@ class Battle::Scene
     #---------------------------------------------------------------------------
     # General UI elements.
     poke = (battler.opposes?) ? battler.displayPokemon : battler.pokemon
-    imagePos = [[@path + "info_bg", 0, 0],
-                [@path + "info_bg_data", 0, 0],
-                [@path + "info_gender", xpos + 146, ypos + 24, poke.gender * 22, 0, 22, 20]]
-    textPos  = [[_INTL("{1}", poke.name), iconX + 82, iconY - 16, :center, BASE_DARK, SHADOW_DARK],
-                [_INTL("Nv. {1}", battler.level), xpos + 16, ypos + 106, :left, BASE_LIGHT, SHADOW_LIGHT],
-                [_INTL("Turno {1}", @battle.turnCount + 1), Graphics.width - xpos - 32, ypos + 6, :center, BASE_LIGHT, SHADOW_LIGHT]]
+    level = (battler.isRaidBoss?) ? "???" : battler.level.to_s
+    movename = (battler.lastMoveUsed) ? GameData::Move.get(battler.lastMoveUsed).name : "---"
+    movename = movename[0..12] + "..." if movename.length > 16
+    imagePos = [
+      [@path + "info_bg", 0, 0],
+      [@path + "info_bg_data", 0, 0],
+      [@path + "info_level", xpos + 16, ypos + 106]
+    ]
+    imagePos.push([@path + "info_gender", xpos + 148, ypos + 22, poke.gender * 22, 0, 22, 22]) if !battler.isRaidBoss?
+    textPos  = [
+      [_INTL("{1}", poke.name), iconX + 82, iconY - 20, :center, BASE_DARK, SHADOW_DARK],
+      [_INTL("{1}", level), xpos + 38, ypos + 104, :left, BASE_LIGHT, SHADOW_LIGHT],
+      [_INTL("Usó: {1}", movename), xpos + 349, ypos + 104, :center, BASE_LIGHT, SHADOW_LIGHT],
+      [_INTL("Turno {1}", @battle.turnCount + 1), Graphics.width - xpos - 32, ypos + 8, :center, BASE_DARK, SHADOW_DARK]
+    ]
     #---------------------------------------------------------------------------
     # Battler icon.
     @battle.allBattlers.each do |b|
@@ -110,6 +128,11 @@ class Battle::Scene
       @sprites["info_icon#{b.index}"].visible = (b.index == battler.index)
     end            
     #---------------------------------------------------------------------------
+    # Owner
+    if !battler.wild?
+      imagePos.push([@path + "info_owner", xpos - 34, ypos + 6, 0, 20, 128, 20])
+      textPos.push([@battle.pbGetOwnerFromBattlerIndex(battler.index).name, xpos + 32, ypos + 8, :center, BASE_DARK, SHADOW_DARK])
+    end
     # Battler HP.
     if battler.hp > 0
       w = battler.hp * 96 / battler.totalhp.to_f
@@ -118,7 +141,7 @@ class Battle::Scene
       hpzone = 0
       hpzone = 1 if battler.hp <= (battler.totalhp / 2).floor
       hpzone = 2 if battler.hp <= (battler.totalhp / 4).floor
-      imagePos.push(["Graphics/UI/Battle/overlay_hp", 86, 88, 0, hpzone * 6, w, 6])
+      imagePos.push([@path + "info_hp", 86, 86, 0, hpzone * 6, w, 6])
     end
     # Battler status.
     if battler.status != :NONE
@@ -126,25 +149,14 @@ class Battle::Scene
       imagePos.push(["Graphics/UI/statuses", xpos + 86, ypos + 104, 0, iconPos * 16, 44, 16])
     end
     # Shininess
-    imagePos.push(["Graphics/UI/shiny", xpos + 142, ypos + 104]) if poke.shiny?
-    # Owner
-    if !battler.wild?
-      imagePos.push([@path + "info_owner", xpos - 34, ypos + 4])
-      textPos.push([@battle.pbGetOwnerFromBattlerIndex(battler.index).name, xpos + 32, ypos + 6, :center, BASE_LIGHT, SHADOW_LIGHT])
-    end
-    # Battler's last move used.
-    if battler.lastMoveUsed
-      movename = GameData::Move.get(battler.lastMoveUsed).name
-      movename = movename[0..12] + "..." if movename.length > 16
-      textPos.push([_INTL("Usó: {1}", movename), xpos + 348, ypos + 106, :center, BASE_LIGHT, SHADOW_LIGHT])
-    end
+    imagePos.push(["Graphics/UI/shiny", xpos + 142, ypos + 102]) if poke.shiny?
     #---------------------------------------------------------------------------
     # Battler info for player-owned Pokemon.
     if battler.pbOwnedByPlayer?
       imagePos.push(
-        [@path + "info_owner", xpos + 36, iconY + 10],
-        [@path + "info_cursor", panelX, 64, 0, 0, 218, 24],
-        [@path + "info_cursor", panelX, 88, 0, 0, 218, 24]
+        [@path + "info_owner", xpos + 36, iconY + 10, 0, 0, 128, 20],
+        [@path + "info_cursor", panelX, 62, 0, 0, 218, 26],
+        [@path + "info_cursor", panelX, 86, 0, 0, 218, 26]
       )
       textPos.push(
         [_INTL("Hab."), xpos + 272, ypos + 44, :center, BASE_LIGHT, SHADOW_LIGHT],
@@ -157,8 +169,8 @@ class Battle::Scene
     #---------------------------------------------------------------------------
     pbAddWildIconDisplay(xpos, ypos, battler, imagePos)
     pbAddStatsDisplay(xpos, ypos, battler, imagePos, textPos)
-    pbDrawImagePositions(@infoUIOverlay, imagePos)
-    pbDrawTextPositions(@infoUIOverlay, textPos)
+    pbDrawImagePositions(@enhancedUIOverlay, imagePos)
+    pbDrawTextPositions(@enhancedUIOverlay, textPos)
     pbAddTypesDisplay(xpos, ypos, battler, poke)
     pbAddEffectsDisplay(xpos, ypos, panelX, effects, idxEffect)
   end
@@ -228,16 +240,16 @@ class Battle::Scene
             end
           end
         end
-        textPos.push([stat[1], xpos + 17, ypos + 138 + (i * 24), :left, BASE_LIGHT, color])
+        textPos.push([stat[1], xpos + 16, ypos + 138 + (i * 24), :left, BASE_LIGHT, color])
         stage = battler.stages[stat[0]]
       else
-        textPos.push([stat, xpos + 17, ypos + 138 + (i * 24), :left, BASE_LIGHT, SHADOW_LIGHT])
-        stage = battler.effects[PBEffects::FocusEnergy]
+        textPos.push([stat, xpos + 16, ypos + 138 + (i * 24), :left, BASE_LIGHT, SHADOW_LIGHT])
+        stage = [battler.effects[PBEffects::FocusEnergy], 3].min
       end
       if stage != 0
         arrow = (stage > 0) ? 0 : 18
         stage.abs.times do |t| 
-          imagePos.push([@path + "info_stats", xpos + 104 + (t * 18), ypos + 138 + (i * 24), arrow, 0, 18, 18])
+          imagePos.push([@path + "info_stats", xpos + 110 + (t * 18), ypos + 136 + (i * 24), arrow, 0, 18, 18])
         end
       end
     end
@@ -260,14 +272,16 @@ class Battle::Scene
     end
     #---------------------------------------------------------------------------
     # Displays the "???" type on newly encountered species, or battlers with no typing.
-    unknown_species = !(
-      !@battle.internalBattle ||
-      battler.pbOwnedByPlayer? ||
-      $player.pokedex.owned?(poke.species) ||
-      $player.pokedex.battled_count(poke.species) > 0
-    )
-    unknown_species = false if Settings::SHOW_TYPE_EFFECTIVENESS_FOR_NEW_SPECIES
-    unknown_species = true if battler.celestial?
+    if Settings::SHOW_TYPE_EFFECTIVENESS_FOR_NEW_SPECIES
+      unknown_species = false
+    else
+      unknown_species = !(
+        !@battle.internalBattle ||
+        battler.pbOwnedByPlayer? ||
+        $player.pokedex.owned?(poke.species) ||
+        $player.pokedex.battled_count(poke.species) > 0
+      )
+    end
     displayTypes = [:QMARKS] if unknown_species || displayTypes.empty?
     #---------------------------------------------------------------------------
     # Draws each display type. Maximum of 3 types.
@@ -277,14 +291,20 @@ class Battle::Scene
       break if i > 2
       type_number = GameData::Type.get(type).icon_position
       type_rect = Rect.new(0, type_number * 28, 64, 28)
-      @infoUIOverlay.blt(xpos + 170, typeY + (i * 30), typebitmap.bitmap, type_rect)
+      @enhancedUIOverlay.blt(xpos + 170, typeY + (i * 30), typebitmap.bitmap, type_rect)
     end
     #---------------------------------------------------------------------------
     # Draws Tera type.
-    if battler.tera? || defined?(battler.tera_type) && (battler.pbOwnedByPlayer? || !@battle.internalBattle)
+    if battler.tera?
+      showTera = true
+    else
+      showTera = defined?(battler.tera_type) && battler.pokemon.terastal_able?
+      showTera = ((@battle.internalBattle) ? !battler.opposes? : true) if showTera
+    end
+    if showTera
       pkmn = (illusion) ? poke : battler
-      pbDrawImagePositions(@infoUIOverlay, [[@path + "info_extra", xpos + 182, ypos + 95]])
-      pbDisplayTeraType(pkmn, @infoUIOverlay, xpos + 186, ypos + 97, true)
+      pbDrawImagePositions(@enhancedUIOverlay, [[@path + "info_extra", xpos + 182, ypos + 95]])
+      pbDisplayTeraType(pkmn, @enhancedUIOverlay, xpos + 186, ypos + 97, true)
     end
   end
   
@@ -312,20 +332,20 @@ class Battle::Scene
     end
     textPos = []
     imagePos = [
-      [@path + "info_effects", xpos + 240, ypos + 258],
-      [@path + "info_slider_base", panelX + 222, ypos + 134]
+      [@path + "info_effects", xpos + 240, ypos + 256],
+      [@path + "info_slider_base", panelX + 222, ypos + 132]
     ]
     #---------------------------------------------------------------------------
     # Draws the slider.
     #---------------------------------------------------------------------------
     if effects.length > 5
-      imagePos.push([@path + "info_slider", panelX + 222, ypos + 134, 0, 0, 18, 19]) if idxEffect > 3
-      imagePos.push([@path + "info_slider", panelX + 222, ypos + 235, 0, 19, 18, 19]) if idxEffect < idxLast - 1
+      imagePos.push([@path + "info_slider", panelX + 222, ypos + 132, 0, 0, 18, 19]) if idxEffect > 3
+      imagePos.push([@path + "info_slider", panelX + 222, ypos + 233, 0, 19, 18, 19]) if idxEffect < idxLast - 1
       sliderheight = 82
       boxheight = (sliderheight * 4 / idxLast).floor
       boxheight += [(sliderheight - boxheight) / 2, sliderheight / 4].min
       boxheight = [boxheight.floor, 18].max
-      y = ypos + 154
+      y = ypos + 152
       y += ((sliderheight - boxheight) * idxStart / (idxLast - 4)).floor
       imagePos.push([@path + "info_slider", panelX + 222, y, 18, 0, 18, 4])
       i = 0
@@ -343,17 +363,18 @@ class Battle::Scene
     effects[idxStart..idxEnd].each_with_index do |effect, i|
       real_idx = effects.find_index(effect)
       if i == idxDisplay || idxEffect == real_idx
-        imagePos.push([@path + "info_cursor", panelX, ypos + 134 + (i * 24), 0, 48, 218, 24])
+        imagePos.push([@path + "info_cursor", panelX, ypos + 132 + (i * 24), 0, 52, 218, 26])
+        textPos.push([effect[0], xpos + 322, ypos + 138 + (i * 24), :center, BASE_LIGHT, SHADOW_LIGHT, :outline])
       else
-        imagePos.push([@path + "info_cursor", panelX, ypos + 134 + (i * 24), 0, 24, 218, 24])
+        imagePos.push([@path + "info_cursor", panelX, ypos + 132 + (i * 24), 0, 26, 218, 26])
+        textPos.push([effect[0], xpos + 322, ypos + 138 + (i * 24), :center, BASE_DARK, SHADOW_DARK])
       end
-      textPos.push([effect[0], xpos + 322, ypos + 138 + (i * 24), :center, BASE_DARK, SHADOW_DARK],
-                   [effect[1], xpos + 426, ypos + 138 + (i * 24), :center, BASE_LIGHT, SHADOW_LIGHT])
+      textPos.push([effect[1], xpos + 426, ypos + 138 + (i * 24), :center, BASE_LIGHT, SHADOW_LIGHT])
     end
-    pbDrawImagePositions(@infoUIOverlay, imagePos)
-    pbDrawTextPositions(@infoUIOverlay, textPos)
+    pbDrawImagePositions(@enhancedUIOverlay, imagePos)
+    pbDrawTextPositions(@enhancedUIOverlay, textPos)
     desc = effects[idxEffect][2]
-    drawFormattedTextEx(@infoUIOverlay, xpos + 246, ypos + 268, 208, desc, BASE_LIGHT, SHADOW_LIGHT, 18)
+    drawFormattedTextEx(@enhancedUIOverlay, xpos + 246, ypos + 266, 208, desc, BASE_DARK, SHADOW_DARK, 18)
   end
   
   #-----------------------------------------------------------------------------
@@ -361,6 +382,12 @@ class Battle::Scene
   #-----------------------------------------------------------------------------
   def pbGetDisplayEffects(battler)
     display_effects = []
+    #---------------------------------------------------------------------------
+    # Damage gates for scripted battles.
+    if battler.damageThreshold
+      desc = _INTL("The Pokémon's HP won't fall below {1}% when attacked.", battler.damageThreshold.abs)
+      display_effects.push([_INTL("Damage Gate"), "--", desc])
+    end
     #---------------------------------------------------------------------------
     # Special states.
     if battler.dynamax?
@@ -378,11 +405,10 @@ class Battle::Scene
     end
     #---------------------------------------------------------------------------
     # Weather
-    if battler.effectiveWeather != :None
-      if @battle.field.weather == :Hail
-        name = GameData::BattleWeather.get(@battle.field.weather).name
-        desc = _INTL("Los Pokémon que no sean de tipo Hielo reciben daño cada turno. Ventisca siempre acierta.")
-        if defined?(Settings::HAIL_WEATHER_TYPE)
+    weather = battler.effectiveWeather
+    if weather != :None
+      if weather == :Hail
+        if defined?(Settings::HAIL_WEATHER_TYPE) && Settings::HAIL_WEATHER_TYPE > 0
           case Settings::HAIL_WEATHER_TYPE
           when 1
             name = _INTL("Nevada")
@@ -391,22 +417,26 @@ class Battle::Scene
             name = _INTL("Granizo y Nieve")
             desc = _INTL("Combina los efectos de Granizo y Nieve.")
           end
+        else
+          name = GameData::BattleWeather.get(weather).name
+          desc = _INTL("Los Pokémon que no sean de tipo Hielo reciben daño cada turno. Ventisca siempre acierta.")
         end
       else
-        name = GameData::BattleWeather.get(@battle.field.weather).name
+        name = GameData::BattleWeather.get(weather).name
+        case weather
+        when :Sun         then desc = _INTL("Boosts Fire moves and weakens Water moves.")
+        when :HarshSun    then desc = _INTL("Boosts Fire moves and negates Water moves.")
+        when :Rain        then desc = _INTL("Boosts Water moves and weakens Fire moves.")
+        when :HeavyRain   then desc = _INTL("Boosts Water moves and negates Fire moves.")
+        when :Snow        then desc = _INTL("Boosts Def of Ice types. Blizzard always hits.")
+        when :Sandstorm   then desc = _INTL("Boosts Rock type Sp. Def. Damages unless Rock/Ground/Steel.")
+        when :StrongWinds then desc = _INTL("Flying types won't take super effective damage.")
+        when :ShadowSky   then desc = _INTL("Boosts Shadow moves. Non-Shadow Pokémon damaged each turn.")
+        else                   desc = _INTL("Unknown weather.")
+        end
       end
-      tick = @battle.field.weatherDuration
+      tick = (weather == @battle.field.weather) ? @battle.field.weatherDuration : 0
       tick = (tick > 0) ? sprintf("%d/%d", tick, 5) : "--"
-      case @battle.field.weather
-      when :Sun         then desc = _INTL("Potencia los ataques de Fuego y debilita los ataques de Agua.")
-      when :HarshSun    then desc = _INTL("Potencia los ataques de Fuego y niega los ataques de Agua.")
-      when :Rain        then desc = _INTL("Potencia los ataques de Agua y debilita los ataques de Fuego.")
-      when :HeavyRain   then desc = _INTL("Potencia los ataques de Agua y niega los ataques de Fuego.")
-      when :Snow        then desc = _INTL("Potencia la Def. de los tipo Hielo. Ventisca siempre acierta.")
-      when :Sandstorm   then desc = _INTL("Potencia la Def. Esp. de los tipo Roca. Daña a todos menos a los Roca/Tierra/Acero.")
-      when :StrongWinds then desc = _INTL("Voladores no recibirán daño super eficaz.")
-      when :ShadowSky   then desc = _INTL("Potencia los movimientos Oscuros. Pokémon no oscuros reciben daño cada turno.")
-      end
       display_effects.push([name, tick, desc])
     end
     #---------------------------------------------------------------------------
@@ -420,6 +450,7 @@ class Battle::Scene
       when :Grassy   then desc = _INTL("Los Pokémon que toquen el campo recuperan PS cada turno. Potencia los ataques de Planta.")
       when :Psychic  then desc = _INTL("Los ataques de prioridad fallan en los Pokémon que toquen el campo. Potencia los ataques Psíquicos.")
       when :Misty    then desc = _INTL("No se pueden cambiar estados a los Pokémon que toquen el campo. Debilita los ataques de Dragon")
+      else                desc = _INTL("Terreno desconocido.")
       end
       display_effects.push([name, tick, desc])
     end
@@ -489,6 +520,14 @@ class Battle::Scene
             name = GameData::Move.get(:RAGE).name
             desc = _INTL("El Pokémon aumenta su ataque cada vez que es golpeado.")
           #---------------------------------------------------------------------
+          when :HelpingHand
+            name = GameData::Move.get(:HELPINGHAND).name
+            desc = _INTL("El daño del Pokémon aumenta.")
+          #---------------------------------------------------------------------
+          when :PowerTrick
+            name = GameData::Move.get(:POWERTRICK).name
+            desc = _INTL("El At y la Def del Pokémon se intercambian.")
+          #---------------------------------------------------------------------
           when :Torment
             name = GameData::Move.get(:TORMENT).name
             desc = _INTL("El Pokémon no puede usar el mismo movimiento 2 veces seguidas.")
@@ -497,17 +536,65 @@ class Battle::Scene
             name = GameData::Move.get(:CHARGE).name
             desc = _INTL("El próximo ataque eléctrico tendrá el doble de potencia.")
           #---------------------------------------------------------------------
+          when :Electrify
+            name = GameData::Move.get(:ELECTRIFY).name
+            desc = _INTL("El siguiente movimiento del Pokémon será tipo Eléctrico.")
+          #---------------------------------------------------------------------
+          when :IonDeluge
+            name = GameData::Move.get(:IONDELUGE).name
+            desc = _INTL("Los movimientos tipo Normal del Pokémon ahora son tipo Eléctrico.")
+          #---------------------------------------------------------------------
           when :Minimize
             name = GameData::Move.get(:MINIMIZE).name
             desc = _INTL("El Pokémon se achica y recibe mas daño al ser aplastado.")
+          #---------------------------------------------------------------------
+          when :SkyDrop
+            name = GameData::Move.get(:SKYDROP).name
+            desc = _INTL("El Pokémon ha sido elevado al cielo por {1}.", @battle.battlers[value].name)
           #---------------------------------------------------------------------
           when :TarShot
             name = GameData::Move.get(:TARSHOT).name
             desc = _INTL("El Pokémon se volvió débil contra ataques de Fuego.")
           #---------------------------------------------------------------------
+          when :Powder
+            name = GameData::Move.get(:POWDER).name
+            desc = _INTL("El Pokémon recibe daño si usa un movimiento de tipo Fuego.")
+          #---------------------------------------------------------------------
           when :Wish
             name = GameData::Move.get(:WISH).name
             desc = _INTL("El Pokémon en esta posición recuperará PS en el siguiente turno.")
+          #---------------------------------------------------------------------
+          when :HealingWish
+            name = GameData::Move.get(:HEALINGWISH).name
+            desc = _INTL("Cura completamente al Pokémon que entre en esta posición.")
+          #---------------------------------------------------------------------
+          when :LunarDance
+            name = GameData::Move.get(:LUNARDANCE).name
+            desc = _INTL("Cura completamente al Pokémon que entre en esta posición.")
+          #---------------------------------------------------------------------
+          when :Endure
+            name = GameData::Move.get(:ENDURE).name
+            desc = _INTL("El Pokémon sobrevivirá cualquier ataque que reciba con 1 PS.")
+          #---------------------------------------------------------------------
+          when :Substitute
+            name = GameData::Move.get(:SUBSTITUTE).name
+            desc = _INTL("El sustituto del Pokémon recibe cualquier daño al Pokémon.")
+          #---------------------------------------------------------------------
+          when :MagicCoat
+            name = GameData::Move.get(:MAGICCOAT).name
+            desc = _INTL("El Pokémon devuelve cualquier movimiento de estado.")
+          #---------------------------------------------------------------------
+          when :CraftyShield
+            name = GameData::Move.get(:CRAFTYSHIELD).name
+            desc = _INTL("El Pokémon está protegido de cualquier movimiento de estado.")
+          #---------------------------------------------------------------------
+          when :QuickGuard
+            name = GameData::Move.get(:QUICKGUARD).name
+            desc = _INTL("El Pokémon está protegido de cualquier movimiento con prioridad.")
+          #---------------------------------------------------------------------
+          when :WideGuard
+            name = GameData::Move.get(:WIDEGUARD).name
+            desc = _INTL("El Pokémon está protegido de cualquier movimiento en área.")
           #---------------------------------------------------------------------
           when :Foresight
             name = GameData::Move.get(:FORESIGHT).name
@@ -523,6 +610,14 @@ class Battle::Scene
               desc = _INTL("El Pokémon no puede evadir movimientos. Las inmunidades del tipo Siniestro son ignoradas.")
             else
               desc = _INTL("El Pokémon no puede evadir movimientos.")
+            end
+          #---------------------------------------------------------------------
+          when :SmackDown
+            name = GameData::Move.get(:SMACKDOWN).name
+            if battler.pbHasType?(:FLYING)
+              desc = _INTL("El Pokémon está en el suelo y pierde las inmunidades del tipo Volador.")
+            else
+              desc = _INTL("El Pokémon está en el suelo.")
             end
           #---------------------------------------------------------------------
           when :Stockpile
@@ -696,7 +791,7 @@ class Battle::Scene
             desc = _INTL("El Pokémon está atrapado y recibe daño cada turno.")
           #---------------------------------------------------------------------
           when :Toxic
-            name = _INTL("Envenenado gravemente")
+            name = _INTL("Envenenado grav.")
             desc = _INTL("El daño que recibe el Pokémon empeora cada turno.")
           #---------------------------------------------------------------------
           when :Confusion
@@ -712,7 +807,7 @@ class Battle::Scene
             desc = _INTL("La habilidad del Pokémon pierde su efecto.")
           #---------------------------------------------------------------------
           when :FocusEnergy
-            name = _INTL("Probabilidad de crítico aumentada")
+            name = _INTL("Prob. de crít. aum.")
             desc = _INTL("Es más probable que el Pokémon acierte ataques críticos.")
           #---------------------------------------------------------------------
           when :Attract
@@ -723,6 +818,14 @@ class Battle::Scene
           when :MeanLook, :NoRetreat, :JawLock, :Octolock
             name = _INTL("Sin escapatoria")
             desc = _INTL("El Pokémon no puede huir ni ser cambiado.")
+          #---------------------------------------------------------------------
+          when :Protect, :SpikyShield, :BanefulBunker
+            name = _INTL("Protegido complet.")
+            desc = _INTL("El Pokémon está protegido de cualquier daño recibido.")
+          #---------------------------------------------------------------------
+          when :KingsShield, :Obstruct, :SilkTrap, :BurningBulwark, :MatBlock
+            name = _INTL("Protegido del daño")
+            desc = _INTL("El Pokémon está protegido de cualquier daño recibido.")
           #---------------------------------------------------------------------
           when :ZHealing
             name = _INTL("Z-Cura")
@@ -739,7 +842,7 @@ class Battle::Scene
             desc = _INTL("El Pokémon en este puesto será atacado en 2 turnos.")
           #---------------------------------------------------------------------
           when :Syrupy
-            name = _INTL("Velocidad reducida")
+            name = _INTL("Velocidad red.")
             tick = value.to_s
             desc = _INTL("La velocidad del Pokémon es reducida por 3 turnos.")
           #---------------------------------------------------------------------
@@ -769,7 +872,7 @@ class Battle::Scene
             desc = _INTL("El Pokémon recibe daño al final de cada turno.")
           #---------------------------------------------------------------------
           when :Disable
-            name = _INTL("Moviento Deshabilitado")
+            name = _INTL("Moviento Deshab.")
             data = GameData::Move.get(battler.effects[PBEffects::DisableMove]).name
             tick = sprintf("%d/%d", value, 4)
             desc =_INTL("{1} fue deshabilitado y no puede ser usado.", data)
@@ -791,12 +894,43 @@ class Battle::Scene
           #---------------------------------------------------------------------
           when :TwoTurnAttack
             if battler.semiInvulnerable?
-              name = _INTL("Semi-Invulnerable")
+              name = _INTL("Semiinvulnerable")
               desc = _INTL("El Pokémon no puede ser alcanzado por la mayoría de ataques.")
             end
           #---------------------------------------------------------------------
+          when :CheerOffense1
+            name = _INTL("Ánimos Ofensivos 1")
+            tick = sprintf("%d/%d", value, 3)
+            desc = _INTL("Los ataques del Pokémon hacen más daño.")
+          #---------------------------------------------------------------------
+          when :CheerOffense2
+            name = _INTL("Ánimos Ofensivos 2")
+            tick = sprintf("%d/%d", value, 3)
+            desc = _INTL("Los ataques del Pokémon hacen su efecto secundario y golpe crítico.")
+          #---------------------------------------------------------------------
+          when :CheerOffense3
+            name = _INTL("Ánimos Ofensivos 3")
+            tick = sprintf("%d/%d", value, 3)
+            desc = _INTL("Los ataques del Pokémon atraviesan efectos como Protección y Sustituto.")
+          #---------------------------------------------------------------------
+          when :CheerDefense1
+            name = _INTL("Ánimos Defensivos 1")
+            tick = sprintf("%d/%d", value, 3)
+            desc = _INTL("El Pokémon recibe menos daño de los ataques.")
+          #---------------------------------------------------------------------
+          when :CheerDefense2
+            name = _INTL("Ánimos Defensivos 2")
+            tick = sprintf("%d/%d", value, 3)
+            desc = _INTL("El Pokémon es inmune a golpes críticos y efectos secundarios.")
+          #---------------------------------------------------------------------
+          when :CheerDefense3
+            name = _INTL("Ánimos Defensivos 3")
+            tick = sprintf("%d/%d", value, 3)
+            desc = _INTL("El Pokémon resiste cualquier ataque con 1 PS.")
+          #---------------------------------------------------------------------
           else next
           end
+          tick = "--" if type == :counter && value < 0
           display_effects.push([name, tick, desc])
         end
       end

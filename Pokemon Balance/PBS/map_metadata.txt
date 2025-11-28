@@ -1,7 +1,14 @@
 ﻿# Consulta la documentación en la wiki para aprender cómo editar este archivo.
 #-------------------------------
+[012]   # Ruta 3
+Name = Ruta 3
+SnapEdges = true
+#-------------------------------
 [028]   # Ruta 1
 Name = Ruta 1
 Outdoor = true
 ShowArea = true
 SnapEdges = true
+#-------------------------------
+[029]   # Ruta 1[HM7][HMAP0][#60][C2][E]
+Name = Ruta 1

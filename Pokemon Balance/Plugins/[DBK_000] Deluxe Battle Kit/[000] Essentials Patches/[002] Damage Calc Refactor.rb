@@ -125,7 +125,7 @@ class Battle::Move
     when :Electric
       if type == :ELECTRIC
         multipliers[:power_multiplier] *= terrain_multiplier if user.affectedByTerrain?
-      elsif @function_code == "IncreasePowerWhileElectricTerrain"
+      elsif @function_code == "IncreasePowerInElectricTerrain"
         multipliers[:power_multiplier] *= 1.5 if user.affectedByTerrain?
       end
     when :Grassy
@@ -169,7 +169,7 @@ class Battle::Move
       when :FIRE
         multipliers[:final_damage_multiplier] *= 1.5
       when :WATER
-        if @function_code = "IncreasePowerInSunWeather"
+        if @function_code == "IncreasePowerInSunWeather"
           multipliers[:final_damage_multiplier] *= 1.5
         else
           multipliers[:final_damage_multiplier] /= 2
@@ -357,19 +357,18 @@ class Battle::Move
     if damage > 1
       target.stopBoostedHPScaling = true
       return if target.damageState.substitute
-      return if target.damageThreshold == 0
-      thresh = (target.totalhp / target.damageThreshold).round
-      thresh = target.totalhp + thresh if thresh < 0
-      thresh = 1 if thresh <= 0
-      target.hpThreshold = thresh
-      if (target.hp > thresh) && (damage > target.hp - thresh)
-        new_damage = target.hp - thresh
-        new_damage = 0 if new_damage < 0
-      elsif target.hp <= thresh
+      return if !target.damageThreshold
+      thresh = (target.totalhp * (target.damageThreshold / 100.0)).round
+      thresh = 1 if thresh < 1
+      if target.hp > thresh
+        if damage > target.hp - thresh
+          new_damage = target.hp - thresh
+        end
+      else 
         new_damage = 0
       end
       return if !new_damage
-      if damage != new_damage && new_damage >= 0
+      if damage > new_damage && new_damage >= 0
         target.damageState.hpLost       = new_damage
         target.damageState.totalHPLost -= damage
         target.damageState.totalHPLost += new_damage
@@ -396,7 +395,7 @@ class Battle::Move
     bonus = 0
     bonus += critical_hit_bonus
     bonus += user.effects[PBEffects::FocusEnergy]
-    bonus += 1 if @id == :SPACIALREND && user.isSpecies?(:PALKIA) && form == 1
+    bonus += 1 if @id == :SPACIALREND && user.isSpecies?(:PALKIA) && user.form == 1
     bonus += 1 if user.inHyperMode? && @type == :SHADOW
     return bonus
   end
@@ -508,7 +507,7 @@ class Battle::AI::AIMove
     if user.ability_active?
       case user.ability_id
       when :AERILATE, :GALVANIZE, :PIXILATE, :REFRIGERATE
-        multipliers[:power_multiplier] *= 1.2 if type == :NORMAL
+        multipliers[:power_multiplier] *= 1.2 if type == :NORMAL   # NOTE: Not calc_type.
       when :ANALYTIC
         if rough_priority(user) <= 0
           user_faster = false
@@ -589,7 +588,7 @@ class Battle::AI::AIMove
         Battle::ItemEffects.triggerDamageCalcFromUser(
           user.item, user.battler, target.battler, @move, multipliers, base_dmg, calc_type
         )
-        user.effects[PBEffects::GemConsumed] = nil
+        user.effects[PBEffects::GemConsumed] = nil   # Untrigger consuming of Gems
       end
     end
     if target.item_active? && target.item && !target.item.is_berry?
@@ -603,6 +602,9 @@ class Battle::AI::AIMove
   # Calculates damage multipliers from other sources.
   #-----------------------------------------------------------------------------
   def calc_other_mults(user, target, base_dmg, calc_type, is_critical, multipliers)
+    # Me First - n/a because can't predict the move Me First will use
+    # Helping Hand - n/a
+    # Charge
     if @ai.trainer.medium_skill? &&
        user.effects[PBEffects::Charge] > 0 && calc_type == :ELECTRIC
       multipliers[:power_multiplier] *= 2
@@ -638,7 +640,7 @@ class Battle::AI::AIMove
       when :Electric
         if calc_type == :ELECTRIC
           multipliers[:power_multiplier] *= terrain_multiplier if user.battler.affectedByTerrain?
-        elsif function_code == "IncreasePowerWhileElectricTerrain"
+        elsif function_code == "IncreasePowerInElectricTerrain"
           multipliers[:power_multiplier] *= 1.5 if user_battler.affectedByTerrain?
         end
       when :Grassy

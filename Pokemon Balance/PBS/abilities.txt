@@ -58,7 +58,7 @@ Description = Aumenta la precisión de sus movimientos en un 30%. También aumen
 #-------------------------------
 [INSOMNIA]
 Name = Insomnio
-Description = Su resistencia al sueño le impide quedarse dormido. También le impide el uso de Descanso. Si un Pokémon dormido adquiere esta habilidad, se desertará.
+Description = Su resistencia al sueño le impide quedarse dormido. También le impide el uso de Descanso. Si un Pokémon dormido adquiere esta habilidad, se despertará.
 #-------------------------------
 [COLORCHANGE]
 Name = Cambio Color
@@ -70,7 +70,7 @@ Description = Su sistema inmunitario evita el envenenamiento. Si un Pokémon con
 #-------------------------------
 [FLASHFIRE]
 Name = Absorbe Fuego
-Description = Si le alcanza un movimiento de tipo Fuego, éste no le afecta y recupera 1/4 de sus PS máximos. También funciona con movs. de estado.
+Description = Si le alcanza un movimiento de tipo Fuego, éste no le afecta y potencia en un 50% sus ataques de fuego. También funciona con movs. de estado.
 #-------------------------------
 [SHIELDDUST]
 Name = Polvo Escudo

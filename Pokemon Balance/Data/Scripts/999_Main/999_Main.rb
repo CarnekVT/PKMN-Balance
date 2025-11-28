@@ -1,5 +1,5 @@
 module LBDSKY
-  LA_BASE_DE_SKY_VERSION = "1.0.5" # No modificar esto
+  VERSION = "1.2.0" # No modificar esto
 end
 
 class Scene_DebugIntro
@@ -18,7 +18,7 @@ def pbCallTitle
 end
 
 def mainFunction
-  if $DEBUG
+  if true #$DEBUG
     pbCriticalCode { mainFunctionDebug }
   else
     mainFunctionDebug
@@ -56,3 +56,4 @@ loop do
     break
   end
 end
+

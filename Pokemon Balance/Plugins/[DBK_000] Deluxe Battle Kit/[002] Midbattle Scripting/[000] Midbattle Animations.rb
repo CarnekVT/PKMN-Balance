@@ -80,6 +80,7 @@ class Battle::Scene
       speaker = GameData::TrainerType.get(id) if !speaker
       sprite = IconSprite.new(spriteX, spriteY, @viewport)
       sprite.setBitmap("Graphics/Trainers/#{id}")
+      sprite.to_last_frame if defined?(sprite.to_last_frame)
       sprite.ox = sprite.src_rect.width / 2
       sprite.oy = sprite.bitmap.height
     end
@@ -342,6 +343,7 @@ class Battle::Scene
   # Calls an animation for toggling databox visibility for midbattle speech.
   #-----------------------------------------------------------------------------
   def pbToggleDataboxes(toggle = false)
+    pbToggleUIPrompt(toggle) if defined?(pbToggleUIPrompt)
     dataBoxAnim = Animation::ToggleDataBoxes.new(@sprites, @viewport, @battle.battlers, toggle)
     loop do
       dataBoxAnim.update
@@ -390,8 +392,8 @@ class Battle::Scene::Animation::SlideSpriteAppear < Battle::Scene::Animation
       @battle.allOtherSideBattlers.each do |b|
         battler = addSprite(@sprites["pokemon_#{b.index}"], PictureOrigin::BOTTOM)
         shadow = addSprite(@sprites["shadow_#{b.index}"], PictureOrigin::CENTER)
-        battler.moveOpacity(delay, 6, 100)
-        shadow.moveOpacity(delay, 6, 100)
+        #battler.moveOpacity(delay, 6, 100) ## Comentado para que no se ponga translúcido el sprite del Pokémon.
+        #shadow.moveOpacity(delay, 6, 100)
       end
       if @battle.opponent
         @battle.opponent.length.times do |i|
@@ -404,6 +406,9 @@ class Battle::Scene::Animation::SlideSpriteAppear < Battle::Scene::Animation
           @sprites["midbattle_speaker"].ox   = sprite.ox
           @sprites["midbattle_speaker"].oy   = sprite.oy
           @sprites["midbattle_speaker"].visible = true
+          if defined?(@sprites["midbattle_speaker"].to_last_frame)
+            @sprites["midbattle_speaker"].to_last_frame
+          end
           oldTrainer = addSprite(sprite, PictureOrigin::BOTTOM)
           oldTrainer.setVisible(delay, false)
           break
@@ -412,10 +417,10 @@ class Battle::Scene::Animation::SlideSpriteAppear < Battle::Scene::Animation
       slideSprite = addSprite(@sprites["midbattle_speaker"], PictureOrigin::BOTTOM)
       return if @sprites["midbattle_speaker"].visible
       slideSprite.setVisible(delay, true)
-      spriteX, spriteY = @sprites["midbattle_speaker"].x, @sprites["midbattle_speaker"].y
-      spriteX += @sprites["midbattle_speaker"].width / 2 + (Graphics.width / 4)
-      slideSprite.setXY(delay, spriteX, spriteY)
-      slideSprite.setZ(delay, @sprites["pokemon_1"].z + 1)
+      trainerX, trainerY = Battle::Scene.pbTrainerPosition(1)
+      trainerX += 64 + (Graphics.width / 4)
+      slideSprite.setXY(delay, trainerX, trainerY)
+      slideSprite.setZ(delay, @sprites["pokemon_1"].z - 1)
       slideSprite.moveDelta(delay, 8, -Graphics.width / 4, 0)
     end
   end

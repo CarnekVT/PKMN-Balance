@@ -20,16 +20,26 @@ module MidbattleScripts
   # Demo for displaying each of the main triggers and when they activate.
   #-----------------------------------------------------------------------------
   DEMO_SPEECH = {
+    #---------------------------------------------------------------------------
+    # Round phases
     "RoundStartCommand_foe" => "Trigger: 'RoundStartCommand'\n({2}, {1})",
     "RoundStartAttack_foe"  => "Trigger: 'RoundStartAttack'\n({2}, {1})",
     "RoundEnd_foe"          => "Trigger: 'RoundEnd'\n({2}, {1})",
+    #---------------------------------------------------------------------------
+    # Battler turns
     "TurnStart_foe"         => "Trigger: 'TurnStart'\n({2}, {1})",
     "TurnEnd_foe"           => "Trigger: 'TurnEnd'\n({2}, {1})",
+    #---------------------------------------------------------------------------
+    # Item usage
     "BeforeItemUse"         => "Trigger: 'BeforeItemUse'\n({2}, {1})",
     "AfterItemUse"          => "Trigger: 'AfterItemUse'\n({2}, {1})",
+    #---------------------------------------------------------------------------
+    # Wild capture
     "BeforeCapture"         => "Trigger: 'BeforeCapture'\n({2}, {1})",
     "AfterCapture"          => "Trigger: 'AfterCapture'\n({2}, {1})",
     "FailedCapture"         => "Trigger: 'FailedCapture'\n({2}, {1})",
+    #---------------------------------------------------------------------------
+    # Switching
     "BeforeSwitchOut"       => "Trigger: 'BeforeSwitchOut'\n({2}, {1})",
     "BeforeSwitchIn"        => "Trigger: 'BeforeSwitchIn'\n({2}, {1})",
     "BeforeLastSwitchIn"    => "Trigger: 'BeforeLastSwitchIn'\n({2}, {1})",
@@ -37,10 +47,14 @@ module MidbattleScripts
     "AfterLastSwitchIn"     => "Trigger: 'AfterLastSwitchIn'\n({2}, {1})",
     "AfterSendOut"          => "Trigger: 'AfterSendOut'\n({2}, {1})",
     "AfterLastSendOut"      => "Trigger: 'AfterLastSendOut'\n({2}, {1})",
+    #---------------------------------------------------------------------------
+    # Megas & Primals
     "BeforeMegaEvolution"   => "Trigger: 'BeforeMegaEvolution'\n({2}, {1})",
     "AfterMegaEvolution"    => "Trigger: 'AfterMegaEvolution'\n({2}, {1})",
     "BeforePrimalReversion" => "Trigger: 'BeforePrimalReversion'\n({2}, {1})",
     "AfterPrimalReversion"  => "Trigger: 'AfterPrimalReversion'\n({2}, {1})",
+    #---------------------------------------------------------------------------
+    # Move usage
     "BeforeMove"            => "Trigger: 'BeforeMove'\n({2}, {1})",
     "BeforeDamagingMove"    => "Trigger: 'BeforeDamagingMove'\n({2}, {1})",
     "BeforePhysicalMove"    => "Trigger: 'BeforePhysicalMove'\n({2}, {1})",
@@ -51,6 +65,8 @@ module MidbattleScripts
     "AfterPhysicalMove"     => "Trigger: 'AfterPhysicalMove'\n({2}, {1})",
     "AfterSpecialMove"      => "Trigger: 'AfterSpecialMove'\n({2}, {1})",
     "AfterStatusMove"       => "Trigger: 'AfterStatusMove'\n({2}, {1})",
+    #---------------------------------------------------------------------------
+    # Damage results
     "UserDealtDamage"       => "Trigger: 'UserDealtDamage'\n({2}, {1})",
     "UserDamagedSub"        => "Trigger: 'UserDamagedSub'\n({2}, {1})",
     "UserBrokeSub"          => "Trigger: 'UserBrokeSub'\n({2}, {1})",
@@ -75,22 +91,33 @@ module MidbattleScripts
     "TargetHPLow"           => "Trigger: 'TargetHPLow'\n({2}, {1})",
     "LastTargetHPHalf"      => "Trigger: 'LastTargetHPHalf'\n({2}, {1})",
     "LastTargetHPLow"       => "Trigger: 'LastTargetHPLow'\n({2}, {1})",
-    "BattlerFainted"        => "Trigger: 'BattlerFainted'\n({2}, {1})",
-    "LastBattlerFainted"    => "Trigger: 'LastBattlerFainted'\n({2}, {1})",
-    "BattlerReachedHPCap"   => "Trigger: 'BattlerReachedHPCap'\n({2}, {1})",
+    #---------------------------------------------------------------------------
+    # Battler condition
     "BattlerHPRecovered"    => "Trigger: 'BattlerHPRecovered'\n({2}, {1})",
     "BattlerHPFull"         => "Trigger: 'BattlerHPFull'\n({2}, {1})",
     "BattlerHPReduced"      => "Trigger: 'BattlerHPReduced'\n({2}, {1})",
     "BattlerHPCritical"     => "Trigger: 'BattlerHPCritical'\n({2}, {1})",
+    "BattlerFainted"        => "Trigger: 'BattlerFainted'\n({2}, {1})",
+    "LastBattlerFainted"    => "Trigger: 'LastBattlerFainted'\n({2}, {1})",
+    "BattlerReachedHPCap"   => "Trigger: 'BattlerReachedHPCap'\n({2}, {1})",
     "BattlerStatusChange"   => "Trigger: 'BattlerStatusChange'\n({2}, {1})",
+    "BattlerStatusCured"    => "Trigger: 'BattlerStatusCured'\n({2}, {1})",
+    "BattlerConfusionStart" => "Trigger: 'BattlerConfusionStart'\n({2}, {1})",
+    "BattlerConfusionEnd"   => "Trigger: 'BattlerConfusionEnd'\n({2}, {1})",
+    "BattlerAttractStart"   => "Trigger: 'BattlerAttractStart'\n({2}, {1})",
+    "BattlerAttractEnd"     => "Trigger: 'BattlerAttractEnd'\n({2}, {1})",
     "BattlerStatRaised"     => "Trigger: 'BattlerStatRaised'\n({2}, {1})",
     "BattlerStatLowered"    => "Trigger: 'BattlerStatLowered'\n({2}, {1})",
     "BattlerMoveZeroPP"     => "Trigger: 'BattlerMoveZeroPP'\n({2}, {1})",
+    #---------------------------------------------------------------------------
+    # End of effects
     "WeatherEnded"          => "Trigger: 'WeatherEnded'\n({2}, {1})",
     "TerrainEnded"          => "Trigger: 'TerrainEnded'\n({2}, {1})",
     "FieldEffectEnded"      => "Trigger: 'FieldEffectEnded'\n({2}, {1})",
     "TeamEffectEnded"       => "Trigger: 'TeamEffectEnded'\n({2}, {1})",
     "BattlerEffectEnded"    => "Trigger: 'BattlerEffectEnded'\n({2}, {1})",
+    #---------------------------------------------------------------------------
+    # End of battle
     "BattleEnd"             => "Trigger: 'BattleEnd'\n({2}, {1})",
     "BattleEndWin"          => "Trigger: 'BattleEndWin'\n({2}, {1})",
     "BattleEndLoss"         => "Trigger: 'BattleEndLoss'\n({2}, {1})",
@@ -105,25 +132,26 @@ module MidbattleScripts
   # Demo trainer speech when triggering Mega Evolution.
   #-----------------------------------------------------------------------------
   DEMO_MEGA_EVOLUTION = {
-    "BeforeMegaEvolution_foe"           => "C'mon, {1}!\nLet's blow them away with Mega Evolution!",
-    "AfterMegaEvolution_GYARADOS_foe"   => "Behold the serpent of the darkest depths!",
-    "AfterMegaEvolution_GENGAR_foe"     => "Good luck escaping THIS nightmare!",
-    "AfterMegaEvolution_KANGASKHAN_foe" => "Parent and child fight as one!",
-    "AfterMegaEvolution_AERODACTYL_foe" => "Prepare yourself for my prehistoric beast!",
-    "AfterMegaEvolution_FIRE_foe"       => "Maximum firepower!",
-    "AfterMegaEvolution_ELECTRIC_foe"   => "Prepare yourself for a mighty force of nature!",
-    "AfterMegaEvolution_BUG_foe"        => "My mighty insect has emerged from its cacoon!"
+    "BeforeMegaEvolution_foe"           => "¡Vamos, {1}!\n¡Vamos a arrasar con la Megaevolución!",
+    "AfterMegaEvolution_GYARADOS_foe"   => "¡Contempla la serpiente de las profundidades más oscuras!",
+    "AfterMegaEvolution_GENGAR_foe"     => "¡Buena suerte escapando de ESTA pesadilla!",
+    "AfterMegaEvolution_KANGASKHAN_foe" => "¡Padre e hijo luchan como uno solo!",
+    "AfterMegaEvolution_AERODACTYL_foe" => "¡Prepárate para mi bestia prehistórica!",
+    "AfterMegaEvolution_FIRE_foe"       => "¡Fuego máximo!",
+    "AfterMegaEvolution_ELECTRIC_foe"   => "¡Prepárate para una poderosa fuerza de la naturaleza!",
+    "AfterMegaEvolution_BUG_foe"        => "¡Mi poderoso insecto ha emergido de su capullo!"
   }
   
   #-----------------------------------------------------------------------------
   # Demo trainer speech when triggering Primal Reversion.
   #-----------------------------------------------------------------------------
   DEMO_PRIMAL_REVERSION = {
-    "BeforePrimalReversion_foe"        => "Prepare yourself for an ancient force beyond imagination!",
-    "AfterPrimalReversion_KYOGRE_foe"  => "{1}!\nLet the seas burst forth from your mighty presence!",
-    "AfterPrimalReversion_GROUDON_foe" => "{1}!\nLet the ground crack beneath your mighty presence!",
-    "AfterPrimalReversion_WATER_foe"   => "Flood the world with your majesty!",
-    "AfterPrimalReversion_GROUND_foe"  => "Shatter the world with your majesty!"
+    "BeforePrimalReversion_foe"        => "¡Prepárate para una fuerza antigua más allá de la imaginación!",
+    "AfterPrimalReversion_KYOGRE_foe"  => "¡{1}!\n¡Deja que los mares broten de tu poderosa presencia!",
+    "AfterPrimalReversion_GROUDON_foe" => "¡{1}!\n¡Deja que la tierra se resquebraje bajo tu poderosa presencia!",
+    "AfterPrimalReversion_WATER_foe"   => "¡Inunda el mundo con tu majestuosidad!",
+    "AfterPrimalReversion_GROUND_foe"  => "¡Destroza el mundo con tu majestuosidad!"
+
   }
   
   
@@ -146,12 +174,13 @@ module MidbattleScripts
     #---------------------------------------------------------------------------
     # General speech events.
     #---------------------------------------------------------------------------
-    "RoundStartCommand_player"  => "Hey! A wild Pokémon!\nPay attention, now. I'll show you how to capture one of your own!",
-    "BeforeDamagingMove_player" => ["Weakening a Pokémon through battle makes them much easier to catch!",
-                                    "Be careful though - you don't want to knock them out completely!\nYou'll lose your chance if you do!",
-                                    "Let's try dealing some damage.\nGet 'em, {1}!"],
-    "BattlerStatusChange_foe"   => [:Opposing, "It's always a good idea to inflict status conditions like Sleep or Paralysis!",
-                                    "This will really help improve your odds at capturing the Pokémon!"],
+    "RoundStartCommand_player"  => "¡Ey! ¡Un Pokémon salvaje!\n¡Presta atención ahora! Te mostraré cómo capturar uno para ti mismo!",
+    "BeforeDamagingMove_player" => ["¡Debilitar a un Pokémon en batalla los hace mucho más fáciles de atrapar!",
+                                    "¡Pero ten cuidado! ¡No querrás derrotarlos por completo!\n¡Perderás tu oportunidad si lo haces!",
+                                    "Intentemos infligir algo de daño.\n¡Ve por ellos, {1}!"],
+    "BattlerStatusChange_foe"   => [:Opposing, "¡Siempre es una buena idea infligir condiciones de estado como el Sueño o la Parálisis!",
+                                    "¡Esto realmente ayudará a mejorar tus probabilidades de capturar al Pokémon!"],
+
     #---------------------------------------------------------------------------
     # Turn 1 - Uses a status move on the opponent, if possible.
     #---------------------------------------------------------------------------
@@ -166,9 +195,9 @@ module MidbattleScripts
     #---------------------------------------------------------------------------
     "RoundEnd_player_repeat" => {
       "ignoreUntil" => ["TargetTookDamage_foe", "RoundEnd_player_2"],
-      "speech_A"    => "The Pokémon is weak!\nNow's the time to throw a Poké Ball!",
+      "speech_A"    => "¡El Pokémon está débil!\n¡Es el momento de lanzar una Poké Ball!",
       "useItem"     => :POKEBALL,
-      "speech_B"    => "Alright, that's how it's done!"
+      "speech_B"    => "¡Muy bien, así es como se hace!"
     }
   }
   
@@ -185,7 +214,7 @@ module MidbattleScripts
       "text_A"       => "{1} emited a powerful magnetic pulse!",
       "playAnim"     => [:CHARGE, :Self, :Self],
       "playSE"       => "Anim/Paralyze3",
-      "text_B"       => "Your Poké Balls short-circuited!\nThey cannot be used this battle!",
+      "text_B"       => "¡Tus Poké Ball se cortocircuitaron!\n¡No se pueden usar en esta batalla!",
       "disableBalls" => true
     },
     #---------------------------------------------------------------------------
@@ -194,11 +223,12 @@ module MidbattleScripts
     "RoundEnd_foe_repeat" => {
       "ignoreUntil"    => "TargetWeakToMove_foe",
       "playAnim"       => [:NIGHTMARE, :Opposing, :Self],
-      "battlerForm"    => [:Random, "{1} possessed a new appliance!"],
+      "battlerForm"    => [:Random, "¡{1} ha poseído un nuevo electrodoméstico!"],
       "battlerHP"      => 4,
       "battlerStatus"  => :NONE,
       "battlerAbility" => [:MOTORDRIVE, true],
-      "battlerItem"    => [:CELLBATTERY, "{1} equipped a Cell Battery it found in the appliance!"]
+      "battlerItem"    => [:CELLBATTERY, "¡{1} equipó una Batería Celular que encontró en el electrodoméstico!"]
+      
     },
     #---------------------------------------------------------------------------
     # When Rotom's HP drops to 50% or lower, applies Charge, Magnet Rise, and Electric Terrain.
@@ -206,8 +236,8 @@ module MidbattleScripts
     "TargetHPHalf_foe" => {
 	  "playAnim"       => [:CHARGE, :Self, :Self],
       "battlerEffects" => [
-        [:Charge,     5, "{1} began charging power!"],
-        [:MagnetRise, 5, "{1} levitated with electromagnetism!"],
+        [:Charge,     5, "¡{1} comenzó a cargar poder!"],
+        [:MagnetRise, 5, "¡{1} se elevó con electromagnetismo!"],        
       ],
       "changeTerrain"  => :Electric
     },
@@ -215,7 +245,7 @@ module MidbattleScripts
     # Player's Pokemon becomes paralyzed after dealing supereffective damage. 
     #---------------------------------------------------------------------------
     "UserMoveEffective_player_repeat" => {
-      "text"          => [:Opposing, "{1} emited an electrical pulse out of desperation!"],
+      "text" => [:Opposing, "¡{1} emitió un pulso eléctrico por desesperación!"],
       "battlerStatus" => [:PARALYSIS, true]
     }
   }
@@ -238,22 +268,22 @@ module MidbattleScripts
     #---------------------------------------------------------------------------
     "RoundStartCommand_1_foe" => {
       "playSE"  => "Mining collapse",
-      "text_A"  => "The cave ceiling begins to crumble down all around you!",
-      "speech"  => ["I am not letting you escape!", "I don't care if this whole cave collapses down on the both of us...haha!"],
-      "text_B"  => "Defeat your opponent before time runs out!"
+      "text_A"  => "¡El techo de la cueva comienza a derrumbarse a tu alrededor!",
+      "speech"  => ["¡No voy a dejarte escapar!", "¡No me importa si esta cueva se derrumba sobre los dos... jaja!"],
+      "text_B"  => "¡Derrota a tu oponente antes de que se acabe el tiempo!",      
     },
     #---------------------------------------------------------------------------
     # Continuous - Text event at the end of each turn.
     #---------------------------------------------------------------------------
     "RoundEnd_player_repeat" => {
       "playSE" => "Mining collapse",
-      "text"   => "The cave continues to collapse all around you!"
+      "text"   => "¡La cueva sigue derrumbándose a tu alrededor!",
     },
     #---------------------------------------------------------------------------
     # Turn 2 - Player's Pokemon takes damage and becomes confused.
     #---------------------------------------------------------------------------
     "RoundEnd_2_player" => {
-      "text"          => "{1} was struck on the head by a falling rock!",
+      "text"          => "¡{1} fue golpeado en la cabeza por una roca que cayó!",
       "playAnim"      => [:ROCKSMASH, :Opposing, :Self],
       "battlerHP"     => -4,
       "battlerStatus" => :CONFUSED
@@ -262,15 +292,15 @@ module MidbattleScripts
     # Turn 3 - Text event.
     #---------------------------------------------------------------------------
     "RoundEnd_3_player" => {
-      "text" => ["You're running out of time!", "You need to escape immediately!"]
+      "text" => ["¡Te estás quedando sin tiempo!", "¡Necesitas escapar inmediatamente!"],
     },
     #---------------------------------------------------------------------------
     # Turn 4 - Battle prematurely ends in a loss.
     #---------------------------------------------------------------------------
     "RoundEnd_4_player" => {
-      "text_A"    => "You failed to defeat your opponent in time!",
+      "text_A"    => "¡No has logrado derrotar a tu oponente a tiempo!",
       "playAnim"  => ["Recall", :Self],
-      "text_B"    => "You were forced to flee the battle!",
+      "text_B"    => "¡Te has visto obligado a huir de la batalla!",      
       "playSE"    => "Battle flee",
       "endBattle" => 3
     },
@@ -278,17 +308,17 @@ module MidbattleScripts
     # Opponent's final Pokemon is healed and increases its defenses when HP is low.
     #---------------------------------------------------------------------------
     "LastTargetHPLow_foe" => {
-      "speech"       => "My {1} will never give up!",
+      "speech"       => "¡Mi {1} nunca se rendirá!",
       "endSpeech"    => true,
       "playAnim"     => [:BULKUP, :Self],
       "playCry"      => :Self,
-      "battlerHP"    => [2, "{1} is standing its ground!"],
+      "battlerHP"    => [2, "¡{1} está defendiendo su posición!"],
       "battlerStats" => [:DEFENSE, 2, :SPECIAL_DEFENSE, 2]
     },
     #---------------------------------------------------------------------------
     # Speech event upon losing the battle.
     #---------------------------------------------------------------------------
-    "BattleEndForfeit" => "Haha...you'll never make it out alive!"
+    "BattleEndForfeit" => "Ja, ja... ¡nunca saldrás con vida de aquí!",
   }
   
   
@@ -309,48 +339,48 @@ module MidbattleScripts
     # Intro speech event.
     #---------------------------------------------------------------------------
     "RoundStartCommand_1_foe" => {
-      "speech_A" => ["Welcome to another episode of Pokémon Battle Quiz!", 
-                     "The show where trainers must battle with both Pokémon and trivia at the same time!",
-                     "You gain one point each time you answer a question correctly, and a bonus point if you knock out a Pokémon!",
-                     "If you can reach six points within six turns, you win a prize!",
-                     "Is our new challenger up to the task? Let's hear some noise for \\PN!"],
+      "speech_A" => ["¡Bienvenidos a otro episodio de Pokémon Battle Quiz!",
+               "¡El programa donde los entrenadores deben luchar con Pokémon y preguntas al mismo tiempo!",
+               "¡Ganas un punto cada vez que respondes correctamente a una pregunta, y un punto extra si derrotas a un Pokémon!",
+               "¡Si puedes alcanzar seis puntos en seis turnos, ganas un premio!",
+               "¿Está nuestro nuevo retador preparado para la tarea? ¡Hagamos ruido para \\PN!"],
       "playSE"   => "Anim/Applause", 
-      "speech_B" => "Now, \\PN!\nLet us begin!"
+      "speech_B" => "¡Ahora, \\PN!\n¡Comencemos!",
     },
     #---------------------------------------------------------------------------
     # Speech events.
     #---------------------------------------------------------------------------
     "Variable_1" => {
-      "playSE" => "Pkmn move learnt", 
-      "speech" => "You've earned yourself your first point!\nKeep your eye on the prize!",
+      "playSE" => "Pkmn move learnt",
+      "speech" => "¡Te has ganado tu primer punto!\n¡Mantén la vista en el premio!",
     },
     "Variable_2" => {
-      "playSE" => "Pkmn move learnt", 
-      "speech" => "Two points - hey, not bad!\nCan our new challenger keep it going?",
+      "playSE" => "Pkmn move learnt",
+      "speech" => "¡Dos puntos, no está mal!\n¿Podrá nuestro nuevo retador seguir así?",
     },
     "Variable_3" => {
-      "playSE" => "Pkmn move learnt", 
-      "speech" => "You've claimed your third point!\nYou're on fire! Keep it up, kid!",
+      "playSE" => "Pkmn move learnt",
+      "speech" => "¡Has reclamado tu tercer punto!\n¡Estás que ardes! ¡Sigue así, chaval!",
     },
     "Variable_4" => {
-      "playSE" => "Pkmn move learnt", 
-      "speech" => "Four points on the board!\nDo you think you got what it takes to win?",
+      "playSE" => "Pkmn move learnt",
+      "speech" => "¡Cuatro puntos en el marcador!\n¿Crees que tienes lo necesario para ganar?",
     },
     "Variable_5" => {
-      "playSE" => "Pkmn move learnt", 
-      "speech" => "Just one more point to go!\nCan our up-and-coming star clear a perfect game?",
+      "playSE" => "Pkmn move learnt",
+      "speech" => "¡Solo falta un punto más!\n¿Podrá nuestra futura estrella lograr una partida perfecta?",
     },
-    "BattleEndLoss" => "Nice try, kid. On to the next challenger!",
+    "BattleEndLoss" => "Buen intento, chaval. ¡Pasemos al siguiente retador!",
     #---------------------------------------------------------------------------
     # Automatically ends the battle as a win if enough points have been earned.
     #---------------------------------------------------------------------------
     "VariableOver_5" => {
       "playSE_A"  => "Pkmn move learnt",
-      "speech"    => ["Aaaand there we have it, folks! Point number six!",
-                      "Do you know what that means? It looks like we've got a winner!",	  
-                      "Let's hear it for our brand new Battle Quiz-wiz - \\PN!"],
-      "playSE_B"  => "Anim/Applause", 
-      "text"      => "You gracefully bow at the audience to a burst of applause!",
+      "speech"    => ["¡Y ahí lo tienen, gente! ¡El punto número seis!",
+                      "¿Sabes lo que eso significa? ¡Parece que tenemos un ganador!",
+                      "¡Aplausos para nuestro nuevo As de Batalla en el Quiz - \\PN!"],
+      "playSE_B"  => "Anim/Applause",
+      "text"      => "¡Te inclinas graciosamente ante el público y recibes un estallido de aplausos!",
       "endBattle" => 1
     },
     #---------------------------------------------------------------------------
@@ -371,69 +401,70 @@ module MidbattleScripts
     # Turn 1 - Multiple choice question (Region).
     #---------------------------------------------------------------------------
     "RoundEnd_1_foe" => {
-      "playSE"     => "Voltorb Flip gain coins", 
+      "playSE"     => "Voltorb Flip gain coins",
       "setChoices" => [:region, 3, {
-                        "Kalos" => "Ouch, that's a miss, my friend!",
-                        "Johto" => "Close! Well, at least geographically speaking...",
-                        "Kanto" => "Ah, good ol' Kanto!\nWhat a classic! Correct!",
-                        "Galar" => "Unless you're Champion Leon, that's incorrect!\nI'm afraid you're NOT having a champion time!"
+                        "Kalos" => "¡Ay, eso es un fallo, amigo!",
+                        "Johto" => "¡Cerca! Bueno, al menos geográficamente hablando...",
+                        "Kanto" => "¡Ah, el buen Kanto!\n¡Qué clásico! ¡Correcto!",
+                        "Galar" => "¡A menos que seas el Campeón Leon, eso es incorrecto!\n¡Me temo que NO estás teniendo un tiempo de campeón!"
                       }],
-      "speech"     => ["Time for our first question!",
-                       "In which region do new trainers typically have the option to select Charmander as thier first Pokémon?", :Choices]
+      "speech"     => ["¡Hora de nuestra primera pregunta!",
+                      "¿En qué región los nuevos entrenadores suelen tener la opción de seleccionar a Charmander como su primer Pokémon?", :Choices]
     },
     "ChoiceRight_region" => {
       "addVariable"  => 1,
       "playSE"       => "Anim/Applause",
-      "text"         => "The crowd politely applauded for you!",
+      "text"         => "¡La multitud aplaudió cortésmente para ti!",
       "setBattler"   => :Opposing,
       "battlerStats" => [:ACCURACY, 1]
     },
     "ChoiceWrong_region" => {
       "setBattler"     => :Opposing,
       "battlerStats"   => [:ACCURACY, -2],
-      "battlerEffects" => [:NoRetreat, true, "{1} became nervous!\nIt may no longer escape!"]
+      "battlerEffects" => [:NoRetreat, true, "{1} ¡se puso nervioso!\n¡Ya no podrá escapar!"]
     },
     #---------------------------------------------------------------------------
     # Turn 2 - Multiple choice question (Poke Ball).
     #---------------------------------------------------------------------------
     "RoundEnd_2_foe" => {
-      "playSE"     => "Voltorb Flip gain coins", 
+      "playSE"     => "Voltorb Flip gain coins",
       "setChoices" => [:pokeball, 4, {
-                        "Fast Ball"  => "Perhaps you were a little too fast to answer, because I'm afraid that's incorrect!",
-                        "Love Ball"  => "I'm sorry to break your heart, but that's incorrect!", 
-                        "Quick Ball" => "Ah, you're a quick-witted one...\nBut unfortunately, not quite quick enough! You're incorrect!",
-                        "Heavy Ball" => "Not even a Heavy Ball could contain that huge brain of yours! You're correct!"
+                        "Rapid Ball"  => "Quizás fuiste un poco rápido para responder, ¡porque me temo que eso es incorrecto!",
+                        "Amor Ball"  => "Lo siento por romperte el corazón, ¡pero eso es incorrecto!",
+                        "Veloz Ball" => "¡Ah, eres alguien ingenioso...\n¡Pero desafortunadamente, no lo suficientemente rápido! ¡Estás incorrecto!",
+                        "Heavy Ball" => "¡Ni siquiera una Heavy Ball podría contener ese enorme cerebro tuyo! ¡Estás correcto!"
                       }],
-      "speech"     => ["It's time for our second question!",
-                       "Which type of Poké Ball would be most effective if thrown on the first turn at a wild Metagross?", :Choices]
+      "speech"     => ["¡Es hora de nuestra segunda pregunta!",
+                      "¿Qué tipo de Poké Ball sería más efectiva si se lanzara en el primer turno a un Metagross salvaje?", :Choices]
     },
     "ChoiceRight_pokeball" => {
       "addVariable" => 1,
       "playSE"      => "Anim/Applause",
-      "text"        => "The crowd began to root for you to win!",
+      "text"        => "¡La multitud empezó a animarte para que ganaras!",
       "setBattler"  => :Opposing,
-      "teamEffects" => [:LuckyChant, 5, "The Lucky Chant shields {1} from critical hits!"]
+      "teamEffects" => [:LuckyChant, 5, "¡El Canto de la Suerte protege a {1} de los golpes críticos!"]
     },
     "ChoiceWrong_pokeball" => {
       "setBattler"   => :Opposing,
       "battlerMoves" => [:SPLASH, :METRONOME, nil, nil],
-      "text"         => "{1} became embarassed and forgot its moves!"
+      "text"         => "¡{1} se sintió avergonzado y olvidó sus movimientos!"
     },
+
     #---------------------------------------------------------------------------
     # Turn 3 - Branching path question.
     #---------------------------------------------------------------------------
     "RoundEnd_3_foe" => {
       "setChoices" => [:topic, nil, "Battling", "Evolution", "Breeding"],
-      "speech"     => ["Ah, we've made it to our wild card round!",
-                       "This turn, you may choose one of three topics related to Pokémon.",
-                       "Our Quiz-A-Tron 3000 will then generate a stumper of a question related to your chosen topic.",
-                       "This will be a simple yes or no question, but it will be worth two points, so choose wisely!",
-                       "So then, which topic will it be?", :Choices, 
-                       "Interesting choice!", 
-                       "Let's see what our Quiz-A-Tron comes up with!"],
+      "speech"     => ["¡Ah, hemos llegado a nuestra ronda comodín!",
+                      "Esta vez, puedes elegir uno de tres temas relacionados con Pokémon.",
+                      "Nuestro Quiz-A-Tron 3000 generará entonces una pregunta difícil relacionada con el tema que elijas.",
+                      "Esta será una pregunta simple de sí o no, ¡pero valdrá dos puntos, así que elige sabiamente!",
+                      "Entonces, ¿qué tema será?", :Choices,
+                      "¡Elección interesante!",
+                      "Veamos qué nos ofrece nuestro Quiz-A-Tron!"],
       "endSpeech"  => true,
-      "playSE"     => "PC Access", 
-      "text"       => "The Quiz-A-Tron 3000 beeps and whirrs as it prints out a question."
+      "playSE"     => "PC Access",
+      "text"       => "El Quiz-A-Tron 3000 emite pitidos y zumbidos mientras imprime una pregunta."
     },
     #---------------------------------------------------------------------------
     # Branch 1 - Multiple choice question (Battle).
@@ -441,23 +472,23 @@ module MidbattleScripts
     "Choice_topic_1" => {
       "playSE"     => "Voltorb Flip gain coins",
       "setChoices" => [:battling, 2, {
-                        "Yes" => "I'm sorry. I guess not everyone can have a Natural Gift for quizzes...",
-                        "No"  => "Hey, looks like you've got a Natural Gift for this!"
+                        "Sí" => "Lo siento. Supongo que no todos pueden tener un Don Natural para los concursos...",
+                        "No"  => "¡Hey, parece que tienes un Don Natural para esto!"
                       }],
-      "speech"     => ["Question time!",
-                       "Would the move Nature Power become an Ice-type move if the user is holding a Yache Berry?", :Choices]
+      "speech"     => ["¡Hora de la pregunta!",
+                      "¿El movimiento Naturaleza Cambiante se convertiría en un movimiento de tipo Hielo si el usuario tiene equipada una Baya Ziuela?", :Choices]
     },
     "ChoiceRight_battling" => {
       "addVariable"  => 2,
       "playSE"       => "Anim/Applause",
-      "text"         => "The crowd roared with excitement!",
+      "text"         => "¡La multitud rugió de emoción!",
       "setBattler"   => :Opposing,
-      "battlerHP"    => [1, "{1} was energized from the crowd's cheering!"],
+      "battlerHP"    => [1, "{1} ¡se llenó de energía con los vítores de la multitud!"],
       "battlerStats" => [:ATTACK, 1, :SPECIAL_ATTACK, 1]
     },
     "ChoiceWrong_battling" => {
       "setBattler"   => :Opposing,
-      "text"         => "{1} became discouraged by the silence of the crowd...",
+      "text"         => "{1} se desanimó por el silencio de la multitud...",
       "battlerStats" => [:ATTACK, -2, :SPECIAL_ATTACK, -2]
     },
     #---------------------------------------------------------------------------
@@ -466,23 +497,23 @@ module MidbattleScripts
     "Choice_topic_2" => {
       "playSE"     => "Voltorb Flip gain coins",
       "setChoices" => [:evolution, 1, {
-                        "Yes" => "It was critical that you got that question right! Good job!",
-                        "No"  => "Oh no! You should have thought about that one more critically..."
+                        "Sí"  => "¡Era crucial que acertaras esa pregunta! ¡Buen trabajo!",
+                        "No"  => "¡Oh no! Deberías haber pensado esa pregunta de manera más crítica..."
                       }],
-      "speech"     => ["Question time!",
-                       "Would holding a Leek item be directly useful in some way with helping a Galarian Farfetch'd evolve?", :Choices]
+      "speech"     => ["¡Hora de la pregunta!",
+                       "¿Sería útil de alguna manera tener un objeto Puerro para ayudar a evolucionar a un Farfetch'd de Galar?", :Choices]
     },
     "ChoiceRight_evolution" => {
       "addVariable"  => 2,
       "playSE"       => "Anim/Applause",
-      "text"         => "The crowd roared with excitement!",
+      "text"         => "¡La multitud rugió de emoción!",
       "setBattler"   => :Opposing,
-      "battlerHP"    => [1, "{1} was energized from the crowd's cheering!"],
+      "battlerHP"    => [1, "{1} ¡se llenó de energía con los vítores de la multitud!"],
       "battlerStats" => [:SPEED, 1, :EVASION, 1]
     },
     "ChoiceWrong_evolution" => {
       "setBattler"   => :Opposing,
-      "text"         => "{1} became discouraged by the silence of the crowd...",
+      "text"         => "{1} se desanimó por el silencio de la multitud...",
       "battlerStats" => [:SPEED, -2, :EVASION, -2]
     },
     #---------------------------------------------------------------------------
@@ -491,62 +522,62 @@ module MidbattleScripts
     "Choice_topic_3" => {
       "playSE"     => "Voltorb Flip gain coins",
       "setChoices" => [:breeding, 1, {
-                        "Yes" => "Whoa! You Volbeat that question without breaking a sweat!",
-                        "No"  => "Ouch! Looks you got Volbeat by that question..."
+                        "Sí"  => "¡Vaya! ¡Respondiste a esa pregunta sin despeinarte!",
+                        "No"  => "¡Ay! Parece que te dejaste vencer por esa pregunta..."
 	                    }],
-      "speech"     => ["Question time!",
-                       "Is Illumise able to produce eggs of a different species from itself?", :Choices]
+      "speech"     => ["¡Hora de la pregunta!",
+                       "¿Es capaz Illumise de producir huevos de una especie diferente a la suya?", :Choices]
     },
     "ChoiceRight_breeding" => {
       "addVariable"  => 2,
       "playSE"       => "Anim/Applause",
-      "text"         => "The crowd roared with excitement!",
+      "text"         => "¡La multitud rugió de emoción!",
       "setBattler"   => :Opposing,
-      "battlerHP"    => [1, "{1} was energized from the crowd's cheering!"],
+      "battlerHP"    => [1, "¡{1} se llenó de energía con los vítores de la multitud!"],
       "battlerStats" => [:DEFENSE, 1, :SPECIAL_DEFENSE, 1]
     },
     "ChoiceWrong_breeding" => {
       "setBattler"   => :Opposing,
-      "text"         => "{1} became discouraged by the silence of the crowd...",
+      "text"         => "{1} se desanimó por el silencio de la multitud...",
       "battlerStats" => [:DEFENSE, -2, :SPECIAL_DEFENSE, -2]
     },
     #---------------------------------------------------------------------------
     # Turn 4 - Final question. 
     #---------------------------------------------------------------------------
     "RoundEnd_4_foe" => {
-      "speech_A"   => ["I'm afraid we've reached our final round of questions!",
-                       "Can our challenger pull out a win here?\nLet's find out!"],
+      "speech_A"   => ["¡Me temo que hemos llegado a nuestra última ronda de preguntas!",
+                       "¿Podrá nuestro retador ganar aquí?\n¡Vamos a averiguarlo!"],
       "playSE"     => "Voltorb Flip gain coins",
       "setChoices" => [:final, 1, {
-                        "Hold the Ctrl key"      => "Yes, it's Ctrl! You got it!\nHey, you must be a pro at this!",
-                        "Hold the Shift key"     => "Close! Holding Shift will only recompile plugins!\nThe correct key is Ctrl!",
-                        "Hold your face and cry" => "Huh? C'mon now, it's not that hard... Just hold the Ctrl key.",
-                        "Ask someone else how"   => "Well now you won't have to, because the answer is 'Hold the Ctrl key'."
+                        "Pulsa la tecla Cntrl"     => "¡Sí, es Ctrl! ¡Lo has conseguido!\n¡Oye, debes ser un profesional en esto!",
+                        "Pulsa la tecla Shift"     => "¡Cerca! ¡Mantener pulsado Shift solo volverá a compilar los complementos!\n¡La tecla correcta es Ctrl!",
+                        "Sujetar tu cara y llorar" => "¿Eh? Vamos, no es tan difícil... Simplemente mantén pulsada la tecla Ctrl.",
+                        "Preguntarle a alguien"    => "Bueno, ahora no tendrás que hacerlo, porque la respuesta es 'Mantén pulsada la tecla Ctrl'."
                       }],
-      "speech_B"   => ["Here it is, the final question:",
-                       "When loading Pokémon Essentials in Debug mode and the game window is in focus, how do you manually trigger the game to recompile?", :Choices]
-    },
+      "speech_B"   => ["Aquí está, la pregunta final:",
+                      "Cuando cargas Pokémon Essentials en modo Debug y la ventana del juego está en foco, ¿cómo activas manualmente el juego para que se vuelva a compilar?", :Choices]
+   },
     "ChoiceRight_final" => {
       "addVariable" => 1,
       "playSE"      => "Anim/Applause",
-      "text"        => "The crowd gave you a standing ovation!"
+      "text"        => "¡La multitud te ovacionó de pie!"
     },
     "ChoiceWrong_final" => {
-      "text"       => "You can hear disappointed murmurings from the crowd...",
+      "text"       => "Puedes escuchar murmullos decepcionados de la multitud...",
       "setBattler" => :Opposing,
-      "battlerHP"  => [0, "{1} fainted from embarassment..."]
+      "battlerHP"  => [0, "{1} se desmayó de vergüenza..."]
     },
     #---------------------------------------------------------------------------
     # Turn 6 - Ends the battle as a loss if not enough points have been earned.
     #---------------------------------------------------------------------------
     "RoundEnd_6_foe" => {
       "playSE_A"   => "Slots stop",
-      "speech_A"   => ["Oh no! That sound means we've reached the end of our game...",
-                       "Our challenger \\PN showed much promise, but came up a tad short in the end.",
-                       "But we still had fun, didn't we, folks?"], 
-      "playSE_B"   => "Anim/Applause",
-      "speech_B"   => "That's right! Well, that's all for today!\nTake a bow, \\PN! You and your Pokémon fought hard!",
-      "text"       => "You awkwardly bow at the audience as staff begin to direct you off stage...",
+      "speech_A"   => ["¡Oh no! Ese sonido significa que hemos llegado al final de nuestro juego...",
+                       "Nuestro retador \\PN mostró mucho potencial, pero se quedó un poco corto al final.",
+                       "Pero aún así, ¡nos divertimos, ¿verdad, amigos?"], 
+      "playSE_B"   => "Anim/Aplausos",
+      "speech_B"   => "¡Así es! Bueno, ¡eso es todo por hoy!\n¡Haz una reverencia, \\PN! ¡Tú y tus Pokémon lucharon con fuerza!",
+      "text"       => "Te inclinas torpemente ante el público mientras el personal comienza a dirigirte fuera del escenario...",
       "endBattle"  => 2
     }
   }
