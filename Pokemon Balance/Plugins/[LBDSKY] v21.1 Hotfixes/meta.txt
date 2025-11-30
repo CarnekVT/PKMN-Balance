@@ -88,10 +88,13 @@ Credits    = Maruno
 # - Fixed a replacement Pokémon being invisible if its predecessor
 #   fainted and used the same sprite as it.
 #
-# 1.0.9:
+# 1.1.0:
 #
-# - Fixed the previous version of this plugin so it actually works.
-#
+# - Fixed the AI not considering End of Round damage from weather when
+#   deciding whether to switch out.
+# - Fixed the AI not considering whether it can survive a hit from an
+#   opponent that will move after it, and switching out
+#   unnecessarily.
 #=====================================================================
 #
 # Also included in this plugin is an updated copy of townmapgen.html,

@@ -1,5 +1,5 @@
 #===============================================================================
-# [FIX] Parches de Corrección para Widescreen (640x480) - V3 (Aggressive Sort)
+# [FIX] Parches de Corrección para Widescreen (640x480) - V4 (Player Left Fix)
 #===============================================================================
 
 # ------------------------------------------------------------------------------
@@ -14,7 +14,10 @@ class Battle::Scene
       when 1
         return [208, base_y]
       when 2
-        return [[280, base_y + 4], [140, base_y]][idxBattler / 2]
+        # FIX JUGADOR DOBLES: 
+        # Array[0] (Primer Poke): [140, base_y] -> IZQUIERDA (Fondo)
+        # Array[1] (Segundo Poke): [280, base_y + 4] -> DERECHA (Frente)
+        return [[140, base_y], [280, base_y + 4]][idxBattler / 2]
       when 3
         return [[60, base_y], [210, base_y + 4], [360, base_y + 8]][idxBattler / 2]
       end
@@ -25,14 +28,16 @@ class Battle::Scene
       when 1
         return [464, 200]
       when 2
-        # FIX DOBLES: Invertido - Skitty (1) Derecha, Spearow (3) Izquierda
+        # FIX DOBLES ENEMIGO (Tal cual tu código):
+        # Index 1 -> Derecha (520)
+        # Index 3 -> Izquierda (400)
         if idxBattler == 1
           return [520, 204]
         else
           return [400, 200]
         end
       when 3
-        # FIX TRIPLES: Prioridad escalonada
+        # FIX TRIPLES:
         case idxBattler
         when 1 then return [550, 208]  # Derecha
         when 3 then return [440, 204]  # Centro
@@ -57,7 +62,7 @@ class Battle
     targets = gemini_sort_v3_allOtherSideBattlers(*args)
 
     # 2. Si la lista tiene contenido, la ordenamos por índice numérico.
-    # Esto fuerza a que el índice 1 (Izquierda) siempre vaya antes del 3 (Derecha).
+    # Esto fuerza a que el índice 1 siempre vaya antes del 3 en la lista de botones.
     if targets && targets.is_a?(Array) && targets.length > 1
       targets.sort! { |a, b| a.index <=> b.index }
     end

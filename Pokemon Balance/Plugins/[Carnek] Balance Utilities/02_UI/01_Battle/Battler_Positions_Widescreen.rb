@@ -7,14 +7,14 @@
 # ------------------------------------------------------------------------------
 class Battle::Scene
   def self.pbBattlerPosition(idxBattler, sideSize = 1)
-    # LADO DEL JUGADOR
-    if (idxBattler & 1) == 0   
-      base_y = 320 
-      case sideSize
-      when 1 then return [208, base_y]
-      when 2 then return [[280, base_y + 4], [140, base_y]][idxBattler / 2]
-      when 3 then return [[60, base_y], [210, base_y + 4], [360, base_y + 8]][idxBattler / 2]
-      end
+     # LADO DEL JUGADOR
+     if (idxBattler & 1) == 0
+       base_y = 320
+       case sideSize
+       when 1 then return [208, base_y]
+       when 2 then return [[280, base_y], [140, base_y]][idxBattler / 2]
+       when 3 then return [[60, base_y], [210, base_y + 2], [360, base_y + 4]][idxBattler / 2]
+       end
 
     # LADO DEL OPONENTE
     else   
@@ -70,24 +70,32 @@ class Battle::Scene
         # LÓGICA DE CAPAS:
         # El de la DERECHA (Index 1) debe tapar al de la IZQUIERDA (Index 3).
         if sprite_der.z <= sprite_izq.z
-          sprite_der.z = sprite_izq.z + 50
+          sprite_der.z = sprite_izq.z + 5
         end
       end
     end
 
     if @battle && @battle.pbSideSize(0) == 2
 
-      # PARA EL JUGADOR: pokemon_0 derecha, pokemon_2 izquierda
-      sprite_der = @sprites["pokemon_0"]
-      sprite_izq = @sprites["pokemon_2"]
+       # PARA EL JUGADOR: pokemon_0 derecha, pokemon_2 izquierda
+       sprite_der = @sprites["pokemon_0"]
+       sprite_izq = @sprites["pokemon_2"]
 
-      if sprite_der && sprite_izq && !sprite_der.disposed? && !sprite_izq.disposed?
+       if sprite_der && sprite_izq && !sprite_der.disposed? && !sprite_izq.disposed?
 
-        # El de la DERECHA (Index 0) debe tapar al de la IZQUIERDA (Index 2).
-        if sprite_der.z <= sprite_izq.z
-          sprite_der.z = sprite_izq.z + 50
-        end
-      end
-    end
-  end
-end
+         # PARA DAR MENOS PRIORIDAD AL PRIMER BATTLER (Index 0), HACER QUE EL IZQUIERDA (Index 2) TAPE AL DERECHA (Index 0).
+         if sprite_izq.z <= sprite_der.z
+           sprite_izq.z = sprite_der.z + 5
+         end
+       end
+     end
+
+     # PARA BATALLA INDIVIDUAL DEL JUGADOR: BAJAR PRIORIDAD DE pokemon_0 PARA EVITAR SOLAPAMIENTO CON CLIMA
+     if @battle && @battle.pbSideSize(0) == 1
+       sprite_p0 = @sprites["pokemon_0"]
+       if sprite_p0 && !sprite_p0.disposed?
+         sprite_p0.z = 45
+       end
+     end
+   end
+ end

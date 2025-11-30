@@ -1,27 +1,58 @@
 #===============================================================================
-# Battle Popup Messages - Zeigt Effektivität, Kritische Treffer etc. als 
-# Grafiken beim Pokémon an statt in der normalen Textbox
+# Battle Popup Messages - Shows effectiveness, critical hits etc. as
+# graphics on the Pokémon instead of in the normal text box
 #===============================================================================
 
+# Add setting to PokemonSystem
+class PokemonSystem
+  attr_accessor :dynamic_combat
+
+  alias dynamic_initialize initialize
+  def initialize
+    dynamic_initialize
+    @dynamic_combat = 1  # Default to on
+  end
+
+  def dynamic_combat
+    return @dynamic_combat || 1
+  end
+
+  def dynamic_combat=(value)
+    @dynamic_combat = value || 1
+  end
+end
+
+# Add to options menu
+MenuHandlers.add(:options_menu, :dynamic_combat, {
+  "name"        => _INTL("Combate Dinámico"),
+  "order"       => 36,
+  "type"        => EnumOption,
+  "parameters"  => [_INTL("No"), _INTL("Sí")],
+  "description" => _INTL("Activa/desactiva los pop-ups y animaciones dinámicas en combate."),
+  "get_proc"    => proc { next $PokemonSystem.dynamic_combat },
+  "set_proc"    => proc { |value, _scene| $PokemonSystem.dynamic_combat = value }
+})
+
 module BattlePopupMessages
-  # Einstellungen
+  # Settings
   POPUP_DURATION = 30        # Duración del popup en frames (30 = 0.75 segundos a 40fps).
-  FADE_DURATION = 10         # Duración del desvanecimiento.
-  SHOW_EFFECTIVENESS = true  # Zeige Effektivitäts-Grafiken
-  SHOW_CRITICAL = true       # Zeige Kritischer-Treffer-Grafik
-  SHOW_NO_EFFECT = true      # Zeige "Keine Wirkung"-Grafik
-  SHOW_STAT_CHANGES = true   # Zeige Statuswertänderungs-Grafik
+  FADE_DURATION = 15         # Duración del desvanecimiento.
+  # Individual toggles now depend on dynamic_combat setting
+  def self.show_popups?
+    return $PokemonSystem.dynamic_combat == 1
+  end
   
-  # Pfade zu den Grafiken
+  # Paths to the graphics
   GRAPHICS_PATH = "Graphics/UI/Battle/Pop Up/animations/zv-battle-messages/popup-messages/"
   
   GRAPHIC_SUPER_EFFECTIVE = GRAPHICS_PATH + "super-effective"
   GRAPHIC_NOT_EFFECTIVE = GRAPHICS_PATH + "not-very-effective"
   GRAPHIC_CRITICAL = GRAPHICS_PATH + "critical-hit"
   GRAPHIC_NO_EFFECT = GRAPHICS_PATH + "no-effect"
+  GRAPHIC_DODGED = GRAPHICS_PATH + "miss"
   GRAPHIC_STAT_CHANGE = GRAPHICS_PATH + "stat-change"
   
-  # Stat-Abkürzungen (wie im Summary Screen)
+  # Stat abbreviations (like in Summary Screen)
   STAT_NAMES = {
     :ATTACK => "Ataque",
     :DEFENSE => "Defensa",
@@ -34,64 +65,105 @@ module BattlePopupMessages
 end
 
 #===============================================================================
-# Popup Sprite Klasse - Zeigt Grafiken statt Text an
+# Popup Sprite Class - Shows graphics instead of text
 #===============================================================================
 class BattlePopupSprite < Sprite
   attr_accessor :timer
   
-  def initialize(x, y, graphic_path, text_overlay = nil, viewport)
+  def initialize(x, y, graphic_path, viewport, text_overlay = nil, start_delay = 0)
     super(viewport)
     @timer = BattlePopupMessages::POPUP_DURATION
-    @fade_start = BattlePopupMessages::POPUP_DURATION - BattlePopupMessages::FADE_DURATION
+    @fade_start = @timer - BattlePopupMessages::FADE_DURATION
+    @start_delay = start_delay
     
     # --- INICIO DE LA MODIFICACIÓN: Tamaño de popup consistente ---
     # Crear un bitmap base de tamaño fijo para todos los popups.
-    bitmap = Bitmap.new(160, 42) # Ancho y alto fijos para todos los popups.
+    if graphic_path
+      bitmap = Bitmap.new(160, 42) # Ancho y alto fijos para popups con gráfico.
+    else
+      bitmap = Bitmap.new(300, 60) # Ancho y alto para popups de solo texto (daño).
+    end
     begin
-      # Cargar la imagen del cartel y dibujarla centrada en el bitmap base.
-      graphic_bitmap = AnimatedBitmap.new(graphic_path)
-      x_pos = (bitmap.width - graphic_bitmap.width) / 2
-      y_pos = (bitmap.height - graphic_bitmap.height) / 2
-      bitmap.blt(x_pos, y_pos, graphic_bitmap.bitmap, graphic_bitmap.bitmap.rect)
-      graphic_bitmap.dispose
-      
+      if graphic_path
+        # Cargar la imagen del cartel y dibujarla centrada en el bitmap base.
+        graphic_bitmap = AnimatedBitmap.new(graphic_path)
+        x_pos = (bitmap.width - graphic_bitmap.width) / 2
+        y_pos = (bitmap.height - graphic_bitmap.height) / 2
+        bitmap.blt(x_pos, y_pos, graphic_bitmap.bitmap, graphic_bitmap.bitmap.rect)
+        graphic_bitmap.dispose
+      end
+
       # Wenn Text-Overlay vorhanden (für Stat-Changes), zeichne ihn drauf
       if text_overlay
-        pbSetSystemFont(bitmap)
-        bitmap.font.size = 12   # Tamaño de fuente reducido a 12
-        bitmap.font.bold = true # Texto en negrita para mejor legibilidad
-        
-        # Text zentriert zeichnen
-        text_x = 0
-        text_y = (bitmap.height / 2)  # Ajuste vertical para centrar mejor
-        text_width = bitmap.width - 4     # Un poco de margen
-        text_height = 40
-        
-        # Shadow/Outline (schwarz) - für bessere Lesbarkeit
-        [[-1, -1], [-1, 1], [1, -1], [1, 1]].each do |offset|
-          bitmap.font.color = Color.new(0, 0, 0, 255)
-          bitmap.draw_text(text_x + offset[0], text_y + offset[1], text_width, text_height, text_overlay, 1)
+        text = text_overlay.to_s
+        if text_overlay.include?("|")
+          dmg, maxhp = text_overlay.split("|").map(&:to_i)
+          text = dmg.to_s
+          if dmg <= 25
+            main_color = Color.new(100, 100, 100, 255)  # Leve
+          elsif dmg <= 60
+            main_color = Color.new(255, 255, 255, 255)  # Normal
+          elsif dmg <= 120
+            main_color = Color.new(255, 255, 0, 255)    # Fuerte
+          else
+            main_color = Color.new(255, 0, 0, 255)      # Grave
+          end
+        else
+          main_color = Color.new(255, 255, 255, 255)
         end
-        
-        # Haupttext (weiß)
-        bitmap.font.color = Color.new(255, 255, 255, 255)
-        bitmap.draw_text(text_x, text_y, text_width, text_height, text_overlay, 1)
+
+        if graphic_path
+          pbSetSystemFont(bitmap)
+          bitmap.font.size = 12   # Tamaño de fuente reducido a 12
+          bitmap.font.bold = true # Texto en negrita para mejor legibilidad
+          text_x = 0
+          text_y = (bitmap.height / 2)  # Ajuste vertical para centrar mejor
+          text_width = bitmap.width - 4     # Un poco de margen
+          text_height = 40
+        else
+          pbSetSystemFont(bitmap)
+          bitmap.font.size = 32 # Tamaño de fuente para solo texto
+          bitmap.font.bold = true
+          text_x = 0
+          text_y = 0
+          text_width = bitmap.width
+          text_height = bitmap.height
+        end
+
+        # Shadow/Outline (schwarz) - für bessere Lesbarkeit
+        [[-1, -1], [-1, 1], [1, -1], [1, 1], [-1, 0], [1, 0], [0, -1], [0, 1]].each do |offset|
+          bitmap.font.color = Color.new(0, 0, 0, 255)
+          bitmap.draw_text(text_x + offset[0], text_y + offset[1], text_width, text_height, text, 1)
+        end
+
+        # Haupttext
+        bitmap.font.color = main_color
+        bitmap.draw_text(text_x, text_y, text_width, text_height, text, 1)
       end
       
     rescue => e
-      # Fallback: Erstelle einfaches Text-Bitmap wenn Grafik nicht gefunden wird
-      puts "Battle Popup: Grafik nicht gefunden: #{graphic_path}"
+      # Fallback: Create simple text bitmap if graphic not found
+      puts "Battle Popup: Graphic not found: #{graphic_path}"
       puts "Error: #{e.message}"
       pbSetSystemFont(bitmap)
       bitmap.font.color = Color.new(255, 255, 255)
       bitmap.font.size = 20
-      bitmap.draw_text(0, 0, 200, 50, text_overlay || "Grafik fehlt!", 1)
+      bitmap.draw_text(0, 0, 200, 50, text_overlay || "Graphic missing!", 1)
     end
     self.bitmap = bitmap
     # --- FIN DE LA MODIFICACIÓN ---
-    
-    self.zoom_x = 1.5 # Tamaño ajustado a 1.5x
-    self.zoom_y = 1.5 # Tamaño ajustado a 1.5x
+
+    if graphic_path
+      self.zoom_x = 1.5 # Tamaño ajustado a 1.5x
+      self.zoom_y = 1.5 # Tamaño ajustado a 1.5x
+      @timer = BattlePopupMessages::POPUP_DURATION
+      @fade_start = @timer - BattlePopupMessages::FADE_DURATION
+    else
+      self.zoom_x = 1
+      self.zoom_y = 1
+      @timer = 60
+      @fade_start = 50
+    end
     self.x = x
     # --- INICIO DE LA CORRECCIÓN: Centrado Horizontal ---
     self.ox = self.bitmap.width / 2
@@ -99,7 +171,7 @@ class BattlePopupSprite < Sprite
     self.y = y
     self.z = 999
     self.opacity = 255
-    
+
     # Speichere Startposition für Bewegung
     @start_y = y
   end
@@ -107,6 +179,10 @@ class BattlePopupSprite < Sprite
   def update
     return if disposed?
     super
+    if @start_delay > 0
+      @start_delay -= 1
+      return
+    end
     @timer -= 1
     
     # Fade out
@@ -129,7 +205,7 @@ class BattlePopupSprite < Sprite
 end
 
 #===============================================================================
-# Battle Scene Erweiterung
+# Battle Scene Extension
 #===============================================================================
 class Battle::Scene
   alias popup_pbInitSprites pbInitSprites
@@ -138,21 +214,23 @@ class Battle::Scene
     @popupSprites = []
   end
   
-  # Lade transparente Message Box Grafik
+  # Load transparent Message Box graphic only when popups are enabled
   alias popup_pbCreateBackdropSprites pbCreateBackdropSprites
   def pbCreateBackdropSprites
     popup_pbCreateBackdropSprites
-    
-    # Ersetze die Message Box mit transparenter Grafik
-    if @sprites["messageBox"]
-      @sprites["messageBox"].dispose
-      @sprites["messageBox"] = nil
+
+    if BattlePopupMessages.show_popups?
+      # Replace the Message Box with transparent graphic
+      if @sprites["messageBox"]
+        @sprites["messageBox"].dispose
+        @sprites["messageBox"] = nil
+      end
+
+      # Load transparent Message Box
+      transparentMsgBox = pbAddSprite("messageBox", 0, Graphics.height - 96,
+                                       "Graphics/UI/Battle/transparent_message", @viewport)
+      transparentMsgBox.z = 195
     end
-    
-    # Lade transparente Message Box
-    transparentMsgBox = pbAddSprite("messageBox", 0, Graphics.height - 96,
-                                    "Graphics/UI/Battle/transparent_message", @viewport)
-    transparentMsgBox.z = 195
   end
   
   alias popup_pbEndBattle pbEndBattle
@@ -169,91 +247,127 @@ class Battle::Scene
     @popupSprites.delete_if { |sprite| sprite.nil? || sprite.disposed? }
   end
   
-  # Zeigt einen Popup beim Pokémon an (mit Grafik)
-  def pbShowBattlePopup(battlerIndex, graphic_path, text_overlay = nil)
+  # Shows a popup on the Pokémon (with graphic)
+  def pbShowBattlePopup(battlerIndex, graphic_path, text_overlay = nil, start_delay = 0)
     return if !@sprites["pokemon_#{battlerIndex}"]
-    
-    # Position des Pokémon-Sprites (zentriert)
+
+    # Position of the Pokémon sprite (centered)
     pokemonSprite = @sprites["pokemon_#{battlerIndex}"]
-    
-    # Berechne die richtige Position basierend auf dem Sprite
+
+    # Calculate the correct position based on the sprite
     if pokemonSprite && pokemonSprite.bitmap && !pokemonSprite.bitmap.disposed?
-      # X ist die Mitte des Sprites
+      # X is the center of the sprite
       x = pokemonSprite.x
-      # Y ist über dem Sprite (nutze die tatsächliche Bitmap-Höhe)
+      # Y is above the sprite (use the actual bitmap height)
       spriteHeight = pokemonSprite.bitmap.height
       y = pokemonSprite.y - (spriteHeight * 0.8)
     else
-      # Fallback falls kein Sprite vorhanden
+      # Fallback if no sprite present
       x = pokemonSprite.x
       y = pokemonSprite.y - 40
     end
-    
-    # Erstelle Popup
-    popup = BattlePopupSprite.new(x, y, graphic_path, text_overlay, @viewport)
+
+    # Create popup
+    popup = BattlePopupSprite.new(x, y, graphic_path, @viewport, text_overlay, start_delay)
     @popupSprites.push(popup)
   end
-end
 
+end
 #===============================================================================
-# Move Usage Überschreibungen
+# Move Usage Overrides
 #===============================================================================
 class Battle::Move
-  alias popup_pbEffectivenessMessage pbEffectivenessMessage
-  def pbEffectivenessMessage(user, target, numTargets = 1)
-    return if target.damageState.disguise || target.damageState.iceFace
-    
-    # Zeige Popup statt Textbox
-    if Effectiveness.super_effective?(target.damageState.typeMod)
-      @battle.scene.pbShowBattlePopup(target.index, BattlePopupMessages::GRAPHIC_SUPER_EFFECTIVE)
-    elsif Effectiveness.not_very_effective?(target.damageState.typeMod)
-      @battle.scene.pbShowBattlePopup(target.index, BattlePopupMessages::GRAPHIC_NOT_EFFECTIVE)
-    elsif Effectiveness.ineffective?(target.damageState.typeMod)
-      @battle.scene.pbShowBattlePopup(target.index, BattlePopupMessages::GRAPHIC_NO_EFFECT)
-    end
-    # Keine Textbox anzeigen
-  end
-
   alias popup_pbHitEffectivenessMessages pbHitEffectivenessMessages
   def pbHitEffectivenessMessages(user, target, numTargets = 1)
     return if target.damageState.disguise || target.damageState.iceFace
-    
+
+    # Damage Popup
+    if target.damageState.hpLost > 0
+      text = "#{target.damageState.hpLost}|#{target.totalhp}"
+      @battle.scene.pbShowBattlePopup(target.index, nil, text, 0) if BattlePopupMessages.show_popups?
+    end
+  
     # Critical Hit Popup
     if target.damageState.critical
-      @battle.scene.pbShowBattlePopup(target.index, BattlePopupMessages::GRAPHIC_CRITICAL)
+      @battle.scene.pbShowBattlePopup(target.index, BattlePopupMessages::GRAPHIC_CRITICAL, nil, 20) if BattlePopupMessages.show_popups?
     end
-    
+  
     # Effectiveness Popup
-    if Effectiveness.super_effective?(target.damageState.typeMod)
-      @battle.scene.pbShowBattlePopup(target.index, BattlePopupMessages::GRAPHIC_SUPER_EFFECTIVE)
-    elsif Effectiveness.not_very_effective?(target.damageState.typeMod)
-      @battle.scene.pbShowBattlePopup(target.index, BattlePopupMessages::GRAPHIC_NOT_EFFECTIVE)
-    elsif Effectiveness.ineffective?(target.damageState.typeMod)
-      @battle.scene.pbShowBattlePopup(target.index, BattlePopupMessages::GRAPHIC_NO_EFFECT)
+    if target.damageState.hpLost > 0
+      if Effectiveness.super_effective?(target.damageState.typeMod)
+        @battle.scene.pbShowBattlePopup(target.index, BattlePopupMessages::GRAPHIC_SUPER_EFFECTIVE, nil, 5) if BattlePopupMessages.show_popups?
+      elsif Effectiveness.not_very_effective?(target.damageState.typeMod)
+        @battle.scene.pbShowBattlePopup(target.index, BattlePopupMessages::GRAPHIC_NOT_EFFECTIVE, nil, 5) if BattlePopupMessages.show_popups?
+      end
     end
-    # Keine Textbox anzeigen
+    # No text box shown
   end
-end
 
+end
 #===============================================================================
-# Immunität/Keine Wirkung Nachrichten
+# Immunity/No Effect Messages
 #===============================================================================
 class Battle::Battler
-  alias popup_pbMoveImmunityHealingAbility pbMoveImmunityHealingAbility
+  # Este método ya no es necesario, la lógica se centraliza en Battle.pbDisplay
+  # para capturar todos los mensajes de "No afecta".
   def pbMoveImmunityHealingAbility(user, move, moveType, immuneType, show_message)
-    result = popup_pbMoveImmunityHealingAbility(user, move, moveType, immuneType, show_message)
-    
-    if result && BattlePopupMessages::SHOW_NO_EFFECT && show_message
-      # Zeige "Keine Wirkung!" Popup mit Grafik
-      @battle.scene.pbShowBattlePopup(self.index, BattlePopupMessages::GRAPHIC_NO_EFFECT)
-    end
-    
-    return result
+    return super
   end
 end
 
 #===============================================================================
-# Statuswertänderungen anzeigen
+# Silence miss/evade text message and add dodge animation
+#===============================================================================
+class Battle::Move
+  # Usamos "prepend" para asegurarnos de que esta versión se ejecute primero
+  # y no llame a las versiones que muestran texto.
+  def pbMissMessage(user, target)
+    if BattlePopupMessages.show_popups?
+      # Si el ataque falló (por precisión, etc.)
+      @battle.scene.pbShowBattlePopup(target.index, BattlePopupMessages::GRAPHIC_DODGED)
+      # Añadimos la animación de esquive al Pokémon objetivo en cualquier caso de fallo/esquive.
+      @battle.scene.pbDodgeAnimation(target)
+      return true  # Popup shown, suppress text message
+    else
+      return false  # No popup, show text message
+    end
+  end
+end
+
+#===============================================================================
+# Intercepta el mensaje "No afecta a..."
+#===============================================================================
+class Battle
+  alias popup_pbDisplay pbDisplay
+  def pbDisplay(msg, brief = false)
+    # Comprueba si es un mensaje de "No afecta"
+    is_no_effect_msg = msg.is_a?(String) && (msg.include?("doesn't affect") || msg.include?("No afecta a"))
+
+    if is_no_effect_msg && BattlePopupMessages.show_popups?
+      # Busca al objetivo de forma más precisa para evitar confusiones con nombres iguales.
+      # Se busca al Pokémon cuya descripción contextual (`pbThis`) tenga la coincidencia más larga
+      # dentro del mensaje, para evitar ambigüedades con Pokémon de la misma especie.
+      best_match = nil
+      @battlers.each do |b|
+        next if !b || b.fainted?
+        best_match = b if msg.include?(b.pbThis(true)) && (!best_match || b.pbThis(true).length > best_match.pbThis(true).length)
+      end
+      if best_match
+        @scene.pbShowBattlePopup(best_match.index, BattlePopupMessages::GRAPHIC_NO_EFFECT)
+      end
+      return # Suprime el mensaje de texto original SOLO si los popups están activos.
+    end
+    if method(:popup_pbDisplay).arity == 1
+      popup_pbDisplay(msg)
+    else
+      popup_pbDisplay(msg, brief)
+    end
+  end
+
+end
+
+#===============================================================================
+# Show stat changes
 #===============================================================================
 module Battle::Battler::BattlePopupsStatMessages
   def pbRaiseStatStage(*args)
@@ -262,7 +376,7 @@ module Battle::Battler::BattlePopupsStatMessages
     user = args[2]
     showAnim = args[3] || true
     ignoreContrary = args[4] || false
-    if BattlePopupMessages::SHOW_STAT_CHANGES
+    if BattlePopupMessages.show_popups?
       # Replicate the base logic without displaying text messages
       if hasActiveAbility?(:CONTRARY) && !ignoreContrary && !@battle.moldBreaker
         return pbLowerStatStage(*args)
@@ -286,7 +400,7 @@ module Battle::Battler::BattlePopupsStatMessages
     ignoreContrary = args[4] || false
     mirrorArmorSplash = args[5] || 0
     ignoreMirrorArmor = args[6] || false
-    if BattlePopupMessages::SHOW_STAT_CHANGES
+    if BattlePopupMessages.show_popups?
       # Replicate the base logic without displaying text messages
       if !@battle.moldBreaker
         if hasActiveAbility?(:CONTRARY) && !ignoreContrary
@@ -323,99 +437,85 @@ class Battle::Battler
   # Hook für Stat-Erhöhung
   alias popup_pbRaiseStatStageBasic pbRaiseStatStageBasic
   def pbRaiseStatStageBasic(stat, increment, ignoreContrary = false)
-    # Speichere die aktuelle Stage BEVOR die Änderung
+    # Save the current stage BEFORE the change
     old_stage = @stages[stat]
-    
+
     result = popup_pbRaiseStatStageBasic(stat, increment, ignoreContrary)
-    
-    # Berechne die tatsächliche Änderung
+
+    # Calculate the actual change
     actual_change = @stages[stat] - old_stage
-    
-    if actual_change > 0 && BattlePopupMessages::SHOW_STAT_CHANGES
-      # Erstelle Text-Overlay: "Ang +1" oder "Sp.Ang +2" etc.
+
+    if actual_change > 0 && BattlePopupMessages.show_popups?
+      # Create text overlay: "Atk +1" or "Sp.Atk +2" etc.
       stat_name = BattlePopupMessages::STAT_NAMES[stat] || GameData::Stat.get(stat).name
       text = "#{stat_name} +#{actual_change}"
-      
-      # Zeige stat-change.png mit Text-Overlay
+
+      # Show stat-change.png with text overlay
       @battle.scene.pbShowBattlePopup(self.index, BattlePopupMessages::GRAPHIC_STAT_CHANGE, text)
     end
-    
+
     return result
   end
-  
+
   # Hook für Stat-Senkung
   alias popup_pbLowerStatStageBasic pbLowerStatStageBasic
   def pbLowerStatStageBasic(stat, increment, ignoreContrary = false)
-    # Speichere die aktuelle Stage BEVOR die Änderung
+    # Save the current stage BEFORE the change
     old_stage = @stages[stat]
-    
+
     result = popup_pbLowerStatStageBasic(stat, increment, ignoreContrary)
-    
-    # Berechne die tatsächliche Änderung (absoluter Wert)
+
+    # Calculate the actual change (absolute value)
     actual_change = old_stage - @stages[stat]
-    
-    if actual_change > 0 && BattlePopupMessages::SHOW_STAT_CHANGES
-      # Erstelle Text-Overlay: "Ang -1" oder "Init -2" etc.
+
+    if actual_change > 0 && BattlePopupMessages.show_popups?
+      # Create text overlay: "Atk -1" or "Speed -2" etc.
       stat_name = BattlePopupMessages::STAT_NAMES[stat] || GameData::Stat.get(stat).name
       text = "#{stat_name} -#{actual_change}"
-      
-      # Zeige stat-change.png mit Text-Overlay
+
+      # Show stat-change.png with text overlay
       @battle.scene.pbShowBattlePopup(self.index, BattlePopupMessages::GRAPHIC_STAT_CHANGE, text)
     end
-    
+
     return result
   end
+
 end
 
 #===============================================================================
-# Optionale Konfiguration über Debug Menu
+# Optional configuration via Debug Menu
 #===============================================================================
 MenuHandlers.add(:debug_menu, :toggle_battle_popups, {
   "name"        => _INTL("Battle Popup Messages"),
   "parent"      => :deluxe_plugins_menu,
   "description" => _INTL("Turn Battle Popup Messages on/off."),
   "effect"      => proc {
-    if !defined?(BattlePopupMessages::SHOW_EFFECTIVENESS)
+    if !defined?(BattlePopupMessages.show_popups?)
       pbMessage(_INTL("The Battle Popup Messages plugin is not loaded."))
       next
     end
-    
-    cmd = 0
-    loop do
-      cmds = []
-      cmds.push(_INTL("Effektivität: {1}", BattlePopupMessages::SHOW_EFFECTIVENESS ? "AN" : "AUS"))
-      cmds.push(_INTL("Kritische Treffer: {1}", BattlePopupMessages::SHOW_CRITICAL ? "AN" : "AUS"))
-      cmds.push(_INTL("Keine Wirkung: {1}", BattlePopupMessages::SHOW_NO_EFFECT ? "AN" : "AUS"))
-      cmds.push(_INTL("Statuswertänderungen: {1}", BattlePopupMessages::SHOW_STAT_CHANGES ? "AN" : "AUS"))
-      cmds.push(_INTL("Zurück"))
-      
-      cmd = pbMessage(_INTL("Welche Popup-Nachrichten sollen angezeigt werden?"), cmds, -1, nil, cmd)
-      break if cmd < 0 || cmd == cmds.length - 1
-      
-      case cmd
-      when 0
-        BattlePopupMessages.const_set(:SHOW_EFFECTIVENESS, !BattlePopupMessages::SHOW_EFFECTIVENESS)
-      when 1
-        BattlePopupMessages.const_set(:SHOW_CRITICAL, !BattlePopupMessages::SHOW_CRITICAL)
-      when 2
-        BattlePopupMessages.const_set(:SHOW_NO_EFFECT, !BattlePopupMessages::SHOW_NO_EFFECT)
-      when 3
-        BattlePopupMessages.const_set(:SHOW_STAT_CHANGES, !BattlePopupMessages::SHOW_STAT_CHANGES)
-      end
+
+    cmds = []
+    cmds.push(_INTL("Dynamic Combat: {1}", BattlePopupMessages.show_popups? ? "ON" : "OFF"))
+    cmds.push(_INTL("Back"))
+
+    cmd = pbMessage(_INTL("Toggle dynamic combat popups?"), cmds, -1, nil, 0)
+    if cmd == 0
+      $PokemonSystem.dynamic_combat = ($PokemonSystem.dynamic_combat == 1) ? 0 : 1
     end
   }
 })
 
 #===============================================================================
-# Silenciar mensaje de texto de cambio de estadísticas
+# Silence stat change text message
 #===============================================================================
 module Battle::Scene::BattlePopupsSilence
-  # Modificamos el método que muestra el mensaje de texto.
+  # We modify the method that shows the text message.
   def pbDisplayStatChange(battler, stat, change)
-    # Si la opción de mostrar popups de estadísticas está activada, no hacemos nada.
-    # Esto evita que se muestre el mensaje de texto original.
-    return if BattlePopupMessages::SHOW_STAT_CHANGES
-    # Si la opción está desactivada, llamamos al método original para que muestre el texto.
+    # If the option to show stat popups is activated, we do nothing.
+    # This prevents the original text message from being displayed.
+    return if BattlePopupMessages.show_popups?
+    # If the option is disabled, we call the original method to show the text.
     super
   end
 end
@@ -424,19 +524,53 @@ class Battle::Scene
   prepend Battle::Scene::BattlePopupsSilence
 end
 
+
 class Battle::Battler
   prepend Battle::Battler::BattlePopupsStatMessages
 end
 
 #===============================================================================
-# Silenciar mensaje de texto de cambio de estadísticas (Parte 2)
+# Silence miss/evade text message
+#===============================================================================
+class Battle::Scene
+  def pbDodgeAnimation(battler)
+    # Obtiene el sprite del Pokémon
+    pkmnSprite = @sprites["pokemon_#{battler.index}"]
+    return if !pkmnSprite
+
+    # Guardamos la posición original del sprite
+    original_x = pkmnSprite.x
+    original_y = pkmnSprite.y
+
+    # Determinamos la dirección del movimiento basado en el lado del campo
+    # Los Pokémon del jugador (índices pares) se mueven a la derecha.
+    # Los Pokémon del oponente (índices impares) se mueven a la izquierda.
+    movement_x = (battler.index.even?) ? 40 : -40
+
+    # Animación de esquive
+    # El sprite se mueve rápidamente hacia un lado y vuelve.
+    # Puedes ajustar la duración (el número de frames) para cambiar la velocidad.
+    duration = 12 # Duración en frames (más alto = más lento)
+    (duration * 2).times do |i|
+      # Mover hacia el lado en la primera mitad, volver en la segunda.
+      pkmnSprite.x += (i < duration) ? (movement_x.to_f / duration) : -(movement_x.to_f / duration)
+      pbUpdate(nil)
+    end
+
+    # Asegurarse de que el sprite vuelva a su posición original
+    pkmnSprite.x = original_x
+    pkmnSprite.y = original_y
+  end
+end
+#===============================================================================
+# Silence stat change text message (Part 2)
 #===============================================================================
 module Battle::Scene::BattlePopupsSilence
-  # Modificamos el método que muestra el mensaje de texto en la escena.
+  # We modify the method that shows the text message in the scene.
   def pbDisplayStatChange(battler, stat, change)
-    # Si la opción de mostrar popups de estadísticas está activada, no hacemos nada.
-    return if BattlePopupMessages::SHOW_STAT_CHANGES
-    # Si la opción está desactivada, llamamos al método original para que muestre el texto.
+    # If the option to show stat popups is activated, we do nothing.
+    return if BattlePopupMessages.show_popups?
+    # If the option is disabled, we call the original method to show the text.
     super
   end
 end
