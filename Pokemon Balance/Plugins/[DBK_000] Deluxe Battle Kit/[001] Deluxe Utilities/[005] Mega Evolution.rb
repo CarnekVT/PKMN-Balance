@@ -4,7 +4,6 @@
 # included with other battle mechanics added by supported plugins.
 #===============================================================================
 
-
 #-------------------------------------------------------------------------------
 # Game stat tracking for wild Mega battles.
 #-------------------------------------------------------------------------------
@@ -93,24 +92,24 @@ class Battle
     if battler.wild?
       case battler.pokemon.megaMessage
       when 1
-        pbDisplay(_INTL("¡{1} irradia energía!", battler.pbThis))
+        pbDisplay(_INTL("{1} radiates with Mega energy!", battler.pbThis))
       else
-        pbDisplay(_INTL("¡{2} de {2} irradia energía!", battler.pbThis, battler.itemName))
+        pbDisplay(_INTL("{1}'s {2} radiates with Mega energy!", battler.pbThis, battler.itemName))
       end
     else
       trainerName = pbGetOwnerName(idxBattler)
       case battler.pokemon.megaMessage
       when 1
-        pbDisplay(_INTL("¡El deseo ferviente de {1} ha alcanzado a {2}!", trainerName, battler.pbThis))
+        pbDisplay(_INTL("{1}'s fervent wish has reached {2}!", trainerName, battler.pbThis))
       else
-        pbDisplay(_INTL("¡{2} de {1} está reaccionando a {4} de {3}!",
-                        battler.pbThis(true), battler.itemName, trainerName, pbGetMegaRingName(idxBattler)))
+        pbDisplay(_INTL("{1}'s {2} is reacting to {3}'s {4}!",
+                        battler.pbThis, battler.itemName, trainerName, pbGetMegaRingName(idxBattler)))
       end
     end
     pbAnimateMegaEvolution(battler)
     megaName = battler.pokemon.megaName
     megaName = _INTL("Mega {1}", battler.pokemon.speciesName) if nil_or_empty?(megaName)
-    pbDisplay(_INTL("¡{1} ha megaevolucionado en {2}!", battler.pbThis, megaName))
+    pbDisplay(_INTL("{1} has Mega Evolved into {2}!", battler.pbThis, megaName))
     side  = battler.idxOwnSide
     owner = pbGetOwnerIndexFromBattlerIndex(idxBattler)
     @megaEvolution[side][owner] = -2
@@ -125,7 +124,7 @@ class Battle
   end
   
   def pbAnimateMegaEvolution(battler)
-    if @scene.pbCommonAnimationExists?("MegaEvolution") && !Settings::SHOW_MEGA_ANIM
+    if @scene.pbCommonAnimationExists?("MegaEvolution")
       pbCommonAnimation("MegaEvolution", battler)
       battler.pokemon.makeMega
       battler.form_update(true)
@@ -334,7 +333,7 @@ class Battle::Scene::Animation::BattlerMegaEvolve < Battle::Scene::Animation
       #-------------------------------------------------------------------------
       # Mega Ring appears with outline; slide upwards.
       picTRAINER.setSE(delay, "DX Action")
-      arrITEM.each do |p, s|
+      arrITEM.each do |p, s| 
         p.setVisible(delay, true)
         p.moveDelta(delay, 15, 0, -20)
         p.moveOpacity(delay, 15, 255)

@@ -1,45 +1,40 @@
 #===============================================================================
-# Configuraciones.
+# Settings.
 #===============================================================================
 module Settings
   #-----------------------------------------------------------------------------
-  # La cantidad de zoom aplicada a los sprites frontales de todos los Pokémon. (1 para no escalar)
+  # The amount of zoom applied to the front sprites of all Pokemon. (1 for no scaling)
   #-----------------------------------------------------------------------------
   FRONT_BATTLER_SPRITE_SCALE = 2
   
   #-----------------------------------------------------------------------------
-  # La cantidad de zoom aplicada a los sprites traseros de todos los Pokémon. (1 para no escalar)
+  # The amount of zoom applied to the back sprites of all Pokemon. (1 for no scaling)
   #-----------------------------------------------------------------------------
   BACK_BATTLER_SPRITE_SCALE = 3
   
   #-----------------------------------------------------------------------------
-  # El número base de fotogramas que se tarda en cargar cada nuevo fotograma de la animación de un sprite.
-  # Aumenta para que todos los sprites animen más lento. Disminuye para animar más rápido.
+  # The amount of time the game waits before loading each new frame of a sprite's animation.
+  # This value is combined with the species animation speed and converted into 1/1,000th of a second.
+  # Increase to make all sprites animate slower. Decrease to animate faster.
   #-----------------------------------------------------------------------------
-  ANIMATION_FRAME_DELAY = 60
+  ANIMATION_FRAME_DELAY = 90
   
   #-----------------------------------------------------------------------------
-  # Oculta los sprites de sombra del combatiente en el lado del jugador cuando es true.
-  # Esto es false por defecto porque la interfaz de batalla predeterminada los ocultará de todos modos.
+  # Shows battler shadow sprites on the player's side when true.
+  # This is false by default because the default battle UI will block them anyway.
   #-----------------------------------------------------------------------------
-  SHOW_PLAYER_SIDE_SHADOW_SPRITES = true
-
-  #-----------------------------------------------------------------------------
-  # Decide si quieres que la sombra del bando del jugador esté invertida o no.
-  # En caso de que elijas que se invierta, deberás recolocarlas todas desde el editor del juego.
-  #-----------------------------------------------------------------------------
-  INVERTIR_SOMBRA_JUGADOR = false
+  SHOW_PLAYER_SIDE_SHADOW_SPRITES = false
   
   #-----------------------------------------------------------------------------
-  # Cuando es true, los sprites se restringirán en las interfaces de Resumen/Almacenamiento/Pokédex.
+  # When true, sprites will be constricted in the Summary/Storage/Pokedex UI's.
   #-----------------------------------------------------------------------------
   CONSTRICT_POKEMON_SPRITES = true
   
   #-----------------------------------------------------------------------------
-  # Métricas de coordenadas Y para los sprites traseros y frontales de la muñeca de Sustituto, respectivamente.
+  # Y-coordinate metrics for the Substitute doll's back/front sprites, respectively.
   #-----------------------------------------------------------------------------
   SUBSTITUTE_DOLL_METRICS = [87, 60]
-
+  
   #-----------------------------------------------------------------------------
   # Adjustments to the [X, Y] coordinates for species sprites displayed in UI's.
   # This is used for sprites that need additional fine-tuning even after auto-positioning.
@@ -84,7 +79,7 @@ module Settings
     #---------------------------------------------------------------------------
     # Forms
     :CHARIZARD_1   => [16, 0],     # Mega Charizard X
-    :BEEDRILL_1    => [-6, 0],    # Mega Beedrill
+    :BEEDRILL_1    => [-6, 0],     # Mega Beedrill
     :SCEPTILE_1    => [0, 8],      # Mega Sceptile
     :BLAZIKEN_1    => [24, 0],     # Mega Blaziken
     :KYOGRE_1      => [0, -6],     # Primal Kyogre

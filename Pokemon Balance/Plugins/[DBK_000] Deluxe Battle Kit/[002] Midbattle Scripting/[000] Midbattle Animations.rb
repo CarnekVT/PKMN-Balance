@@ -392,8 +392,8 @@ class Battle::Scene::Animation::SlideSpriteAppear < Battle::Scene::Animation
       @battle.allOtherSideBattlers.each do |b|
         battler = addSprite(@sprites["pokemon_#{b.index}"], PictureOrigin::BOTTOM)
         shadow = addSprite(@sprites["shadow_#{b.index}"], PictureOrigin::CENTER)
-        #battler.moveOpacity(delay, 6, 100) ## Comentado para que no se ponga translúcido el sprite del Pokémon.
-        #shadow.moveOpacity(delay, 6, 100)
+        battler.moveOpacity(delay, 6, 100)
+        shadow.moveOpacity(delay, 6, 100)
       end
       if @battle.opponent
         @battle.opponent.length.times do |i|
@@ -420,7 +420,7 @@ class Battle::Scene::Animation::SlideSpriteAppear < Battle::Scene::Animation
       trainerX, trainerY = Battle::Scene.pbTrainerPosition(1)
       trainerX += 64 + (Graphics.width / 4)
       slideSprite.setXY(delay, trainerX, trainerY)
-      slideSprite.setZ(delay, @sprites["pokemon_1"].z - 1)
+      slideSprite.setZ(delay, @sprites["pokemon_1"].z + 1)
       slideSprite.moveDelta(delay, 8, -Graphics.width / 4, 0)
     end
   end

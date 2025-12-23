@@ -108,7 +108,7 @@ class Battle::AI
   # Registers a special action for an AI battler based on its selected move.
   #-----------------------------------------------------------------------------
   def pbRegisterEnemySpecialActionFromMove(user, move_sel); end
-   
+  
   #-----------------------------------------------------------------------------
   # Determines if the AI should use a special command that isn't Switch/Item/Fight.
   #-----------------------------------------------------------------------------
@@ -145,7 +145,7 @@ class Battle::Scene
   # Runs code upon pressing the "ACTION" key while a special action is available.
   #-----------------------------------------------------------------------------
   def pbFightMenu_Action(battler, specialAction, cw)
-	(cw.mode == 1) ? pbPlayActionSE : pbPlayCancelSE
+    (cw.mode == 1) ? pbPlayActionSE : pbPlayCancelSE
     return false if specialAction == :mega
   end
   
@@ -228,6 +228,7 @@ class Battle::Battler
   def hasTera?;        return false; end
   def hasZodiacPower?; return false; end
   def isRivalSpecies?(arg); return false; end
+  def hasRaidShield?;  return false; end
 end
 
 class Battle::FakeBattler

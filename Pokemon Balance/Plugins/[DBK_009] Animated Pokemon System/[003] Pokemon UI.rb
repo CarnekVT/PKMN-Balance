@@ -27,11 +27,11 @@ class PokemonSystem
 end
 
 MenuHandlers.add(:options_menu, :animated_sprites, {
-  "name"        => _INTL("Pokémon Animados"),
+  "name"        => _INTL("Pokémon Animations"),
   "order"       => 35,
   "type"        => EnumOption,
-  "parameters"  => [_INTL("Sí"), _INTL("No")],
-  "description" => _INTL("Elige si quieres que los Pokémon estén animados."),
+  "parameters"  => [_INTL("On"), _INTL("Off")],
+  "description" => _INTL("Choose whether Pokémon sprites should be animated."),
   "get_proc"    => proc { next $PokemonSystem.animated_sprites },
   "set_proc"    => proc { |value, _scene| $PokemonSystem.animated_sprites = value }
 })

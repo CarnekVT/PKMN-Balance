@@ -8,8 +8,8 @@ class Battle::Scene
   def pbToggleBallInfo(idxBattler)
     return false if pbInSafari?
     return false if !@battle.pbCanUsePokeBall?(idxBattler)
+    ballPocket = $bag.get_ball_pocket
     return false if $bag.get_ball_pocket < 0
-    return false if ballPocket < 0
     pbHideInfoUI if @enhancedUIToggle != :ball
     @enhancedUIToggle = (@enhancedUIToggle.nil?) ? :ball : nil
     (@enhancedUIToggle) ? pbSEPlay("GUI party switch") : pbPlayCloseMenuSE
@@ -43,13 +43,13 @@ class Battle::Scene
     imagePos = [[@path + "pokeball_bg", 0, ypos]]
     imagePos.push([@path + "pokeball_desc", 0, ypos - 69]) if showDesc
     textY = (showDesc) ? ypos - 55 : ypos + 14
-    action = (showDesc) ? _INTL("Z: Esconder") : _INTL("Z: Detalles")
+    action = (showDesc) ? _INTL("Z: Hide") : _INTL("Z: Details")
     item = GameData::Item.try_get(items[index][0])
-    name = (item) ? _INTL("{1}", item.name) : _INTL("Volver")
-    desc = (item) ? item.description : _INTL("Volver al menú.")
+    name = (item) ? _INTL("{1}", item.name) : _INTL("Return")
+    desc = (item) ? item.description : _INTL("Return to the command menu.")
     textPos = [
-      [_INTL("C: Usar"), 46, textY, :center, BASE_LIGHT],
-      [action, Graphics.width - 56, textY, :center, BASE_LIGHT],
+      [_INTL("C: Use"), 46, textY, :center, BASE_LIGHT],
+      [action, Graphics.width - 46, textY, :center, BASE_LIGHT],
       [name, Graphics.width / 2, textY, :center, BASE_LIGHT, SHADOW_LIGHT, :outline]
     ]
     ballY = @sprites["messageBox"].y - 25

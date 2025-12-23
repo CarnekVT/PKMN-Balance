@@ -91,11 +91,11 @@ class Battle
     item_data = GameData::Item.get(item)
     itemName = item_data.portion_name
     if pkmn.is_a?(Battle::Battler) && item_data.battle_use < 4
-      pbDisplayBrief(_INTL("{1} usó {2} en {3}.", trainerName, itemName, pkmn.pbThis(true)))
+      pbDisplayBrief(_INTL("{1} used the {2} on {3}.", trainerName, itemName, pkmn.pbThis(true)))
     elsif pkmn.is_a?(Pokemon) && item_data.battle_use < 4
-      pbDisplayBrief(_INTL("{1} usó {2} en {3}.", trainerName, itemName, pkmn.name))
+      pbDisplayBrief(_INTL("{1} used the {2} on {3}.", trainerName, itemName, pkmn.name))
     else
-      pbDisplayBrief(_INTL("{1} usó {2}.", trainerName, itemName))
+      pbDisplayBrief(_INTL("{1} used the {2}.", trainerName, itemName))
     end
   end
 end
@@ -291,7 +291,7 @@ class Battle::Battler
     pbUpdate(true)
     @hp = @totalhp - oldDmg
     @effects[PBEffects::WeightChange] = 0 if Settings::MECHANICS_GENERATION >= 6
-    @mosaicChange = true if defined?(@mosaicChange)
+	self.battlerSprite.prepare_mosaic = true if defined?(self.battlerSprite)
     @battle.scene.pbChangePokemon(self, @pokemon)
     @battle.scene.pbRefreshOne(@index)
     @battle.pbDisplay(msg) if msg && msg != ""
@@ -462,8 +462,8 @@ class TrainerBattle
     gender = (args[0].is_a?(NPCTrainer)) ? args[0].gender : GameData::TrainerType.get(args[0]).gender
     g = (gender == 0) ? "\\b" : (gender == 1) ? "\\r" : ""
     if $player.able_pokemon_count < size
-      pbMessage(_INTL("#{g}No tienes suficientes Pokémon en tu equipo que puedan participar..."))
-      pbMessage(_INTL("#{g}Vuelve cuando tengas suficientes Pokémon para poder participar."))
+      pbMessage(_INTL("#{g}You don't have enough Pokémon in your party that can participate..."))
+      pbMessage(_INTL("#{g}Come back when you have enough Pokémon to battle with."))
       return nil
     else
       new_party = nil
@@ -487,8 +487,8 @@ class TrainerBattle
         $player.party += reserve
         return outcome == 1
       else
-        pbMessage(_INTL("#{g}¿Eh? ¿Has cambiado de opinión?"))
-        pbMessage(_INTL("#{g}Vuelve cuando tengas los Pokémon correctoscon los que quieras participar."))
+        pbMessage(_INTL("#{g}Huh? Changed your mind?"))
+        pbMessage(_INTL("#{g}Come back when you have the right Pokéméon you want to battle with."))
         return nil
       end
     end
@@ -694,7 +694,7 @@ class PokemonEvolutionScene
       moves_to_learn.push(i[1])
     end
     if battler.pbOwnedByPlayer?
-	    pbBGMPlay("Evolution")
+      pbBGMPlay("Evolution")
       @pokemon.ready_to_evolve = false
       was_owned = $player.owned?(@newspecies)
       $player.pokedex.register(@pokemon) 
@@ -712,14 +712,14 @@ class PokemonEvolutionScene
           pbEndScreen(false) if moves_to_learn.length == 0
         end
       end
-	  else
-	    $player.pokedex.set_seen(@newspecies)
+    else
+      $player.pokedex.set_seen(@newspecies)
     end
     moves_to_learn.each do |move|
       if battler.pbOwnedByPlayer?
         pbLearnMove(@pokemon, move, true) { pbUpdate }
-	    else
-	      @pokemon.learn_move(move)
+      else
+        @pokemon.learn_move(move)
       end
     end
     battler.moves.clear

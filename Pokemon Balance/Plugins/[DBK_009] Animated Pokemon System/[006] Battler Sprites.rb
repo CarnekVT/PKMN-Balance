@@ -489,6 +489,18 @@ class Battle::Battler
   end
 end
 
+#-------------------------------------------------------------------------------
+# Safari Zone compatibility.
+#-------------------------------------------------------------------------------
+class Battle::FakeBattler
+  def battlerSprite; return @battle.battlerSprite; end
+  def shadowSprite;  return @battle.shadowSprite;  end
+end
+
+class SafariBattle
+  def battlerSprite; return @scene.sprites["pokemon_1"]; end
+  def shadowSprite;  return @scene.sprites["shadow_1"];  end
+end
 
 ################################################################################
 #
@@ -508,7 +520,7 @@ Battle::AbilityEffects::OnBeingHit.add(:ILLUSION,
     target.effects[PBEffects::Illusion] = nil
     target.battlerSprite.prepare_mosaic = true
     battle.scene.pbChangePokemon(target, target.pokemon)
-    battle.pbDisplay(_INTL("¡La ilusión de {1} desapareció!", target.pbThis(true)))
+    battle.pbDisplay(_INTL("{1}'s illusion wore off!", target.pbThis))
     battle.pbSetSeen(target)
     battle.scene.pbAnimateSubstitute(target, :show, true)
   }
@@ -572,7 +584,7 @@ end
 #-------------------------------------------------------------------------------
 class Battle::Move::TwoTurnAttackInvulnerableInSkyTargetCannotAct < Battle::Move::TwoTurnMove
   def pbAttackingTurnMessage(user, targets)
-    @battle.pbDisplay(_INTL("¡{1} se liberó de Caída Libre!", targets[0].pbThis))
+    @battle.pbDisplay(_INTL("{1} was freed from the Sky Drop!", targets[0].pbThis))
     targets.each do |b|
       next if b.effects[PBEffects::SkyDrop] != user.index
       b.effects[PBEffects::SkyDrop] = -1

@@ -12,7 +12,7 @@ class Game_Temp
     when "nevercapture"      then rules["captureSuccess"]    = false
     when "tutorialcapture"   then rules["captureTutorial"]   = true
     when "autobattle"        then rules["autoBattle"]        = true
-    when "towerbattle"       then rules["internalBattle"]       = false
+    when "towerbattle"       then rules["internalBattle"]    = false
     when "inversebattle"     then rules["inverseBattle"]     = true
     when "nobag"             then rules["noBag"]             = true
     when "wildmegaevolution" then rules["wildBattleMode"]    = :mega
@@ -221,11 +221,8 @@ module Battle::CatchAndStoreMixin
       pkmn.calc_stats
       pkmn.hp = pkmn.hp.clamp(1, pkmn.totalhp)
     end
-    raidBoss = pkmn.immunities.include?(:RAIDBOSS)
     pkmn.immunities = nil
     pkmn.name = nil if pkmn.nicknamed?
-    pbResetRaidProperties(pkmn) if raidBoss
-    return if raidBoss
     if @raidStyleCapture && !@caughtPokemon.empty?
       if Settings::HEAL_STORED_POKEMON
         old_ready_evo = pkmn.ready_to_evolve
@@ -335,12 +332,9 @@ class Battle::Battler
   def pbFaint(showMessage = true)
     if self.canRaidCapture?
       self.hp = 1
-      if defined?(@vanished)
+      if defined?(self.battlerSprite)
         @battle.scene.pbAnimateSubstitute(@index, :hide)
-        @effects[PBEffects::Substitute]    = 0
-        @effects[PBEffects::SkyDrop]       = -1
-        @effects[PBEffects::TwoTurnAttack] = nil
-        @battle.scene.pbChangePokemon(self, self.visiblePokemon, true)
+        @battle.scene.pbChangePokemon(self, self.visiblePokemon, 0)
       end
       raid = @battle.raidStyleCapture
       if raid.is_a?(Hash)
@@ -348,14 +342,14 @@ class Battle::Battler
       else
         pbRaidStyleCapture(self)
       end
-    else
+    else  
       dx_pbFaint(showMessage)
       if @battle.pbAllFainted? && @battle.raidStyleCapture && !@battle.canLose
         @battle.caughtPokemon.clear
       end
     end
   end
-
+  
   alias dx_itemActive? itemActive?
   def itemActive?(ignoreFainted = false)
     return false if @battle.raidCaptureMode
@@ -468,7 +462,7 @@ class Battle
     end
     return dx_pbItemMenu(idxBattler, firstAction)
   end
-
+  
   #-----------------------------------------------------------------------------
   # Aliased for battle_rules["raidStyleCapture"]
   #-----------------------------------------------------------------------------

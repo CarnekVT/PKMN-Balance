@@ -65,7 +65,7 @@ class SpritePositioner
   def pbGetSpriteList
     allspecies = []
     GameData::Species.each do |sp|
-      name = (sp.form == 0) ? sp.name : _INTL("{1} (forma {2})", sp.real_name, sp.form)
+      name = (sp.form == 0) ? sp.name : _INTL("{1} (form {2})", sp.real_name, sp.form)
       if name && !name.empty?
         allspecies.push([sp.id, sp.species, sp.form, name, false])
         next if !sp.has_gendered_sprites?
@@ -75,7 +75,7 @@ class SpritePositioner
     allspecies.sort! { |a, b| a[3] <=> b[3] }
     @allspecies = allspecies
     if @allspecies.empty?
-      pbMessage("No se han encontrado especies.\nCerrando el editor...")
+      pbMessage("No species found.\nClosing editor...")
       pbClose
       return
     end
@@ -173,7 +173,7 @@ class SpritePositioner
   
   def pbAnimationSpeed
     if !@sprites["pokemon_0"].static? && !@sprites["pokemon_1"].static?
-      pbMessage("Esta especie no está usando ningún sprite animado. No se puede cambiar la velocidad de animación.")
+      pbMessage("This species isn't using any animated sprites. Animation speed cannot be edited.")
       return false
     end
     returnToList = false
@@ -181,11 +181,11 @@ class SpritePositioner
     oldval = metrics_data.animation_speed
     cmdvals = [0, 1, 2, 3, 4]
     commands = [
-      _INTL("Quieto"),
-      _INTL("Rápido"),
+      _INTL("Still"),
+      _INTL("Fast"),
       _INTL("Normal"),
-      _INTL("Lento"),
-      _INTL("Muy lento")
+      _INTL("Slow"),
+      _INTL("Slowest")
     ]
     cw = Window_CommandPokemon.new(commands)
     cw.index    = (oldval.is_a?(Array)) ? oldval[0] : 0
@@ -195,7 +195,7 @@ class SpritePositioner
     speed = cmdvals[oldindex]
     foe = commands[metrics_data.front_sprite_speed]
     ally = commands[metrics_data.back_sprite_speed]
-    @sprites["extra_info"].setTextToFit("Animación Aliado = #{ally}\nAnimación Enemigo = #{foe}")
+    @sprites["extra_info"].setTextToFit("Ally Animation = #{ally}\nEnemy Animation = #{foe}")
     @sprites["extra_info"].visible = true
     loop do
       Graphics.update
@@ -220,12 +220,12 @@ class SpritePositioner
       elsif Input.trigger?(Input::USE)
         pbPlayDecisionSE
         cw.visible = false
-        ch = Window_CommandPokemon.new([_INTL("Ambos"), _INTL("Aliado"), _INTL("Enemigo")])
+        ch = Window_CommandPokemon.new([_INTL("Both"), _INTL("Ally"), _INTL("Enemy")])
         ch.x        = Graphics.width - ch.width
         ch.y        = Graphics.height - ch.height
         ch.viewport = @viewport
         oldsel = ch.index
-        @sprites["extra_info"].setTextToFit("Animación Aliado = #{commands[cw.index]}\nAnimación Enemigo = #{commands[cw.index]}")
+        @sprites["extra_info"].setTextToFit("Ally Animation = #{commands[cw.index]}\nEnemy Animation = #{commands[cw.index]}")
         loop do
           Graphics.update
           Input.update
@@ -245,7 +245,7 @@ class SpritePositioner
             end
             foe = commands[metrics_data.front_sprite_speed]
             ally = commands[metrics_data.back_sprite_speed]
-            @sprites["extra_info"].setTextToFit("ANimación Aliado = #{ally}\nAnimación Enemigo = #{foe}")
+            @sprites["extra_info"].setTextToFit("Ally Animation = #{ally}\nEnemy Animation = #{foe}")
             refresh
           end
           if Input.trigger?(Input::BACK)
@@ -266,7 +266,7 @@ class SpritePositioner
         cw.visible = true
         foe = commands[metrics_data.front_sprite_speed]
         ally = commands[metrics_data.back_sprite_speed]
-        @sprites["extra_info"].setTextToFit("ANimación Aliado = #{ally}\nAnimación Enemigo = #{foe}")
+        @sprites["extra_info"].setTextToFit("Ally Animation = #{ally}\nEnemy Animation = #{foe}")
         metrics_data.animation_speed = [speed]
         refresh
       end
@@ -289,7 +289,7 @@ class SpritePositioner
       Graphics.update
       Input.update
       self.update
-      @sprites["info"].setTextToFit("Matiz de Super Shiny = #{hue}")
+      @sprites["info"].setTextToFit("Super Shiny Hue = #{hue}")
       if (Input.repeat?(Input::UP) || Input.repeat?(Input::DOWN))
         hue += (Input.repeat?(Input::DOWN)) ? 1 : -1
         hue = 255 if hue >= 255
@@ -341,7 +341,7 @@ class SpritePositioner
       Graphics.update
       Input.update
       self.update
-      @sprites["info"].setTextToFit("Tamaño Sombra = #{size}")
+      @sprites["info"].setTextToFit("Shadow Size = #{size}")
       if (Input.repeat?(Input::UP) || Input.repeat?(Input::DOWN))
         size += (Input.repeat?(Input::DOWN)) ? -1 : 1
         size = -9 if size < -9
@@ -416,9 +416,9 @@ class SpritePositioner
       Input.update
       self.update
       case param
-      when 0 then @sprites["info"].setTextToFit("Posición Aliado = #{xpos},#{ypos},#{scale}")
-      when 1 then @sprites["info"].setTextToFit("Posición Enemigo = #{xpos},#{ypos},#{scale}")
-      when 2 then @sprites["info"].setTextToFit("Posición Sombra = #{xpos},#{scale},#{ypos}")
+      when 0 then @sprites["info"].setTextToFit("Ally Position = #{xpos},#{ypos},#{scale}")
+      when 1 then @sprites["info"].setTextToFit("Enemy Position = #{xpos},#{ypos},#{scale}")
+      when 2 then @sprites["info"].setTextToFit("Shadow Position = #{xpos},#{scale},#{ypos}")
       end
       if (Input.repeat?(Input::UP) || Input.repeat?(Input::DOWN))
         ypos += (Input.repeat?(Input::DOWN)) ? 1 : -1
@@ -492,12 +492,12 @@ class SpritePositioner
   def pbMenu
     refresh
     cw = Window_CommandPokemon.new(
-      [_INTL("Definir Posición Aliado"),
-       _INTL("Definir Posición Enemigo"),
-       _INTL("Definir Posición Sombra"),
-       _INTL("Definir Velocidad de Anim."),
-       _INTL("Definir Matiz Super Shiny"),
-       _INTL("Auto-Posicionar Sprites")]
+      [_INTL("Set Ally Position"),
+       _INTL("Set Enemy Position"),
+       _INTL("Set Shadow Position"),
+       _INTL("Set Animation Speed"),
+       _INTL("Set Super Shiny Hue"),
+       _INTL("Auto-Position Sprites")]
     )
     cw.x        = Graphics.width - cw.width
     cw.y        = Graphics.height - cw.height
@@ -574,7 +574,7 @@ class SpritePositioner
         pbChangeSpecies(@allspecies[cw.index][1], @allspecies[cw.index][2], @allspecies[cw.index][4], @shiny)
         refresh
       elsif Input.trigger?(Input::ACTION)
-        find_species = pbMessageFreeText("\\ts[]" + _INTL("Busca una especie en específico."), "", false, 100, Graphics.width)
+        find_species = pbMessageFreeText("\\ts[]" + _INTL("Search for a specific species."), "", false, 100, Graphics.width)
         next if nil_or_empty?(find_species)
         next if find_species.downcase == commands[cw.index].downcase
         new_species = false
@@ -588,7 +588,7 @@ class SpritePositioner
           refresh
           break
         end
-        pbMessage("No se han encontrado especies.") if !new_species
+        pbMessage("No species found.") if !new_species
       end
     end
     @oldSpeciesIndex = cw.index
@@ -634,7 +634,7 @@ class DynamaxSpritePositioner < SpritePositioner
 	  next if !sp.dynamax_able?
 	  next if @filter < 0 && !sp.gmax_move
       next if @filter > 0 && sp.generation != @filter
-      name = (sp.form == 0) ? sp.name : _INTL("{1} (forma {2})", sp.real_name, sp.form)
+      name = (sp.form == 0) ? sp.name : _INTL("{1} (form {2})", sp.real_name, sp.form)
       if name && !name.empty?
         allspecies.push([sp.id, sp.species, sp.form, name, false])
         next if !sp.has_gendered_sprites?
@@ -644,7 +644,7 @@ class DynamaxSpritePositioner < SpritePositioner
     allspecies.sort! { |a, b| a[3] <=> b[3] }
     @allspecies = allspecies
     if @allspecies.empty?
-      pbMessage("No se han encontrado especies.\nCerrando el editor...")
+      pbMessage("No species found.\nClosing editor...")
       pbClose
       return
     end
@@ -707,8 +707,8 @@ class DynamaxSpritePositioner < SpritePositioner
         @sprites["shadow_#{i}"].update
         @sprites["shadow_#{i}"].setOffset(PictureOrigin::CENTER)
         @sprites["shadow_#{i}"].x = pos[0]
-        @sprites["shadow_#{i}"].y = pos[1] - (@sprites["shadow_#{i}"].height / 4).round
-        metrics_data.apply_metrics_to_sprite(@sprites["shadow_#{i}"], i, true)
+        @sprites["shadow_#{i}"].y = pos[1] - ((@sprites["shadow_#{i}"].height * 1.5) / 4).round
+        metrics_data.apply_dynamax_metrics_to_sprite(@sprites["shadow_#{i}"], i, true)
       end
       @sprites["shadow_#{i}"].visible = metrics_data.shows_shadow?
     end
@@ -765,8 +765,8 @@ class DynamaxSpritePositioner < SpritePositioner
       Input.update
       self.update
       case param
-      when 0 then @sprites["info"].setTextToFit("Posición Aliado = #{xpos},#{ypos}")
-      when 1 then @sprites["info"].setTextToFit("Posición Enemigo = #{xpos},#{ypos}")
+      when 0 then @sprites["info"].setTextToFit("Ally Position = #{xpos},#{ypos}")
+      when 1 then @sprites["info"].setTextToFit("Enemy Position = #{xpos},#{ypos}")
       end
       if (Input.repeat?(Input::UP) || Input.repeat?(Input::DOWN))
         ypos += (Input.repeat?(Input::DOWN)) ? 1 : -1
@@ -820,9 +820,9 @@ class DynamaxSpritePositioner < SpritePositioner
   def pbMenu
     refresh
     cw = Window_CommandPokemon.new(
-      [_INTL("Definir Posición Aliado"),
-       _INTL("Definir Posición Enemigo"),
-       _INTL("Auto-Posicionar Sprites")]
+      [_INTL("Set Ally Position"),
+       _INTL("Set Enemy Position"),
+       _INTL("Auto-Position Sprites")]
     )
     cw.x        = Graphics.width - cw.width
     cw.y        = Graphics.height - cw.height
@@ -899,7 +899,7 @@ class DynamaxSpritePositioner < SpritePositioner
         pbChangeSpecies(@allspecies[cw.index][1], @allspecies[cw.index][2], @allspecies[cw.index][4], @shiny)
         refresh
       elsif Input.trigger?(Input::ACTION)
-        find_species = pbMessageFreeText("\\ts[]" + _INTL("Buscar una especie en específico."), "", false, 100, Graphics.width)
+        find_species = pbMessageFreeText("\\ts[]" + _INTL("Search for a specific species."), "", false, 100, Graphics.width)
         next if nil_or_empty?(find_species)
         next if find_species.downcase == commands[cw.index].downcase
         new_species = false
@@ -913,7 +913,7 @@ class DynamaxSpritePositioner < SpritePositioner
           refresh
           break
         end
-        pbMessage("No se han encontrado especies.") if !new_species
+        pbMessage("No species found.") if !new_species
       end
     end
     @oldSpeciesIndex = cw.index

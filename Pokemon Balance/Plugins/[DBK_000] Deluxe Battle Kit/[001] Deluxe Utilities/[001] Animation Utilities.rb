@@ -34,7 +34,7 @@ class Battle::Scene
     end
     pbToggleDataboxes(true) if Settings::HIDE_DATABOXES_DURING_MOVES
   end
-
+  
   #-----------------------------------------------------------------------------
   # Used for hiding a single databox.
   #-----------------------------------------------------------------------------
@@ -47,7 +47,7 @@ class Battle::Scene
     end
     dataBoxAnim.dispose
   end
-
+  
   #-----------------------------------------------------------------------------
   # Calls a flee animation for wild Pokemon.
   #-----------------------------------------------------------------------------
@@ -67,7 +67,7 @@ class Battle::Scene
     if msg.is_a?(String)
       @battle.pbDisplayPaused(_INTL("#{msg}", battler.pbThis))
     else
-      @battle.pbDisplayPaused(_INTL("¡{1} huyó!", battler.pbThis))
+      @battle.pbDisplayPaused(_INTL("{1} fled!", battler.pbThis))
     end
   end
  
@@ -112,16 +112,15 @@ class Battle::Scene
   #-----------------------------------------------------------------------------
   # Used for refreshing the entire battle scene with a white flash effect.
   #-----------------------------------------------------------------------------
-  def pbFlashRefresh(flash = true)
+  def pbFlashRefresh
     pbForceEndSpeech
     timer_start = System.uptime
     loop do
       Graphics.update
       pbUpdate
       tone = lerp(0, 255, 0.7, timer_start, System.uptime)
-      @viewport.tone.set(tone, tone, tone, 0) if flash
+      @viewport.tone.set(tone, tone, tone, 0)
       break if tone >= 255
-      break if !flash
     end
     pbRefreshEverything
     timer_start = System.uptime
@@ -129,51 +128,16 @@ class Battle::Scene
       Graphics.update
       pbUpdate
       break if System.uptime - timer_start >= 0.25
-      break if !flash
     end
     timer_start = System.uptime
     loop do
       Graphics.update
       pbUpdate
       tone = lerp(255, 0, 0.4, timer_start, System.uptime)
-      @viewport.tone.set(tone, tone, tone, 0) if flash
+      @viewport.tone.set(tone, tone, tone, 0)
       break if tone <= 0
-      break if !flash
     end
   end
-
-
-  def pbFlashBlackRefresh(flash = true)
-    pbForceEndSpeech
-    timer_start = System.uptime
-    loop do
-      Graphics.update
-      pbUpdate
-      tone = lerp(0, -255, 0.3, timer_start, System.uptime)
-      @viewport.tone.set(tone, tone, tone, 0) if flash
-      break if tone <= -255
-      break if !flash
-    end
-    pbRefreshEverything
-    timer_start = System.uptime
-    loop do
-      Graphics.update
-      pbUpdate
-      break if System.uptime - timer_start >= 0.25
-      break if !flash
-    end
-    timer_start = System.uptime
-    loop do
-      Graphics.update
-      pbUpdate
-      tone = lerp(-255, 0, 0.3, timer_start, System.uptime)
-      @viewport.tone.set(tone, tone, tone, 0) if flash
-      break if tone >= 0
-      break if !flash
-    end
-  end
-
-
   
   #-----------------------------------------------------------------------------
   # Utility for pausing further scene processing for a given number of seconds.
@@ -277,7 +241,7 @@ class Battle::Battler
     if tryFlee && wild? &&
        @battle.rules["alwaysflee"] && @battle.pbCanRun?(@index)
       pbBeginTurn(choice)
-      wild_flee(_INTL("¡{1} huyó del combate!", pbThis))
+      wild_flee(_INTL("{1} fled from battle!", pbThis))
       pbEndTurn(choice)
       return true
     end
@@ -295,9 +259,9 @@ class Battle::Battler
         @battle.pbSwapBattlers(@index, idxOther)
         case @battle.pbSideSize(@index)
         when 2
-          @battle.pbDisplay(_INTL("¡{1} se desplazó!", pbThis))
+          @battle.pbDisplay(_INTL("{1} moved across!", pbThis))
         when 3
-          @battle.pbDisplay(_INTL("¡{1} se movió al centro!", pbThis))
+          @battle.pbDisplay(_INTL("{1} moved to the center!", pbThis))
         end
       end
       pbBeginTurn(choice)
@@ -328,7 +292,7 @@ class SafariBattle
       pkmn = @party2[0]
       pbSetSeen(pkmn)
       @scene.pbStartBattle(self)
-      pbDisplayPaused(_INTL("¡Un {1} salvaje apareció!", pkmn.name))
+      pbDisplayPaused(_INTL("Wild {1} appeared!", pkmn.name))
       @scene.pbSafariStart
       weather_data = GameData::BattleWeather.try_get(@weather)
       @scene.pbCommonAnimation(weather_data.animation) if weather_data
@@ -343,7 +307,7 @@ class SafariBattle
         case cmd
         when 0
           if pbBoxesFull?
-            pbDisplay(_INTL("¡Las cajas están llenas! ¡No puedes capturar más Pokémon!"))
+            pbDisplay(_INTL("The boxes are full! You can't catch any more Pokémon!"))
             next
           end
           @ballCount -= 1
@@ -357,18 +321,18 @@ class SafariBattle
             end
           end
         when 1
-          pbDisplayBrief(_INTL("¡{1} lanzó un poco de cebo a {2}!", self.pbPlayer.name, pkmn.name))
+          pbDisplayBrief(_INTL("{1} threw some bait at the {2}!", self.pbPlayer.name, pkmn.name))
           @scene.pbThrowBait
           catchFactor  /= 2 if pbRandom(100) < 90
           escapeFactor /= 2
         when 2
-          pbDisplayBrief(_INTL("¡{1} lanzó una roca a {2}!", self.pbPlayer.name, pkmn.name))
+          pbDisplayBrief(_INTL("{1} threw a rock at the {2}!", self.pbPlayer.name, pkmn.name))
           @scene.pbThrowRock
           catchFactor  *= 2
           escapeFactor *= 2 if pbRandom(100) < 90
         when 3
           pbSEPlay("Battle flee")
-          pbDisplayPaused(_INTL("¡Escapaste sin problemas!"))
+          pbDisplayPaused(_INTL("You got away safely!"))
           @decision = 3
         else
           next
@@ -378,17 +342,17 @@ class SafariBattle
         if @decision == 0
           if @ballCount <= 0
             pbSEPlay("Safari Zone end")
-            pbDisplay(_INTL("Altavoz: ¡No te quedan Safari Ball! ¡Se acabó!"))
+            pbDisplay(_INTL("PA: You have no Safari Balls left! Game over!"))
             @decision = 2
           elsif pbRandom(100) < 5 * escapeFactor
             @scene.pbBattlerFlee(@battlers[1])
             @decision = 3
           elsif cmd == 1
-            pbDisplay(_INTL("¡{1} está comiendo!", pkmn.name))
+            pbDisplay(_INTL("{1} is eating!", pkmn.name))
           elsif cmd == 2
-            pbDisplay(_INTL("¡{1} está enfadado!", pkmn.name))
+            pbDisplay(_INTL("{1} is angry!", pkmn.name))
           else
-            pbDisplay(_INTL("¡{1} te mira atentamente!", pkmn.name))
+            pbDisplay(_INTL("{1} is watching carefully!", pkmn.name))
           end
           weather_data = GameData::BattleWeather.try_get(@weather)
           @scene.pbCommonAnimation(weather_data.animation) if weather_data
@@ -452,9 +416,9 @@ class Battle::Scene::Animation
         end
         if b.index == idxBattler
           battler.setSE(delay, sound) if sound
-          #battler.moveTone(delay, 4, Tone.new(255, 255, 255, 255))
+          battler.moveTone(delay, 4, Tone.new(255, 255, 255, 255))
         else
-          #battler.moveTone(delay, 4, tone)
+          battler.moveTone(delay, 4, tone)
         end
       end
       if @sprites["dataBox_#{b.index}"].visible
@@ -545,8 +509,7 @@ class Battle::Scene::Animation
     pictureBASES.push(base)
     return [pictureBASES, @pictureSprites[sprite].bitmap.width]
   end
-
-
+  
   #-----------------------------------------------------------------------------
   # Sets up a trainer sprite along with an item sprite to be 'used'.
   #-----------------------------------------------------------------------------
@@ -590,7 +553,6 @@ class Battle::Scene::Animation
     end
     return [pictureTRAINER, pictureITEM]
   end
-
   
   #-----------------------------------------------------------------------------
   # Sets a Pokemon sprite.
@@ -662,7 +624,6 @@ class Battle::Scene::Animation
     sprite.setPokemonBitmap(pkmn)
   end
   
-  
   #-----------------------------------------------------------------------------
   # Sets a sprite.
   #-----------------------------------------------------------------------------
@@ -683,7 +644,7 @@ class Battle::Scene::Animation
   def dxSetSpriteWithOutline(file, delay, xpos, ypos, color = Color.white)
     pictureSPRITE = []
     if file && pbResolveBitmap(file)
-      for i in [ [2, 0],  [-2, 0], [0, 2],  [0, -2], [2, 2],  [-2, -2], [2, -2], [-2, 2], [0, 0] ]
+      for i in [ [2, 0], [-2, 0], [0, 2], [0, -2], [2, 2], [-2, -2], [2, -2], [-2, 2], [0, 0] ]
         outline = addNewSprite(0, 0, file, PictureOrigin::BOTTOM)
         outline.setVisible(delay, false)
         sprite = @pictureEx.length - 1
@@ -706,7 +667,7 @@ class Battle::Scene::Animation
   def dxSetTitleWithOutline(file, delay, upper = false, color = Color.white)
     pictureTITLE = []
     if file && pbResolveBitmap(file)
-      for i in [ [2, 0],  [-2, 0], [0, 2],  [0, -2], [2, 2],  [-2, -2], [2, -2], [-2, 2], [0, 0] ]
+      for i in [ [2, 0], [-2, 0], [0, 2], [0, -2], [2, 2], [-2, -2], [2, -2], [-2, 2], [0, 0] ]
         outline = addNewSprite(0, 0, file, PictureOrigin::CENTER)
         outline.setVisible(delay, false)
         sprite = @pictureEx.length - 1

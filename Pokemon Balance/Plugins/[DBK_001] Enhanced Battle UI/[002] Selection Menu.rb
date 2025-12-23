@@ -88,7 +88,7 @@ class Battle::Scene
           imagePos.push([@path + "info_owner", bgX + 36, iconY + 12, 0, 0, 128, 20],
                         [@path + "info_gender", bgX + 148, iconY - 34, b.gender * 22, 0, 22, 22])
           textPos.push([_INTL("{1}", b.pokemon.name), nameX, iconY - 16, :center, base, shadow],
-                        [@battle.pbGetOwnerFromBattlerIndex(b.index).name, nameX - 10, iconY + 14, 2, BASE_LIGHT, SHADOW_LIGHT])
+                       [@battle.pbGetOwnerFromBattlerIndex(b.index).name, nameX - 10, iconY + 14, 2, BASE_LIGHT, SHADOW_LIGHT])
         end
         @battle.player.each_with_index { |t, i| trainers.push([t, i]) if t.able_pokemon_count > 0 }
         ballY = ypos + 154

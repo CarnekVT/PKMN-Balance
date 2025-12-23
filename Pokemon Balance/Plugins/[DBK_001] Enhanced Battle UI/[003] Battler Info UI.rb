@@ -117,8 +117,8 @@ class Battle::Scene
     textPos  = [
       [_INTL("{1}", poke.name), iconX + 82, iconY - 20, :center, BASE_DARK, SHADOW_DARK],
       [_INTL("{1}", level), xpos + 38, ypos + 104, :left, BASE_LIGHT, SHADOW_LIGHT],
-      [_INTL("Usó: {1}", movename), xpos + 349, ypos + 104, :center, BASE_LIGHT, SHADOW_LIGHT],
-      [_INTL("Turno {1}", @battle.turnCount + 1), Graphics.width - xpos - 32, ypos + 8, :center, BASE_DARK, SHADOW_DARK]
+      [_INTL("Used: {1}", movename), xpos + 349, ypos + 104, :center, BASE_LIGHT, SHADOW_LIGHT],
+      [_INTL("Turn {1}", @battle.turnCount + 1), Graphics.width - xpos - 32, ypos + 8, :center, BASE_DARK, SHADOW_DARK]
     ]
     #---------------------------------------------------------------------------
     # Battler icon.
@@ -159,8 +159,8 @@ class Battle::Scene
         [@path + "info_cursor", panelX, 86, 0, 0, 218, 26]
       )
       textPos.push(
-        [_INTL("Hab."), xpos + 272, ypos + 44, :center, BASE_LIGHT, SHADOW_LIGHT],
-        [_INTL("Obj."), xpos + 272, ypos + 68, :center, BASE_LIGHT, SHADOW_LIGHT],
+        [_INTL("Abil."), xpos + 272, ypos + 44, :center, BASE_LIGHT, SHADOW_LIGHT],
+        [_INTL("Item"), xpos + 272, ypos + 68, :center, BASE_LIGHT, SHADOW_LIGHT],
         [_INTL("{1}", battler.abilityName), xpos + 376, ypos + 44, :center, BASE_DARK, SHADOW_DARK],
         [_INTL("{1}", battler.itemName), xpos + 376, ypos + 68, :center, BASE_DARK, SHADOW_DARK],
         [sprintf("%d/%d", battler.hp, battler.totalhp), iconX + 74, iconY + 12, :center, BASE_LIGHT, SHADOW_LIGHT]
@@ -221,14 +221,14 @@ class Battle::Scene
   # Draws the battler's stats and stat stages.
   #-----------------------------------------------------------------------------
   def pbAddStatsDisplay(xpos, ypos, battler, imagePos, textPos)
-    [[:ATTACK,          _INTL("Ataque")],
-     [:DEFENSE,         _INTL("Defensa")], 
-     [:SPECIAL_ATTACK,  _INTL("At. Esp.")], 
-     [:SPECIAL_DEFENSE, _INTL("Def. Esp.")], 
-     [:SPEED,           _INTL("Velocidad")], 
-     [:ACCURACY,        _INTL("Precisión")], 
-     [:EVASION,         _INTL("Evasión")],
-     _INTL("Críticos")
+    [[:ATTACK,          _INTL("Attack")],
+     [:DEFENSE,         _INTL("Defense")], 
+     [:SPECIAL_ATTACK,  _INTL("Sp. Atk")], 
+     [:SPECIAL_DEFENSE, _INTL("Sp. Def")], 
+     [:SPEED,           _INTL("Speed")], 
+     [:ACCURACY,        _INTL("Accuracy")], 
+     [:EVASION,         _INTL("Evasion")],
+     _INTL("Crit. Hit")
     ].each_with_index do |stat, i|
       if stat.is_a?(Array)
         color = SHADOW_LIGHT
@@ -374,7 +374,7 @@ class Battle::Scene
     pbDrawImagePositions(@enhancedUIOverlay, imagePos)
     pbDrawTextPositions(@enhancedUIOverlay, textPos)
     desc = effects[idxEffect][2]
-    drawFormattedTextEx(@enhancedUIOverlay, xpos + 246, ypos + 266, 208, desc, BASE_DARK, SHADOW_DARK, 18)
+    drawFormattedTextEx(@enhancedUIOverlay, xpos + 246, ypos + 266, 210, desc, BASE_DARK, SHADOW_DARK, 18)
   end
   
   #-----------------------------------------------------------------------------
@@ -389,51 +389,86 @@ class Battle::Scene
       display_effects.push([_INTL("Damage Gate"), "--", desc])
     end
     #---------------------------------------------------------------------------
+    # Raid battle shields.
+    if battler.hasRaidShield?
+      desc = _INTL("The Pokémon is immune to status moves and takes less damage.")
+      tick = sprintf("%d/%d", battler.shieldHP, @battle.raidRules[:shield_hp])
+      display_effects.push([_INTL("Raid Shield"), tick, desc])
+    end
+    #---------------------------------------------------------------------------
     # Special states.
-    if battler.dynamax?
+    if battler.mega?
+      desc = _INTL("The Pokémon is in its Mega Evolved form.")
+      display_effects.push([_INTL("Mega Evolution"), "--", desc])
+    elsif battler.primal?
+      desc = _INTL("The Pokémon is in its Primal form.")
+      display_effects.push([_INTL("Primal Reversion"), "--", desc])
+    elsif battler.ultra?
+      desc = _INTL("The Pokémon is in its Ultra form.")
+      display_effects.push([_INTL("Ultra Burst"), "--", desc])
+    elsif battler.dynamax?
       if battler.effects[PBEffects::Dynamax] > 0 && !battler.isRaidBoss?
         tick = sprintf("%d/%d", battler.effects[PBEffects::Dynamax], Settings::DYNAMAX_TURNS)
       else
         tick = "--"
       end
-      desc = _INTL("El Pokémon está en estado Dynamax.")
+      desc = _INTL("The Pokémon is in the Dynamax state.")
       display_effects.push([_INTL("Dynamax"), tick, desc])
     elsif battler.tera?
       data = GameData::Type.get(battler.tera_type).name
-      desc = _INTL("El Pokémon está Teracristalizado al tipo {1}.", data)
-      display_effects.push([_INTL("Teracristalización"), "", desc])
+      desc = _INTL("The Pokémon is Terastallized into the {1} type.", data)
+      display_effects.push([_INTL("Terastallization"), "--", desc])
     end
     #---------------------------------------------------------------------------
     # Weather
-    weather = battler.effectiveWeather
-    if weather != :None
-      if weather == :Hail
-        if defined?(Settings::HAIL_WEATHER_TYPE) && Settings::HAIL_WEATHER_TYPE > 0
-          case Settings::HAIL_WEATHER_TYPE
-          when 1
-            name = _INTL("Nevada")
-            desc = _INTL("Sube la defensa de los Pokémon tipo Hielo. Ventisca siempre acierta.")
-          when 2
-            name = _INTL("Granizo y Nieve")
-            desc = _INTL("Combina los efectos de Granizo y Nieve.")
-          end
+    weather = (battler.pbOwnedByPlayer?) ? battler.effectiveWeather : @battle.field.weather
+    weather_data = GameData::BattleWeather.try_get(weather)
+    if !weather_data.nil? && weather_data.id != :None
+      id = weather_data.id
+      name = weather_data.name
+      if defined?(Settings::HAIL_WEATHER_TYPE) && id == :Hail
+        case Settings::HAIL_WEATHER_TYPE
+        when 1 then id = :Snow;      name = _INTL("Snow")
+        when 2 then id = :Hailstorm; name = _INTL("Hailstorm")
+        end
+      end
+      case id
+      when :Sun         then desc = _INTL("Fire type moves deal 50% more damage. Halves Water move damage.")
+      when :HarshSun    then desc = _INTL("Fire type moves deal 50% more damage. Negates Water type moves.")
+      when :Rain        then desc = _INTL("Water type moves deal 50% more damage. Halves Fire move damage.")
+      when :HeavyRain   then desc = _INTL("Water type moves deal 50% more damage. Negates Fire type moves.")
+      when :StrongWinds then desc = _INTL("All Flying-type weaknesses are suppressed.")
+      when :Hailstorm   then desc = _INTL("The combined effects of both Hail and Snow.")
+      when :Sandstorm
+        if battler.pbOwnedByPlayer? && battler.pbHasType?(:ROCK)
+          desc = _INTL("Boosts the Sp. Defense stat of the Pokémon by 50%.")
+        elsif battler.pbOwnedByPlayer? && battler.takesSandstormDamage?
+          desc = _INTL("The Pokémon loses {1} HP each turn.", (battler.real_totalhp / 16).floor)
         else
-          name = GameData::BattleWeather.get(weather).name
-          desc = _INTL("Los Pokémon que no sean de tipo Hielo reciben daño cada turno. Ventisca siempre acierta.")
+          desc = _INTL("Pokémon may lose HP each turn. Boosts Sp. Defense of Rock types.")
+        end
+      when :Hail
+        if battler.pbOwnedByPlayer? && battler.takesHailDamage?
+          desc = _INTL("The Pokémon loses {1} HP each turn. Blizzard always hits.", (battler.real_totalhp / 16).floor)
+        else
+          desc = _INTL("Pokémon may lose HP each turn. Blizzard always hits.")
+        end
+      when :Snow
+        if battler.pbOwnedByPlayer? && battler.pbHasType?(:ICE)
+          desc = _INTL("Boosts the Defense of the Pokémon by 50%. Blizzard always hits.")
+        else
+          desc = _INTL("The move Blizzard always hits. Boosts Defense of Ice types.")
+        end
+      when :ShadowSky
+        if battler.shadowPokemon?
+          desc = _INTL("The power of the Pokémon's Shadow type moves are boosted by 50%.")
+        elsif battler.pbOwnedByPlayer?
+          desc = _INTL("The Pokémon loses {1} HP each turn.", (battler.real_totalhp / 16).floor)
+        else
+          desc = _INTL("Non-Shadow Pokémon may lose HP each turn.")
         end
       else
-        name = GameData::BattleWeather.get(weather).name
-        case weather
-        when :Sun         then desc = _INTL("Boosts Fire moves and weakens Water moves.")
-        when :HarshSun    then desc = _INTL("Boosts Fire moves and negates Water moves.")
-        when :Rain        then desc = _INTL("Boosts Water moves and weakens Fire moves.")
-        when :HeavyRain   then desc = _INTL("Boosts Water moves and negates Fire moves.")
-        when :Snow        then desc = _INTL("Boosts Def of Ice types. Blizzard always hits.")
-        when :Sandstorm   then desc = _INTL("Boosts Rock type Sp. Def. Damages unless Rock/Ground/Steel.")
-        when :StrongWinds then desc = _INTL("Flying types won't take super effective damage.")
-        when :ShadowSky   then desc = _INTL("Boosts Shadow moves. Non-Shadow Pokémon damaged each turn.")
-        else                   desc = _INTL("Unknown weather.")
-        end
+        desc = _INTL("Unknown weather.")
       end
       tick = (weather == @battle.field.weather) ? @battle.field.weatherDuration : 0
       tick = (tick > 0) ? sprintf("%d/%d", tick, 5) : "--"
@@ -441,38 +476,42 @@ class Battle::Scene
     end
     #---------------------------------------------------------------------------
     # Terrain
-    if @battle.field.terrain != :None && battler.affectedByTerrain?
-      name = _INTL("Terreno {1}", GameData::BattleTerrain.get(@battle.field.terrain).name)
+    if @battle.field.terrain != :None && (!battler.pbOwnedByPlayer? || battler.affectedByTerrain?)
+      name = _INTL("{1} Terrain", GameData::BattleTerrain.get(@battle.field.terrain).name)
       tick = @battle.field.terrainDuration
       tick = (tick > 0) ? sprintf("%d/%d", tick, 5) : "--"
       case @battle.field.terrain
-      when :Electric then desc = _INTL("Los Pokémon que toquen el campo no pueden dormirse. Potencia los ataques Eléctricos.")
-      when :Grassy   then desc = _INTL("Los Pokémon que toquen el campo recuperan PS cada turno. Potencia los ataques de Planta.")
-      when :Psychic  then desc = _INTL("Los ataques de prioridad fallan en los Pokémon que toquen el campo. Potencia los ataques Psíquicos.")
-      when :Misty    then desc = _INTL("No se pueden cambiar estados a los Pokémon que toquen el campo. Debilita los ataques de Dragon")
-      else                desc = _INTL("Terreno desconocido.")
+      when :Electric
+        if battler.pbOwnedByPlayer?
+          desc = _INTL("The Pokémon can't fall asleep. Electric moves boosted by 30%.")
+        else
+          desc = _INTL("Grounded Pokémon can't fall asleep. Boosts Electric moves.")
+        end
+      when :Grassy
+        if battler.pbOwnedByPlayer?
+          desc = _INTL("The Pokémon heals {1} HP each turn. Grass moves boosted by 30%.", (battler.real_totalhp / 16).floor)
+        else
+          desc = _INTL("Grounded Pokémon may recover HP each turn. Boosts Grass moves.")
+        end
+      when :Psychic
+        if battler.pbOwnedByPlayer?
+          desc = _INTL("The Pokémon is immune to priority. Psychic moves boosted by 30%.")
+        else
+          desc = _INTL("Grounded Pokémon immune to priority. Boosts Psychic moves.")
+        end
+      when :Misty
+        if battler.pbOwnedByPlayer?
+          desc = _INTL("The Pokémon is immune to statuses. Dragon moves weakened.")
+        else
+          desc = _INTL("Grounded Pokémon immune to statuses. Weakens Dragon moves.")
+        end
+      else
+        desc = _INTL("Unknown terrain.")
       end
       display_effects.push([name, tick, desc])
     end
     #---------------------------------------------------------------------------
-    # Battler effects that affect other Pokemon.
-    if @battle.allBattlers.any? { |b| b.effects[PBEffects::Imprison] }
-      name = GameData::Move.get(:IMPRISON).name
-      desc = _INTL("Otros Pokémon no pueden usar movimientos conocidos por {1}.", name)
-      display_effects.push([name, "--", desc])
-    end
-    if @battle.allBattlers.any? { |b| b.effects[PBEffects::Uproar] > 0 }
-      name = GameData::Move.get(:UPROAR).name
-      desc = _INTL("Los Pokémon no pueden dormirse durante un alboroto.")
-      display_effects.push([name, "--", desc])
-    end
-    if @battle.allBattlers.any? { |b| b.effects[PBEffects::JawLock] == battler.index }
-      name = _INTL("Nadie puede escapar")
-      desc = _INTL("Los Pokémon no pueden escapar o ser cambiados.")
-      display_effects.push([name, "--", desc])
-    end
-    #---------------------------------------------------------------------------
-    # All other effects.
+    # All eligible PBEffects.
     $DELUXE_PBEFFECTS.each do |key, key_hash|
       key_hash.each do |type, effects|
         effects.each do |effect|
@@ -491,448 +530,611 @@ class Battle::Scene
           when :index   then next if value < 0
           end
           case effect
-          #---------------------------------------------------------------------
-          when :AquaRing
-            name = GameData::Move.get(:AQUARING).name
-            desc = _INTL("El Pokémon recupera unos PS al final de cada turno.")
-          #---------------------------------------------------------------------
-          when :Ingrain
-            name = GameData::Move.get(:INGRAIN).name
-            desc = _INTL("El Pokémon recupera unos PS cada turno, pero no puede ser cambiado.")
-          #---------------------------------------------------------------------
-          when :LeechSeed
-            name = GameData::Move.get(:LEECHSEED).name
-            desc = _INTL("Los PS del oponente son absorbidos cada turno para curarse.")
-          #---------------------------------------------------------------------
-          when :Curse
-            name = GameData::Move.get(:CURSE).name
-            desc = _INTL("El Pokémon recibe daño al final de cada turno.")
-          #---------------------------------------------------------------------
-          when :SaltCure
-            name = GameData::Move.get(:SALTCURE).name
-            desc = _INTL("El Pokémon recibe daño al final de cada turno.")
-          #---------------------------------------------------------------------
-          when :Nightmare
-            name = GameData::Move.get(:NIGHTMARE).name
-            desc = _INTL("El Pokémon recibe daño cada turno que esté dormido.")
-          #---------------------------------------------------------------------
-          when :Rage
-            name = GameData::Move.get(:RAGE).name
-            desc = _INTL("El Pokémon aumenta su ataque cada vez que es golpeado.")
-          #---------------------------------------------------------------------
-          when :HelpingHand
-            name = GameData::Move.get(:HELPINGHAND).name
-            desc = _INTL("El daño del Pokémon aumenta.")
-          #---------------------------------------------------------------------
-          when :PowerTrick
-            name = GameData::Move.get(:POWERTRICK).name
-            desc = _INTL("El At y la Def del Pokémon se intercambian.")
-          #---------------------------------------------------------------------
-          when :Torment
-            name = GameData::Move.get(:TORMENT).name
-            desc = _INTL("El Pokémon no puede usar el mismo movimiento 2 veces seguidas.")
-          #---------------------------------------------------------------------
-          when :Charge
-            name = GameData::Move.get(:CHARGE).name
-            desc = _INTL("El próximo ataque eléctrico tendrá el doble de potencia.")
-          #---------------------------------------------------------------------
-          when :Electrify
-            name = GameData::Move.get(:ELECTRIFY).name
-            desc = _INTL("El siguiente movimiento del Pokémon será tipo Eléctrico.")
-          #---------------------------------------------------------------------
+          ######################################################################
+          #
+          # FIELD EFFECTS
+          #
+          ######################################################################
           when :IonDeluge
             name = GameData::Move.get(:IONDELUGE).name
-            desc = _INTL("Los movimientos tipo Normal del Pokémon ahora son tipo Eléctrico.")
-          #---------------------------------------------------------------------
-          when :Minimize
-            name = GameData::Move.get(:MINIMIZE).name
-            desc = _INTL("El Pokémon se achica y recibe mas daño al ser aplastado.")
-          #---------------------------------------------------------------------
-          when :SkyDrop
-            name = GameData::Move.get(:SKYDROP).name
-            desc = _INTL("El Pokémon ha sido elevado al cielo por {1}.", @battle.battlers[value].name)
-          #---------------------------------------------------------------------
-          when :TarShot
-            name = GameData::Move.get(:TARSHOT).name
-            desc = _INTL("El Pokémon se volvió débil contra ataques de Fuego.")
-          #---------------------------------------------------------------------
-          when :Powder
-            name = GameData::Move.get(:POWDER).name
-            desc = _INTL("El Pokémon recibe daño si usa un movimiento de tipo Fuego.")
-          #---------------------------------------------------------------------
-          when :Wish
-            name = GameData::Move.get(:WISH).name
-            desc = _INTL("El Pokémon en esta posición recuperará PS en el siguiente turno.")
-          #---------------------------------------------------------------------
-          when :HealingWish
-            name = GameData::Move.get(:HEALINGWISH).name
-            desc = _INTL("Cura completamente al Pokémon que entre en esta posición.")
-          #---------------------------------------------------------------------
-          when :LunarDance
-            name = GameData::Move.get(:LUNARDANCE).name
-            desc = _INTL("Cura completamente al Pokémon que entre en esta posición.")
-          #---------------------------------------------------------------------
-          when :Endure
-            name = GameData::Move.get(:ENDURE).name
-            desc = _INTL("El Pokémon sobrevivirá cualquier ataque que reciba con 1 PS.")
-          #---------------------------------------------------------------------
-          when :Substitute
-            name = GameData::Move.get(:SUBSTITUTE).name
-            desc = _INTL("El sustituto del Pokémon recibe cualquier daño al Pokémon.")
-          #---------------------------------------------------------------------
-          when :MagicCoat
-            name = GameData::Move.get(:MAGICCOAT).name
-            desc = _INTL("El Pokémon devuelve cualquier movimiento de estado.")
-          #---------------------------------------------------------------------
-          when :CraftyShield
-            name = GameData::Move.get(:CRAFTYSHIELD).name
-            desc = _INTL("El Pokémon está protegido de cualquier movimiento de estado.")
-          #---------------------------------------------------------------------
-          when :QuickGuard
-            name = GameData::Move.get(:QUICKGUARD).name
-            desc = _INTL("El Pokémon está protegido de cualquier movimiento con prioridad.")
-          #---------------------------------------------------------------------
-          when :WideGuard
-            name = GameData::Move.get(:WIDEGUARD).name
-            desc = _INTL("El Pokémon está protegido de cualquier movimiento en área.")
-          #---------------------------------------------------------------------
-          when :Foresight
-            name = GameData::Move.get(:FORESIGHT).name
-            if battler.pbHasType?(:GHOST)
-              desc = _INTL("El Pokémon no puede evadir movimientos. Las inmunidades del tipo Fantasma son ignoradas.")
-            else
-              desc = _INTL("El Pokémon no puede evadir movimientos.")
-            end
-          #---------------------------------------------------------------------
-          when :MiracleEye
-            name = GameData::Move.get(:MIRACLEEYE).name
-            if battler.pbHasType?(:DARK)
-              desc = _INTL("El Pokémon no puede evadir movimientos. Las inmunidades del tipo Siniestro son ignoradas.")
-            else
-              desc = _INTL("El Pokémon no puede evadir movimientos.")
-            end
-          #---------------------------------------------------------------------
-          when :SmackDown
-            name = GameData::Move.get(:SMACKDOWN).name
-            if battler.pbHasType?(:FLYING)
-              desc = _INTL("El Pokémon está en el suelo y pierde las inmunidades del tipo Volador.")
-            else
-              desc = _INTL("El Pokémon está en el suelo.")
-            end
-          #---------------------------------------------------------------------
-          when :Stockpile
-            name = GameData::Move.get(:STOCKPILE).name
-            tick = sprintf("+%d", value)
-            desc = _INTL("Reserva sube las características defensivas del Pokémon.")
-          #---------------------------------------------------------------------
-          when :Spikes
-            name = GameData::Move.get(:SPIKES).name
-            tick = sprintf("+%d", value)
-            desc = _INTL("Los Pokémon que toquen el campo recibirán daño al entrar en combate.")
-          #---------------------------------------------------------------------
-          when :ToxicSpikes
-            name = GameData::Move.get(:TOXICSPIKES).name
-            tick = sprintf("+%d", value)
-            desc = _INTL("Los Pokémon que toquen el campo serán envenenados al entrar en combate.")
-          #---------------------------------------------------------------------
-          when :StealthRock
-            name = GameData::Move.get(:STEALTHROCK).name
-            tick = _INTL("+1")
-            desc = _INTL("Los Pokémon recibirán daño al entrar en combate.")
-          #---------------------------------------------------------------------
-          when :Steelsurge
-            name = GameData::Move.get(:GMAXSTEELSURGE).name
-            tick = _INTL("+1")
-            desc = _INTL("Los Pokémon recibirán daño al entrar en combate.")
-          #---------------------------------------------------------------------
-          when :StickyWeb
-            name = GameData::Move.get(:STICKYWEB).name
-            tick = _INTL("+1")
-            desc = _INTL("La velocidad de los Pokémon será reducida al entrar en combate.")
-          #---------------------------------------------------------------------
-          when :LaserFocus
-            name = GameData::Move.get(:LASERFOCUS).name
-            tick = sprintf("%d/%d", value, 2)
-            desc = _INTL("El siguiente ataque del Pokémon es un golpe crítico asegurado.")
-          #---------------------------------------------------------------------
-          when :LockOn
-            name = GameData::Move.get(:LOCKON).name
-            tick = sprintf("%d/%d", value, 2)
-            desc = _INTL("Cualquier movimiento contra un objetivo fijado es seguro de acertar.")
-          #---------------------------------------------------------------------
-          when :ThroatChop
-            name = GameData::Move.get(:THROATCHOP).name
-            tick = sprintf("%d/%d", value, 2)
-            desc = _INTL("El Pokémon no puede usar movimientos de sonido.")
+            desc = _INTL("Normal type moves of all Pokémon on the field become Electric type.")
           #---------------------------------------------------------------------
           when :FairyLock
             name = GameData::Move.get(:FAIRYLOCK).name
             tick = sprintf("%d/%d", value, 2)
-            desc = _INTL("Ningun Pokémon puede huir.")
-          #---------------------------------------------------------------------
-          when :Telekinesis
-            name = GameData::Move.get(:TELEKINESIS).name
-            tick = sprintf("%d/%d", value, 3)
-            desc = _INTL("El Pokémon flota en el aire, pero no puede evadir ataques.")
-          #---------------------------------------------------------------------
-          when :Encore
-            name = GameData::Move.get(:ENCORE).name
-            data = GameData::Move.get(battler.effects[PBEffects::EncoreMove]).name
-            tick = sprintf("%d/%d", value, 3)
-            desc = _INTL("Debido a{1}, el Pokémon solo puede usar {2}.", name, data)
-          #---------------------------------------------------------------------
-          when :Taunt
-            name = GameData::Move.get(:TAUNT).name
-            tick = sprintf("%d/%d", value, 4)
-            desc = _INTL("El Pokémon solo puede usar movimientos que hagan daño.")
-          #---------------------------------------------------------------------
-          when :Tailwind
-            name = GameData::Move.get(:TAILWIND).name
-            tick = sprintf("%d/%d", value, 4)
-            desc = _INTL("La velocidad de los Pokémon es duplicada.")
-          #---------------------------------------------------------------------
-          when :VineLash
-            name = GameData::Move.get(:GMAXVINELASH).name
-            tick = sprintf("%d/%d", value, 4)
-            desc = _INTL("Los Pokémon que no sean de tipo Planta reciben daño cada turno.")
-          #---------------------------------------------------------------------
-          when :Wildfire
-            name = GameData::Move.get(:GMAXWILDFIRE).name
-            tick = sprintf("%d/%d", value, 4)
-            desc = _INTL("Los Pokémon que no sean de tipo Fuego reciben daño cada turno.")
-          #---------------------------------------------------------------------
-          when :Cannonade
-            name = GameData::Move.get(:GMAXCANNONADE).name
-            tick = sprintf("%d/%d", value, 4)
-            desc = _INTL("Los Pokémon que no sean de tipo Agua reciben daño cada turno.")
-          #---------------------------------------------------------------------
-          when :Volcalith
-            name = GameData::Move.get(:GMAXVOLCALITH).name
-            tick = sprintf("%d/%d", value, 4)
-            desc = _INTL("Los Pokémon que no sean de tipo Roca reciben daño cada turno.")
-          #---------------------------------------------------------------------
-          when :MagnetRise
-            name = GameData::Move.get(:MAGNETRISE).name
-            tick = sprintf("%d/%d", value, 5)
-            desc = _INTL("El Pokémon está en el aire y es inmune a los ataques de Tierra.")
-          #---------------------------------------------------------------------
-          when :HealBlock
-            name = GameData::Move.get(:HEALBLOCK).name
-            tick = sprintf("%d/%d", value, 5)
-            desc = _INTL("Los PS del Pokémon no pueden ser restaurados por efectos de cura.")
-          #---------------------------------------------------------------------
-          when :Embargo
-            name = GameData::Move.get(:EMBARGO).name
-            tick = sprintf("%d/%d", value, 5)
-            desc = _INTL("Objetos no pueden ser usados en o por el Pokémon.")
-          #---------------------------------------------------------------------
-          when :MudSport, :MudSportField
-            name = GameData::Move.get(:MUDSPORT).name
-            tick = sprintf("%d/%d", value, 5) if effect == :MudSportField
-            desc = _INTL("El poder de los movimientos Electricos es reducido.")
-          #---------------------------------------------------------------------
-          when :WaterSport, :WaterSportField
-            name = GameData::Move.get(:WATERSPORT).name
-            tick = sprintf("%d/%d", value, 5) if effect == :WaterSportField
-            desc = _INTL("El poder de los movimientos de Fuego es reducido.")
-          #---------------------------------------------------------------------
-          when :AuroraVeil
-            name = GameData::Move.get(:AURORAVEIL).name
-            tick = sprintf("%d/%d", value, 5)
-            desc = _INTL("El Pokémon recibe la mitad de daño de ataques físicos y especiales.")
-          #---------------------------------------------------------------------
-          when :Reflect
-            name = GameData::Move.get(:REFLECT).name
-            tick = sprintf("%d/%d", value, 5)
-            desc = _INTL("El Pokémon recibe la mitad de daño de ataques físicos.")
-          #---------------------------------------------------------------------
-          when :LightScreen
-            name = GameData::Move.get(:LIGHTSCREEN).name
-            tick = sprintf("%d/%d", value, 5)
-            desc = _INTL("El Pokémon recibe la mitad de daño de ataques especiales.")
-          #---------------------------------------------------------------------
-          when :Safeguard
-            name = GameData::Move.get(:SAFEGUARD).name
-            tick = sprintf("%d/%d", value, 5)
-            desc = _INTL("El Pokémon está protegido de estados alterados.")
-          #---------------------------------------------------------------------
-          when :Mist
-            name = GameData::Move.get(:MIST).name
-            tick = sprintf("%d/%d", value, 5)
-            desc = _INTL("Las características del Pokémon no pueden ser reducidas.")
-          #---------------------------------------------------------------------
-          when :LuckyChant
-            name = GameData::Move.get(:LUCKYCHANT).name
-            tick = sprintf("%d/%d", value, 5)
-            desc = _INTL("El Pokémon es inmune a ataques críticos.")
+            desc = _INTL("No Pokémon on the field can flee.")
           #---------------------------------------------------------------------
           when :Gravity
             name = GameData::Move.get(:GRAVITY).name
             tick = sprintf("%d/%d", value, 5)
-            desc = _INTL("Baja al Pokémon a tierra. Previene acciones en el aire. Aumenta la precisión.")
+            desc = _INTL("Grounds all Pokémon. Prevents midair actions. Increases accuracy.")
           #---------------------------------------------------------------------
           when :MagicRoom
             name = GameData::Move.get(:MAGICROOM).name
             tick = sprintf("%d/%d", value, 5)
-            desc = _INTL("Ningun Pokémon puede usar sus objetos.")
+            desc = _INTL("No Pokémon on the field can use their held items.")
           #---------------------------------------------------------------------
           when :WonderRoom
             name = GameData::Move.get(:WONDERROOM).name
             tick = sprintf("%d/%d", value, 5)
-            desc = _INTL("Todos los Pokémon intercambian su Def. por su Def. Esp.")
+            desc = _INTL("All Pokémon on the field swap their Defense and Sp. Defense stats.")
           #---------------------------------------------------------------------
           when :TrickRoom
             name = GameData::Move.get(:TRICKROOM).name
             tick = sprintf("%d/%d", value, 5)
-            desc = _INTL("Los Pokémon mas lentos se mueven primero.")
+            desc = _INTL("Reverses Speed order so slower Pokémon on the field move first.")
           #---------------------------------------------------------------------
-          when :Trapping
-            name = _INTL("Atrapado")
-            desc = _INTL("El Pokémon está atrapado y recibe daño cada turno.")
+          when :MudSportField
+            name = GameData::Move.get(:MUDSPORT).name
+            tick = sprintf("%d/%d", value, 5)
+            desc = _INTL("All Pokémon on the field take less damage from Electric moves.")
           #---------------------------------------------------------------------
-          when :Toxic
-            name = _INTL("Envenenado grav.")
-            desc = _INTL("El daño que recibe el Pokémon empeora cada turno.")
+          when :WaterSportField
+            name = GameData::Move.get(:WATERSPORT).name
+            tick = sprintf("%d/%d", value, 5)
+            desc = _INTL("All Pokémon on the field take less damage from Fire moves.")
+          ######################################################################
+          #
+          # TEAM EFFECTS - CHEERS
+          #
+          ######################################################################
+          when :CheerOffense1
+            name = _INTL("Offense Cheer 1")
+            tick = sprintf("%d/%d", value, 3)
+            desc = _INTL("Attacks of Pokémon on this side deal increased damage.")
           #---------------------------------------------------------------------
-          when :Confusion
-            name = _INTL("Confusión")
-            desc = _INTL("El Pokémon podria lastimarse a si mismo en su confusión.")
+          when :CheerOffense2
+            name = _INTL("Offense Cheer 2")
+            tick = sprintf("%d/%d", value, 3)
+            desc = _INTL("Attacks Pokémon on this side always trigger effects.")
           #---------------------------------------------------------------------
-          when :Outrage
-            name = _INTL("Arrasador")
-            desc = _INTL("El Pokémon arrasa por 2-3 turnos. Luego se confunde.")
+          when :CheerOffense3
+            name = _INTL("Offense Cheer 3")
+            tick = sprintf("%d/%d", value, 3)
+            desc = _INTL("Attacks of Pokémon on this side bypass protections.")
           #---------------------------------------------------------------------
-          when :GastroAcid
-            name = _INTL("Sin habilidad")
-            desc = _INTL("La habilidad del Pokémon pierde su efecto.")
+          when :CheerDefense1
+            name = _INTL("Defense Cheer 1")
+            tick = sprintf("%d/%d", value, 3)
+            desc = _INTL("Pokémon on this side take reduced damage from attacks.")
           #---------------------------------------------------------------------
-          when :FocusEnergy
-            name = _INTL("Prob. de crít. aum.")
-            desc = _INTL("Es más probable que el Pokémon acierte ataques críticos.")
+          when :CheerDefense2
+            name = _INTL("Defense Cheer 2")
+            tick = sprintf("%d/%d", value, 3)
+            desc = _INTL("Pokémon on this side are immune to move effects.")
           #---------------------------------------------------------------------
-          when :Attract
-            name = _INTL("Enamoramiento")
-            data = (battler.gender == 0) ? "hembra" : "macho"
-            desc = _INTL("Es menos probable que el Pokémon ataque a Pokémon {1}.", data)
+          when :CheerDefense3
+            name = _INTL("Defense Cheer 3")
+            tick = sprintf("%d/%d", value, 3)
+            desc = _INTL("Pokémon on this side will endure incoming attacks.")
+          ######################################################################
+          #
+          # TEAM EFFECTS - ENTRY HAZARDS
+          #
+          ######################################################################
+          when :StealthRock
+            name = GameData::Move.get(:STEALTHROCK).name
+            tick = _INTL("+1/1")
+            desc = _INTL("Pokémon on this side take Rock type damage upon entry.")
           #---------------------------------------------------------------------
-          when :MeanLook, :NoRetreat, :JawLock, :Octolock
-            name = _INTL("Sin escapatoria")
-            desc = _INTL("El Pokémon no puede huir ni ser cambiado.")
+          when :Steelsurge
+            name = GameData::Move.get(:GMAXSTEELSURGE).name
+            tick = _INTL("+1/1")
+            desc = _INTL("Pokémon on this side take Steel type damage upon entry.")
           #---------------------------------------------------------------------
-          when :Protect, :SpikyShield, :BanefulBunker
-            name = _INTL("Protegido complet.")
-            desc = _INTL("El Pokémon está protegido de cualquier daño recibido.")
+          when :StickyWeb
+            name = GameData::Move.get(:STICKYWEB).name
+            tick = _INTL("+1/1")
+            desc = _INTL("The Speed of grounded Pokémon on this side is lowered upon entry.")
           #---------------------------------------------------------------------
-          when :KingsShield, :Obstruct, :SilkTrap, :BurningBulwark, :MatBlock
-            name = _INTL("Protegido del daño")
-            desc = _INTL("El Pokémon está protegido de cualquier daño recibido.")
+          when :Spikes
+            name = GameData::Move.get(:SPIKES).name
+            tick = sprintf("+%d/3", value)
+            desc = _INTL("Grounded Pokémon on this side lose HP upon entry.")
+          #---------------------------------------------------------------------
+          when :ToxicSpikes
+            name = GameData::Move.get(:TOXICSPIKES).name
+            tick = sprintf("+%d/2", value)
+            desc = _INTL("Grounded Pokémon on this side are poisoned upon entry.")
+          ######################################################################
+          #
+          # TEAM EFFECTS - EoR DAMAGE
+          #
+          ######################################################################
+          when :VineLash
+            name = GameData::Move.get(:GMAXVINELASH).name
+            tick = sprintf("%d/%d", value, 4)
+            desc = _INTL("Pokémon on this side lose HP each turn. No effect on Grass types.")
+          #---------------------------------------------------------------------
+          when :Wildfire
+            name = GameData::Move.get(:GMAXWILDFIRE).name
+            tick = sprintf("%d/%d", value, 4)
+            desc = _INTL("Pokémon on this side lose HP each turn. No effect on Fire types.")
+          #---------------------------------------------------------------------
+          when :Cannonade
+            name = GameData::Move.get(:GMAXCANNONADE).name
+            tick = sprintf("%d/%d", value, 4)
+            desc = _INTL("Pokémon on this side lose HP each turn. No effect on Water types.")
+          #---------------------------------------------------------------------
+          when :Volcalith
+            name = GameData::Move.get(:GMAXVOLCALITH).name
+            tick = sprintf("%d/%d", value, 4)
+            desc = _INTL("Pokémon on this side lose HP each turn. No effect on Rock types.")
+          #---------------------------------------------------------------------  
+          when :SeaOfFire
+            name = _INTL("Sea of Fire")
+            tick = sprintf("%d/%d", value, 4)
+            desc = _INTL("Pokémon on this side lose HP each turn. No effect on Fire types.")
+          ######################################################################
+          #
+          # TEAM EFFECTS - UTILITY
+          #
+          ######################################################################
+          when :Rainbow
+            name = _INTL("Rainbow")
+            tick = sprintf("%d/%d", value, 4)
+            desc = _INTL("Pokémon on this side are more likely to trigger move effects.")
+          #---------------------------------------------------------------------
+          when :Swamp
+            name = _INTL("Swamp")
+            tick = sprintf("%d/%d", value, 4)
+            desc = _INTL("The Speed of the Pokémon on this side is halved.")
+          #---------------------------------------------------------------------
+          when :Tailwind
+            name = GameData::Move.get(:TAILWIND).name
+            tick = sprintf("%d/%d", value, 4)
+            desc = _INTL("The Speed of the Pokémon on this side is doubled.")
+          ######################################################################
+          #
+          # TEAM EFFECTS - DEFENSIVE
+          #
+          ######################################################################
+          when :CraftyShield
+            name = GameData::Move.get(:CRAFTYSHIELD).name
+            desc = _INTL("Pokémon on this side are protected from most status moves.")
+          #---------------------------------------------------------------------
+          when :QuickGuard
+            name = GameData::Move.get(:QUICKGUARD).name
+            desc = _INTL("Pokémon on this side are protected from most priority moves.")
+          #---------------------------------------------------------------------
+          when :WideGuard
+            name = GameData::Move.get(:WIDEGUARD).name
+            desc = _INTL("Pokémon on this side are protected from most spread moves.")
+          #---------------------------------------------------------------------
+          when :MatBlock
+            name = GameData::Move.get(:MATBLOCK).name
+            desc = _INTL("Pokémon on this side are protected from most damaging moves.")
+          #---------------------------------------------------------------------
+          when :AuroraVeil
+            name = GameData::Move.get(:AURORAVEIL).name
+            tick = sprintf("%d/%d", value, 5)
+            desc = _INTL("All moves deal less damage to Pokémon on this side.")
+          #---------------------------------------------------------------------
+          when :Reflect
+            name = GameData::Move.get(:REFLECT).name
+            tick = sprintf("%d/%d", value, 5)
+            desc = _INTL("Physical moves deal less damage to Pokémon on this side.")
+          #---------------------------------------------------------------------
+          when :LightScreen
+            name = GameData::Move.get(:LIGHTSCREEN).name
+            tick = sprintf("%d/%d", value, 5)
+            desc = _INTL("Special moves deal less damage to Pokémon on this side.")
+          #---------------------------------------------------------------------
+          when :Safeguard
+            name = GameData::Move.get(:SAFEGUARD).name
+            tick = sprintf("%d/%d", value, 5)
+            desc = _INTL("Pokémon on this side are protected from status conditions.")
+          #---------------------------------------------------------------------
+          when :Mist
+            name = GameData::Move.get(:MIST).name
+            tick = sprintf("%d/%d", value, 5)
+            desc = _INTL("The stats of Pokémon on this side cannot be lowered.")
+          #---------------------------------------------------------------------
+          when :LuckyChant
+            name = GameData::Move.get(:LUCKYCHANT).name
+            tick = sprintf("%d/%d", value, 5)
+            desc = _INTL("Pokémon on this side are immune to critical hits.")
+          ######################################################################
+          #
+          # POSITION EFFECTS
+          #
+          ######################################################################
+          when :FutureSightCounter
+            name = _INTL("Future Attack")
+            tick = value.to_s
+            data = @battle.positions[battler.index].effects[PBEffects::FutureSightMove]
+            desc = _INTL("{1} will strike the Pokémon in this spot in {2} more turn(s).", GameData::Move.get(data).name, value)
+          #---------------------------------------------------------------------
+          when :Wish
+            name = GameData::Move.get(:WISH).name
+            tick = value.to_s
+            data = (battler.pbOwnedByPlayer?) ? @battle.positions[battler.index].effects[PBEffects::WishAmount] : "???"
+            desc = _INTL("The Pokémon in this spot will restore {1} HP in {2} more turn(s).", data, value)
+          #---------------------------------------------------------------------
+          when :HealingWish
+            name = GameData::Move.get(:HEALINGWISH).name
+            desc = _INTL("Fully heals a Pokémon switching into this spot.")
+          #---------------------------------------------------------------------
+          when :LunarDance
+            name = GameData::Move.get(:LUNARDANCE).name
+            desc = _INTL("Fully heals a Pokémon switching into this spot.")
           #---------------------------------------------------------------------
           when :ZHealing
-            name = _INTL("Z-Cura")
-            desc = _INTL("Un Pokémon cambiado a esta posición se curará sus PS.")
+            name = _INTL("Z-Healing")
+            desc = _INTL("A Pokémon switching into this spot will recover its HP.")
+          ######################################################################
+          #
+          # BATTLER EFFECTS - HP ALTERING
+          #
+          ######################################################################
+          when :Endure
+            name = GameData::Move.get(:ENDURE).name
+            desc = _INTL("The Pokémon will survive all incoming attacks with 1 HP.")
           #---------------------------------------------------------------------
-          when :PerishSong
-            name = _INTL("Cuenta atrás")
-            tick = value.to_s
-            desc = _INTL("Todos los Pokémon en el campo se debilitarán luego de 3 turnos.")
+          when :Substitute
+            name = GameData::Move.get(:SUBSTITUTE).name
+            amt = (battler.pbOwnedByPlayer?) ? value : "???"
+            desc = _INTL("A substitute with {1} HP stands in for the Pokémon.", value)
           #---------------------------------------------------------------------
-          when :FutureSightCounter
-            name = _INTL("Ataque futuro")
-            tick = value.to_s
-            desc = _INTL("El Pokémon en este puesto será atacado en 2 turnos.")
+          when :AquaRing
+            name = GameData::Move.get(:AQUARING).name
+            if battler.pbOwnedByPlayer?
+              data = battler.real_totalhp / 16
+              data = (hpGain * 1.3).floor if battler.hasActiveItem?(:BIGROOT)
+            else
+              data = "some"
+            end
+            desc = _INTL("The Pokémon restores {1} HP at the end of each turn.", data)
           #---------------------------------------------------------------------
-          when :Syrupy
-            name = _INTL("Velocidad red.")
-            tick = value.to_s
-            desc = _INTL("La velocidad del Pokémon es reducida por 3 turnos.")
+          when :Ingrain
+            name = GameData::Move.get(:INGRAIN).name
+            if battler.pbOwnedByPlayer?
+              data = battler.real_totalhp / 16
+              data = (hpGain * 1.3).floor if battler.hasActiveItem?(:BIGROOT)
+            else
+              data = "some"
+            end
+            desc = _INTL("The Pokémon restores {1} HP every turn, but cannot escape.", data)
           #---------------------------------------------------------------------
-          when :SlowStart
-            name = _INTL("Inicio lento")
-            tick = value.to_s
-            desc = _INTL("El Pokémon se adaptará al combate en 5 turnos.")
+          when :Toxic
+            next if battler.hasActiveAbility?(:POISONHEAL) || !battler.takesIndirectDamage?
+            name = _INTL("Badly Poisoned")
+            desc = _INTL("Damage the Pokémon takes from its poison worsens every turn.")
           #---------------------------------------------------------------------
-          when :Yawn
-            name = _INTL("Somnoliento")
+          when :LeechSeed
+            name = GameData::Move.get(:LEECHSEED).name
+            data = (battler.pbOwnedByPlayer?) ? (battler.real_totalhp / 8).floor : "some"
+            desc = _INTL("Each turn, {1} leeches {2} HP from the Pokémon.", @battle.battlers[value].pbThis(true), data)
+          #---------------------------------------------------------------------
+          when :Curse
+            name = GameData::Move.get(:CURSE).name
+            data = (battler.pbOwnedByPlayer?) ? (battler.real_totalhp / 4).floor : "some"
+            desc = _INTL("The Pokémon loses {1} HP at the end of each turn.", data)
+          #---------------------------------------------------------------------
+          when :Nightmare
+            name = GameData::Move.get(:NIGHTMARE).name
+            data = (battler.pbOwnedByPlayer?) ? (battler.real_totalhp / 4).floor : "some"
+            desc = _INTL("The Pokémon loses {1} HP each turn it spends asleep.", data)
+          #---------------------------------------------------------------------
+          when :SaltCure
+            name = GameData::Move.get(:SALTCURE).name
+            if battler.pbOwnedByPlayer?
+              fraction = (battler.pbHasType?(:STEEL) || battler.pbHasType?(:WATER)) ? 4 : 8
+              data = (battler.real_totalhp / fraction).floor
+            else
+              data = "some"
+            end
+            desc = _INTL("The Pokémon loses {1} HP at the end of each turn.", data)
+          #---------------------------------------------------------------------
+          when :Splinters
+            name = _INTL("Splinters")
+            tick = sprintf("%d/%d", value, 3)
+            if battler.effects[PBEffects::SplintersType]
+              desc = _INTL("The Pokémon takes {1} type damage at the end of each turn.", 
+              GameData::Type.get(battler.effects[PBEffects::SplintersType]).name)
+            else
+              desc = _INTL("The Pokémon takes damage at the end of each turn.")
+            end
+          ######################################################################
+          #
+          # BATTLER EFFECTS - MOVE/ATTRIBUTE BLOCKING
+          #
+          ######################################################################
+          when :HealBlock
+            name = GameData::Move.get(:HEALBLOCK).name
+            tick = sprintf("%d/%d", value, 5)
+            desc = _INTL("The Pokémon cannot use any healing effects that restores HP.")
+          #---------------------------------------------------------------------
+          when :Attract
+            name = _INTL("Infatuation")
+            desc = _INTL("The Pokémon is less likely to attack {1}.", @battle.battlers[value].pbThis(true))
+          #---------------------------------------------------------------------
+          when :Confusion
+            name = _INTL("Confusion")
+            tick = _INTL("?/?")
+            desc = _INTL("The Pokémon may hurt itself in confusion instead of attacking.")
+          #---------------------------------------------------------------------
+          when :Outrage
+            name = _INTL("Rampaging")
+            tick = _INTL("?/?")
+            desc = _INTL("The Pokémon rampages for a few turns. It then becomes confused.")
+          #---------------------------------------------------------------------
+          when :Torment
+            name = GameData::Move.get(:TORMENT).name
+            desc = _INTL("The Pokémon cannot use the same move twice in a row.")
+          #---------------------------------------------------------------------
+          when :ThroatChop
+            name = GameData::Move.get(:THROATCHOP).name
             tick = sprintf("%d/%d", value, 2)
-            desc = _INTL("El Pokémon se dormirá al final del siguiente turno.")
+            desc = _INTL("The Pokémon cannot use any sound-based moves.")
           #---------------------------------------------------------------------
-          when :HyperBeam
-            name = _INTL("Recargando")
+          when :Encore
+            name = GameData::Move.get(:ENCORE).name
+            tick = sprintf("%d/%d", value, 3)
+            data = GameData::Move.get(battler.effects[PBEffects::EncoreMove]).name
+            desc = _INTL("The Pokémon may only use the move {1}.", data)
+          #---------------------------------------------------------------------
+          when :Disable
+            name = _INTL("Move Disabled")
+            tick = sprintf("%d/%d", value, 4)
+            data = GameData::Move.get(battler.effects[PBEffects::DisableMove]).name
+            desc =_INTL("The Pokémon cannot use the move {1}.", data)
+          #---------------------------------------------------------------------
+          when :Taunt
+            name = GameData::Move.get(:TAUNT).name
+            tick = sprintf("%d/%d", value, 4)
+            desc = _INTL("The Pokémon cannot use any status moves.")
+          #---------------------------------------------------------------------
+          when :GastroAcid
+            name = _INTL("No Ability")
+            desc = _INTL("The Pokémon's ability is negated.")
+          #---------------------------------------------------------------------
+          when :Embargo
+            name = GameData::Move.get(:EMBARGO).name
+            tick = sprintf("%d/%d", value, 5)
+            desc = _INTL("Items cannot be used on or by the Pokémon.")
+          ######################################################################
+          #
+          #  BATTLER EFFECTS - TYPE ALTERING
+          #
+          ######################################################################
+          when :Charge
+            name = GameData::Move.get(:CHARGE).name
+            desc = _INTL("The next Electric move used by the Pokémon will double in power.")
+          #---------------------------------------------------------------------
+          when :Electrify
+            name = GameData::Move.get(:ELECTRIFY).name
+            desc = _INTL("The next move used by the Pokémon will become Electric type.")
+          #---------------------------------------------------------------------
+          when :MagnetRise
+            name = GameData::Move.get(:MAGNETRISE).name
+            tick = sprintf("%d/%d", value, 5)
+            desc = _INTL("The Pokémon is airborne and immune to Ground moves.")
+          #---------------------------------------------------------------------
+          when :Powder
+            name = GameData::Move.get(:POWDER).name
+            desc = _INTL("The next Fire move used by the Pokémon will ignite and explode.")
+          #---------------------------------------------------------------------
+          when :TarShot
+            name = GameData::Move.get(:TARSHOT).name
+            desc = _INTL("The Pokémon has been made weaker to Fire type moves.")
+          #---------------------------------------------------------------------
+          when :SmackDown
+            name = GameData::Move.get(:SMACKDOWN).name
+            if battler.pbOwnedByPlayer? && battler.pbHasType?(:FLYING)
+              desc = _INTL("The Pokémon is grounded and no longer immune to Ground moves.")
+            else
+              desc = _INTL("The Pokémon is grounded.")
+            end	
+          #---------------------------------------------------------------------
+          when :Foresight
+            name = GameData::Move.get(:FORESIGHT).name
+            if battler.pbOwnedByPlayer? && battler.pbHasType?(:GHOST)
+              desc = _INTL("The Pokémon's evasion boosts are ignored. No Ghost immunities.")
+            else
+              desc = _INTL("The Pokémon's evasion boosts are ignored.")
+            end
+          #---------------------------------------------------------------------
+          when :MiracleEye
+            name = GameData::Move.get(:MIRACLEEYE).name
+            if battler.pbOwnedByPlayer? && battler.pbHasType?(:DARK)
+              desc = _INTL("The Pokémon's evasion boosts are ignored. No Dark immunities.")
+            else
+              desc = _INTL("The Pokémon's evasion boosts are ignored.")
+            end
+          ######################################################################
+          #
+          # BATTLER EFFECTS - STAT ALTERING
+          #
+          ######################################################################
+          when :Rage
+            name = GameData::Move.get(:RAGE).name
+            desc = _INTL("The Attack stat of the Pokémon increases whenever it is hit.")
+          #---------------------------------------------------------------------
+          when :HelpingHand
+            name = GameData::Move.get(:HELPINGHAND).name
+            desc = _INTL("The damage dealt with the Pokémon's next move will be increased.")
+          #---------------------------------------------------------------------
+          when :PowerTrick
+            name = GameData::Move.get(:POWERTRICK).name
+            desc = _INTL("The Attack and Defense stats of the Pokémon are swapped.")
+          #---------------------------------------------------------------------
+          when :LaserFocus
+            name = GameData::Move.get(:LASERFOCUS).name
             tick = sprintf("%d/%d", value, 2)
-            desc = _INTL("El Pokémon no podrá moverse hasta que se recargue de su último ataque.")
+            desc = _INTL("The Pokémon's next attack will be a guaranteed critical hit.")
+          #---------------------------------------------------------------------
+          when :Stockpile
+            name = GameData::Move.get(:STOCKPILE).name
+            tick = sprintf("+%d/%d", value, 3)
+            desc = _INTL("The Pokémon is amassing a stockpile to use or consume.")
+          #---------------------------------------------------------------------
+          when :Minimize
+            name = GameData::Move.get(:MINIMIZE).name
+            desc = _INTL("The Pokémon takes more damage from certain moves while minimized.")
           #---------------------------------------------------------------------
           when :GlaiveRush
             name = _INTL("Vulnerable")
             tick = sprintf("%d/%d", value, 2)
-            desc = _INTL("El Pokémon no puede evadir ataques y recibe el doble de daño.")
+            desc = _INTL("The Pokémon cannot evade and takes double damage from attacks.")
           #---------------------------------------------------------------------
-          when :Splinters
-            name = _INTL("Espinas")
+          when :Telekinesis
+            name = GameData::Move.get(:TELEKINESIS).name
             tick = sprintf("%d/%d", value, 3)
-            desc = _INTL("El Pokémon recibe daño al final de cada turno.")
+            desc = _INTL("The Pokémon has been made airborne, but it cannot evade attacks.")
           #---------------------------------------------------------------------
-          when :Disable
-            name = _INTL("Moviento Deshab.")
-            data = GameData::Move.get(battler.effects[PBEffects::DisableMove]).name
-            tick = sprintf("%d/%d", value, 4)
-            desc =_INTL("{1} fue deshabilitado y no puede ser usado.", data)
+          when :LockOn
+            name = GameData::Move.get(:LOCKON).name
+            tick = sprintf("%d/%d", value, 2)
+            data = @battle.battlers[battler.effects[PBEffects::LockOnPos]]
+            desc = _INTL("The Pokémon's next move is sure to hit {1}.", data.pbThis(true))
           #---------------------------------------------------------------------
-          when :Rainbow
-            name = _INTL("Arcoiris")
-            tick = sprintf("%d/%d", value, 4)
-            desc = _INTL("Los efectos adicionales son más probables.")
+          when :Syrupy
+            name = _INTL("Speed Down")
+            tick = sprintf("%d/%d", value, 3)
+            data = @battle.battlers[battler.effects[PBEffects::SyrupyUser]]
+            desc = _INTL("Each turn, {1} lowers the Pokémon's Speed.", data.pbThis(true), value)
           #---------------------------------------------------------------------
-          when :Swamp
-            name = _INTL("Pantano")
-            tick = sprintf("%d/%d", value, 4)
-            desc = _INTL("La velocidad es reducida un 75% en condiciones pantanosas.")
+          when :WeightChange
+            name = _INTL("Weight Changed")
+            desc = _INTL("The Pokémon's weight has been {1}.", (value > 0) ? "increased" : "decreased")
+          ######################################################################
+          #
+          # BATTLER EFFECTS - TRAPPING
+          #
+          ######################################################################
+          when :NoRetreat
+            name = GameData::Move.get(:NORETREAT).name
+            desc = _INTL("The Pokémon refuses to flee or switch out.")
           #---------------------------------------------------------------------
-          when :SeaOfFire
-            name = _INTL("Mar de Fuego")
-            tick = sprintf("%d/%d", value, 4)
-            desc = _INTL("Los Pokémon que no son de tipo fuego reciben daño en cada turno.")
+          when :JawLock
+            name = GameData::Move.get(:JAWLOCK).name
+            desc = _INTL("Trapped by {1}.", @battle.battlers[value].pbThis(true))
           #---------------------------------------------------------------------
-          when :TwoTurnAttack
+          when :MeanLook
+            name = GameData::Move.get(:MEANLOOK).name
+            desc = _INTL("Trapped by {1}.", @battle.battlers[value].pbThis(true))
+          #---------------------------------------------------------------------
+          when :Octolock
+            name = GameData::Move.get(:OCTOLOCK).name
+            desc = _INTL("Trapped by {1}. Defense drops each turn.", @battle.battlers[value].pbThis(true))
+          #---------------------------------------------------------------------
+          when :Trapping
+            move = battler.effects[PBEffects::TrappingMove]
+            user = @battle.battlers[battler.effects[PBEffects::TrappingUser]]
+            name = (move) ? GameData::Move.get(move).name : _INTL("Bound")
+            tick = sprintf("%d/%d", value, 5)
+            if user
+              desc = _INTL("Trapped by {1}. Loses HP each turn.", user.pbThis(true))
+            else
+              desc = _INTL("Trapped and loses HP each turn.")
+            end          
+          ######################################################################
+          #
+          # BATTLER EFFECTS - PROTECTION
+          #
+          ######################################################################
+          when :MagicCoat
+            name = GameData::Move.get(:MAGICCOAT).name
+            desc = _INTL("The Pokémon bounces back most incoming status moves.")
+          #---------------------------------------------------------------------
+          when :Protect
+            name = GameData::Move.get(:PROTECT).name
+            desc = _INTL("The Pokémon is protected from most incoming attacks.")
+          #---------------------------------------------------------------------
+          when :SpikyShield
+            name = GameData::Move.get(:SPIKYSHIELD).name
+            desc = _INTL("Protected from most moves. Contact inflicts damage.")
+          #---------------------------------------------------------------------
+          when :BanefulBunker
+            name = GameData::Move.get(:BANEFULBUNKER).name
+            desc = _INTL("Protected from most moves. Contact inflicts poison.")
+          #---------------------------------------------------------------------
+          when :BurningBulwark
+            name = GameData::Move.get(:BURNINGBULWARK).name
+            desc = _INTL("Protected from damage dealing moves. Contact inflicts a burn.")
+          #---------------------------------------------------------------------
+          when :KingsShield
+            name = GameData::Move.get(:KINGSSHIELD).name
+            desc = _INTL("Protected from damage dealing moves. Contact lowers Attack.")
+          #---------------------------------------------------------------------
+          when :Obstruct
+            name = GameData::Move.get(:OBSTRUCT).name
+            desc = _INTL("Protected from damage dealing moves. Contact lowers Defense.")
+          #---------------------------------------------------------------------
+          when :SilkTrap
+            name = GameData::Move.get(:SILKTRAP).name
+            desc = _INTL("Protected from damage dealing moves. Contact lowers Speed.")
+          ######################################################################
+          #
+          # BATTLER EFFECTS - DELAYED ACTION
+          #
+          ######################################################################
+          when :TwoTurnAttack 
+            name = _INTL("Charging Turn")
+            desc = _INTL("The Pokémon will use {1} next turn.", GameData::Move.get(value).name)
             if battler.semiInvulnerable?
-              name = _INTL("Semiinvulnerable")
-              desc = _INTL("El Pokémon no puede ser alcanzado por la mayoría de ataques.")
+              display_effects.push([_INTL("Semi-Invulnerable"), "--", _INTL("The Pokémon cannot be hit by most attacks.")])
             end
           #---------------------------------------------------------------------
-          when :CheerOffense1
-            name = _INTL("Ánimos Ofensivos 1")
-            tick = sprintf("%d/%d", value, 3)
-            desc = _INTL("Los ataques del Pokémon hacen más daño.")
+          when :SkyDrop
+            name = GameData::Move.get(:SKYDROP).name
+            desc = _INTL("The Pokémon is being lifted in the air by {1}.", @battle.battlers[value].pbThis(true))
           #---------------------------------------------------------------------
-          when :CheerOffense2
-            name = _INTL("Ánimos Ofensivos 2")
-            tick = sprintf("%d/%d", value, 3)
-            desc = _INTL("Los ataques del Pokémon hacen su efecto secundario y golpe crítico.")
+          when :HyperBeam
+            name = _INTL("Recharging")
+            tick = value.to_s
+            desc = _INTL("The Pokémon cannot act for {1} more turn(s).", value)
           #---------------------------------------------------------------------
-          when :CheerOffense3
-            name = _INTL("Ánimos Ofensivos 3")
-            tick = sprintf("%d/%d", value, 3)
-            desc = _INTL("Los ataques del Pokémon atraviesan efectos como Protección y Sustituto.")
+          when :Yawn
+            name = _INTL("Drowsy")
+            tick = value.to_s
+            desc = _INTL("The Pokémon will fall asleep in {1} more turn(s).", value)
           #---------------------------------------------------------------------
-          when :CheerDefense1
-            name = _INTL("Ánimos Defensivos 1")
-            tick = sprintf("%d/%d", value, 3)
-            desc = _INTL("El Pokémon recibe menos daño de los ataques.")
+          when :PerishSong
+            name = _INTL("Perish Count")
+            tick = value.to_s
+            desc = _INTL("The Pokémon will be forced to faint in {1} more turn(s).", value)
           #---------------------------------------------------------------------
-          when :CheerDefense2
-            name = _INTL("Ánimos Defensivos 2")
-            tick = sprintf("%d/%d", value, 3)
-            desc = _INTL("El Pokémon es inmune a golpes críticos y efectos secundarios.")
-          #---------------------------------------------------------------------
-          when :CheerDefense3
-            name = _INTL("Ánimos Defensivos 3")
-            tick = sprintf("%d/%d", value, 3)
-            desc = _INTL("El Pokémon resiste cualquier ataque con 1 PS.")
-          #---------------------------------------------------------------------
+          when :SlowStart
+            next if !battler.hasActiveAbility?(:SLOWSTART)
+            name = GameData::Ability.get(:SLOWSTART).name
+            tick = value.to_s
+            desc = _INTL("The Pokémon gets its act together in {1} more turn(s).", value)
           else next
           end
           tick = "--" if type == :counter && value < 0
           display_effects.push([name, tick, desc])
         end
+      end
+    end
+    #---------------------------------------------------------------------------
+    # Checks all other battlers for Jaw Lock trapping.
+    @battle.allBattlers.each do |b|
+      next if b.effects[PBEffects::JawLock] != battler.index
+      name = GameData::Move.get(:JAWLOCK).name
+      desc = _INTL("The Pokémon is trapped while latched to {1}.", b.pbThis(true))
+      display_effects.push([name, "--", desc])
+    end
+    #---------------------------------------------------------------------------
+    # Checks all opposing battlers for Imprison.
+    @battle.allOtherSideBattlers(battler.index).each do |b|
+	  next if !b.effects[PBEffects::Imprison]
+      name = GameData::Move.get(:IMPRISON).name
+      desc = _INTL("The Pokémon can't use moves known by {1}.", b.pbThis(true))
+      display_effects.push([name, "--", desc])
+      break
+    end
+    #---------------------------------------------------------------------------
+    # Checks all other battlers for Uproar if the user doesn't have Soundproof.
+    if !battler.hasActiveAbility?(:SOUNDPROOF)
+      @battle.allBattlers.each do |b|
+        next if b.effects[PBEffects::Uproar] == 0
+        name = GameData::Move.get(:UPROAR).name
+        tick = sprintf("%d/%d", b.effects[PBEffects::Uproar], 3)
+        desc = _INTL("{1}'s uproar prevents sleeping.", b.pbThis)
+        display_effects.push([name, tick, desc])
+        break
       end
     end
     display_effects.uniq!

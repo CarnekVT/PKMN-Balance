@@ -2,7 +2,30 @@
 # Settings.
 #===============================================================================
 module Settings
-  # Definidos en PluginSettings
+  #-----------------------------------------------------------------------------
+  # Stores the path name for the graphics utilized by this plugin.
+  #-----------------------------------------------------------------------------
+  BATTLE_UI_GRAPHICS_PATH = "Graphics/Plugins/Enhanced Battle UI/"
+  
+  #-----------------------------------------------------------------------------
+  # The display style for button prompts used to open UI menus that appear when selecting commands.
+  # 0 => No prompts shown
+  # 1 => Always show prompt
+  # 2 => Show prompt, but hide after 2 seconds.
+  #-----------------------------------------------------------------------------
+  UI_PROMPT_DISPLAY = 2
+  
+  #-----------------------------------------------------------------------------
+  # When true, Move UI background will reflect the color of the move type.
+  #-----------------------------------------------------------------------------
+  USE_MOVE_TYPE_BACKGROUNDS = true
+  
+  #-----------------------------------------------------------------------------
+  # When false, type effectiveness display of moves will not be shown vs new 
+  # species you are encountering for the first time. When true, type effectiveness 
+  # will always be displayed, even for new species.
+  #-----------------------------------------------------------------------------
+  SHOW_TYPE_EFFECTIVENESS_FOR_NEW_SPECIES = false
 end
 
 
@@ -13,7 +36,7 @@ class Battle::Scene
   #-----------------------------------------------------------------------------
   # White text.
   #-----------------------------------------------------------------------------
-  BASE_LIGHT     = Color.new(232, 232, 232)
+  BASE_LIGHT     = Color.new(248, 248, 248)
   SHADOW_LIGHT   = Color.new(32, 32, 32)
   #-----------------------------------------------------------------------------
   # Black text.
@@ -65,7 +88,7 @@ class Battle::Scene
         @sprites["info_icon#{b.index}"].z = 300
         pbAddSpriteOutline(["info_icon#{b.index}", @viewport, b.pokemon, PictureOrigin::CENTER])
       end
-      ballY = @sprites["messageBox"].y - 58
+      ballY = @sprites["messageBox"].y - 56
       5.times do |i|
         case i
         when 0 then ballX = 64
@@ -146,7 +169,7 @@ class Battle::Scene
       promptAnim.dispose
     end
   end
-
+  
   def pbShowingPrompt?
     return false if pbInSafari?
     return @sprites["enhancedUIPrompts"] && @sprites["enhancedUIPrompts"].visible
@@ -338,8 +361,8 @@ class Battle::Scene::EnhancedUIPrompt < Sprite
     return if !@battler
     offset = 0
     textPos = [
-      #[_INTL(": A"), 68, 7,  :left, TEXT_BASE_COLOR, TEXT_SHADOW_COLOR, :outline],
-      #[_INTL(": S"), 68, 31, :left, TEXT_BASE_COLOR, TEXT_SHADOW_COLOR, :outline]
+      [_INTL(": A"), 68, 7,  :left, TEXT_BASE_COLOR, TEXT_SHADOW_COLOR, :outline],
+      [_INTL(": S"), 68, 31, :left, TEXT_BASE_COLOR, TEXT_SHADOW_COLOR, :outline]
     ]
     case @window
     when Battle::Scene::FIGHT_BOX

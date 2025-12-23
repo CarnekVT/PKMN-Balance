@@ -90,8 +90,19 @@ class Battle::Battler
   #-----------------------------------------------------------------------------
   def isRaidBoss?
     return false if self.idxOwnSide == 0
-    return false if @battle.pbSideBattlerCount(@index) 
+    return false if @battle.pbSideBattlerCount(@index) > 1
     return @pokemon&.immunities.include?(:RAIDBOSS)
+  end
+  
+  #-----------------------------------------------------------------------------
+  # Defines whether the battler is considered to have special boss immunities.
+  #-----------------------------------------------------------------------------
+  def hasBossImmunity?(*args)
+    return true if isRaidBoss?
+    return true if hasRaidShield?
+    return false if args.length == 0
+    args.each { |arg| return true if @pokemon&.immunities.include?(arg) }
+    return false
   end
   
   #-----------------------------------------------------------------------------
@@ -194,8 +205,8 @@ class Battle::Battler
     return false if fainted?
     return false if @battle.raidCaptureMode
     if (!args[1] || args[1].index != @index) && 
-      @pokemon.immunities.include?(:STATDROPS) && !hasActiveAbility?(:CONTRARY)
-      @battle.pbDisplay(_INTL("¡{1} es completamente inmune a que sus estadísticas se vean reducidas!", pbThis)) if args[3]
+       @pokemon.immunities.include?(:STATDROPS) && !hasActiveAbility?(:CONTRARY)
+      @battle.pbDisplay(_INTL("{1} is completely immune to having its stats lowered!", pbThis)) if args[3]
       return false
     end
     return dx_pbCanLowerStatStage?(*args)
@@ -220,7 +231,7 @@ class Battle::Battler
     return false if fainted?
     return false if @battle.raidCaptureMode
     if @pokemon.immunities.include?(:INDIRECT)
-      @battle.pbDisplay(_INTL("¡{1} es completamente inmune a daño indirecto!", pbThis)) if showMsg
+      @battle.pbDisplay(_INTL("{1} is completely immune to indirect damage!", pbThis)) if showMsg
       return false
     end
     return dx_takesIndirectDamage?(showMsg)
@@ -237,7 +248,7 @@ class Battle::Battler
         target.effects[PBEffects::Grudge] = false
       end
       if target.effects[PBEffects::DestinyBond] && target.fainted? &&
-         (user.dynamax? || user.pokemon.immunities.include?(:OHKO))
+         (user.dynamax? || user.hasBossImmunity?(:OHKO))
         target.effects[PBEffects::DestinyBond] = false
       end
     end
@@ -276,7 +287,7 @@ class Battle
   alias dx_pbCanRun? pbCanRun?
   def pbCanRun?(idxBattler)
     battler = @battlers[idxBattler]
-    return false if battler.pokemon.immunities.include?(:ESCAPE) || battler.isRaidBoss?
+    return false if battler.hasBossImmunity?(:ESCAPE)
     return dx_pbCanRun?(idxBattler)
   end
   

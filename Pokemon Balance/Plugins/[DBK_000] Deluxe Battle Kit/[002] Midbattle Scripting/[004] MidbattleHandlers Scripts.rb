@@ -31,10 +31,10 @@ MidbattleHandlers.add(:midbattle_scripts, :demo_wild_rotom,
     # The player's Poke Balls are disabled at the start of the first round.
     when "RoundStartCommand_1_foe"
       PBDebug.log("[Midbattle Script] '#{trigger}' triggered by #{logname}...")
-      battle.pbDisplayPaused(_INTL("{1} emitió un poderoso pulso magnético!", foe.pbThis))
+      battle.pbDisplayPaused(_INTL("{1} emited a powerful magnetic pulse!", foe.pbThis))
       battle.pbAnimation(:CHARGE, foe, foe)
       pbSEPlay("Anim/Paralyze3")
-      battle.pbDisplayPaused(_INTL("¡Tus Poké Ball se cortocircuitaron!\n¡No pueden ser utilizadas en esta batalla!"))
+      battle.pbDisplayPaused(_INTL("Your Poké Balls short-circuited!\nThey cannot be used this battle!"))
       battle.disablePokeBalls = true
       PBDebug.log("[Midbattle Script] '#{trigger}' effects ended")
     #---------------------------------------------------------------------------
@@ -44,7 +44,7 @@ MidbattleHandlers.add(:midbattle_scripts, :demo_wild_rotom,
       PBDebug.log("[Midbattle Script] '#{trigger}' triggered by #{logname}...")
       battle.pbAnimation(:NIGHTMARE, foe.pbDirectOpposing(true), foe)
       form = battle.pbRandom(1..5)
-      foe.pbSimpleFormChange(form, _INTL("{1} poseyó un nuevo aparato!", foe.pbThis))
+      foe.pbSimpleFormChange(form, _INTL("{1} possessed a new appliance!", foe.pbThis))
       foe.pbRecoverHP(foe.totalhp / 4)
       foe.pbCureAttract
       foe.pbCureConfusion
@@ -53,12 +53,12 @@ MidbattleHandlers.add(:midbattle_scripts, :demo_wild_rotom,
         battle.pbShowAbilitySplash(foe, true, false)
         foe.ability = :MOTORDRIVE
         battle.pbReplaceAbilitySplash(foe)
-        battle.pbDisplay(_INTL("¡{1} adquirió {2}!", foe.pbThis, foe.abilityName))
+        battle.pbDisplay(_INTL("{1} acquired {2}!", foe.pbThis, foe.abilityName))
         battle.pbHideAbilitySplash(foe)
       end
       if foe.item_id != :CELLBATTERY
         foe.item = :CELLBATTERY
-        battle.pbDisplay(_INTL("¡{1} se equipó una {2} que encontró en el electrodoméstico!", foe.pbThis, foe.itemName))
+        battle.pbDisplay(_INTL("{1} equipped a {2} it found in the appliance!", foe.pbThis, foe.itemName))
       end
       PBDebug.log("[Midbattle Script] '#{trigger}' effects ended")
     #---------------------------------------------------------------------------
@@ -69,11 +69,11 @@ MidbattleHandlers.add(:midbattle_scripts, :demo_wild_rotom,
       battle.pbAnimation(:CHARGE, foe, foe)
       if foe.effects[PBEffects::Charge] <= 0
         foe.effects[PBEffects::Charge] = 5
-        battle.pbDisplay(_INTL("¡{1} comenzó a cargar energía!", foe.pbThis))
+        battle.pbDisplay(_INTL("{1} began charging power!", foe.pbThis))
       end
       if foe.effects[PBEffects::MagnetRise] <= 0
         foe.effects[PBEffects::MagnetRise] = 5
-        battle.pbDisplay(_INTL("¡{1} levitó con electromagnetismo!", foe.pbThis))
+        battle.pbDisplay(_INTL("{1} levitated with electromagnetism!", foe.pbThis))
       end
       battle.pbStartTerrain(foe, :Electric)
       PBDebug.log("[Midbattle Script] '#{trigger}' effects ended")
@@ -81,7 +81,7 @@ MidbattleHandlers.add(:midbattle_scripts, :demo_wild_rotom,
     # Opponent paralyzes the player's Pokemon when taking Super Effective damage.
     when "UserMoveEffective_player"
       PBDebug.log("[Midbattle Script] '#{trigger}' triggered by #{logname}...")
-      battle.pbDisplayPaused(_INTL("¡{1} emitió un pulso eléctrico por desesperación!", foe.pbThis))
+      battle.pbDisplayPaused(_INTL("{1} emited an electrical pulse out of desperation!", foe.pbThis))
       battler = battle.battlers[idxBattler]
       if battler.pbCanInflictStatus?(:PARALYSIS, foe, true)
         battler.pbInflictStatus(:PARALYSIS)
@@ -107,25 +107,25 @@ MidbattleHandlers.add(:midbattle_scripts, :demo_collapsing_cave,
     when "RoundStartCommand_1_foe"
       PBDebug.log("[Midbattle Script] '#{trigger}' triggered by #{logname}...")
       pbSEPlay("Mining collapse")
-      battle.pbDisplayPaused(_INTL("¡El techo de la cueva comienza a derrumbarse a tu alrededor!"))
+      battle.pbDisplayPaused(_INTL("The cave ceiling begins to crumble down all around you!"))
       scene.pbStartSpeech(1)
-      battle.pbDisplayPaused(_INTL("¡No voy a dejarte escapar!"))
-      battle.pbDisplayPaused(_INTL("No me importa si toda esta cueva se derrumba sobre ambos... ¡jaja!"))
+      battle.pbDisplayPaused(_INTL("I am not letting you escape!"))
+      battle.pbDisplayPaused(_INTL("I don't care if this whole cave collapses down on the both of us...haha!"))
       scene.pbForceEndSpeech
-      battle.pbDisplayPaused(_INTL("¡Derrota a tu oponente antes de que se acabe el tiempo!"))      
+      battle.pbDisplayPaused(_INTL("Defeat your opponent before time runs out!"))
       PBDebug.log("[Midbattle Script] '#{trigger}' effects ended")
     #---------------------------------------------------------------------------
     # Repeated end-of-round text.
     when "RoundEnd_player"
       PBDebug.log("[Midbattle Script] '#{trigger}' triggered by #{logname}...")
       pbSEPlay("Mining collapse")
-      battle.pbDisplayPaused(_INTL("¡La cueva sigue derrumbándose a tu alrededor!"))
+      battle.pbDisplayPaused(_INTL("The cave continues to collapse all around you!"))
       PBDebug.log("[Midbattle Script] '#{trigger}' effects ended")
     #---------------------------------------------------------------------------
     # Player's Pokemon is struck by falling rock, dealing damage & causing confusion.
     when "RoundEnd_2_player"
       PBDebug.log("[Midbattle Script] '#{trigger}' triggered by #{logname}...")
-      battle.pbDisplayPaused(_INTL("¡{1} fue golpeado en la cabeza por una roca que caía!", battler.pbThis))
+      battle.pbDisplayPaused(_INTL("{1} was struck on the head by a falling rock!", battler.pbThis))
       battle.pbAnimation(:ROCKSMASH, battler.pbDirectOpposing(true), battler)
       old_hp = battler.hp
       battler.hp -= (battler.totalhp / 4).round
@@ -135,30 +135,36 @@ MidbattleHandlers.add(:midbattle_scripts, :demo_collapsing_cave,
       elsif battler.pbCanConfuse?(battler, false)
         battler.pbConfuse
       end
+      PBDebug.log("[Midbattle Script] '#{trigger}' effects ended")
     #---------------------------------------------------------------------------
     # Warning message.
     when "RoundEnd_3_player"
-      battle.pbDisplayPaused(_INTL("¡Te estás quedando sin tiempo!"))
-      battle.pbDisplayPaused(_INTL("¡Necesitas escapar inmediatamente!"))      
+      PBDebug.log("[Midbattle Script] '#{trigger}' triggered by #{logname}...")
+      battle.pbDisplayPaused(_INTL("You're running out of time!"))
+      battle.pbDisplayPaused(_INTL("You need to escape immediately!"))
+      PBDebug.log("[Midbattle Script] '#{trigger}' effects ended")
     #---------------------------------------------------------------------------
     # Player runs out of time and is forced to forfeit.
     when "RoundEnd_4_player"
-      battle.pbDisplayPaused(_INTL("¡Fallaste en derrotar a tu oponente a tiempo!"))
+      PBDebug.log("[Midbattle Script] '#{trigger}' triggered by #{logname}...")
+      battle.pbDisplayPaused(_INTL("You failed to defeat your opponent in time!"))
       scene.pbRecall(idxBattler)
-      battle.pbDisplayPaused(_INTL("¡Te viste obligado/a a huir de la batalla!"))      
+      battle.pbDisplayPaused(_INTL("You were forced to flee the battle!"))
       pbSEPlay("Battle flee")
       battle.decision = 3
+      PBDebug.log("[Midbattle Script] '#{trigger}' effects ended")
     #---------------------------------------------------------------------------
     # Opponent's Pokemon stands its ground when its HP is low.
     when "LastTargetHPLow_foe"
       next if battle.pbTriggerActivated?(trigger)
+      PBDebug.log("[Midbattle Script] '#{trigger}' triggered by #{logname}...")
       scene.pbStartSpeech(1)
-      battle.pbDisplayPaused(_INTL("¡Mi {1} nunca se rendirá!", battler.name))
+      battle.pbDisplayPaused(_INTL("My {1} will never give up!", battler.name))
       scene.pbForceEndSpeech
       battle.pbAnimation(:BULKUP, battler, battler)
       battler.displayPokemon.play_cry
       battler.pbRecoverHP(battler.totalhp / 2)
-      battle.pbDisplayPaused(_INTL("¡{1} está defendiendo su posición!", battler.pbThis))      
+      battle.pbDisplayPaused(_INTL("{1} is standing its ground!", battler.pbThis))
       showAnim = true
       [:DEFENSE, :SPECIAL_DEFENSE].each do |stat|
         next if !battler.pbCanRaiseStatStage?(stat, battler)
@@ -171,7 +177,7 @@ MidbattleHandlers.add(:midbattle_scripts, :demo_collapsing_cave,
     when "BattleEndForfeit"
       PBDebug.log("[Midbattle Script] '#{trigger}' triggered by #{logname}...")
       scene.pbStartSpeech(1)
-      battle.pbDisplayPaused(_INTL("Ja, ja... ¡nunca saldrás con vida!"))
+      battle.pbDisplayPaused(_INTL("Haha...you'll never make it out alive!"))
       PBDebug.log("[Midbattle Script] '#{trigger}' effects ended")
     end
   }
@@ -202,7 +208,7 @@ MidbattleHandlers.add(:midbattle_global, :wild_mega_battle,
     # Mega Evolves wild battler immediately at the start of the first round.
     when "RoundStartCommand_1_foe"
       if battle.pbCanMegaEvolve?(foe.index)
-        PBDebug.log("[Midbattle Global] #{logname} will Mega Evolve")
+	    PBDebug.log("[Midbattle Global] #{logname} will Mega Evolve")
         battle.pbMegaEvolve(foe.index)
         battle.disablePokeBalls = true
         battle.sosBattle = false if defined?(battle.sosBattle)
@@ -217,7 +223,7 @@ MidbattleHandlers.add(:midbattle_global, :wild_mega_battle,
       PBDebug.log("[Midbattle Global] #{logname} damage cap reached")
       foe.unMega
       battle.disablePokeBalls = false
-      battle.pbDisplayPaused(_INTL("¡La Megaevolución de {1} se desvaneció!\n¡Ahora puede ser capturado!", foe.pbThis))
+      battle.pbDisplayPaused(_INTL("{1}'s Mega Evolution faded!\nIt may now be captured!", foe.pbThis))
     #---------------------------------------------------------------------------
     # Tracks player's win count.
     when "BattleEndWin"
@@ -253,7 +259,7 @@ MidbattleHandlers.add(:midbattle_global, :low_hp_music,
     # Restores original BGM when battler is fainted.
     when "BattlerHPReduced_player"
       next if playingBGM != track.name
-	    next if battle.pbAnyBattlerLowHP?(idxBattler)
+      next if battle.pbAnyBattlerLowHP?(idxBattler)
       next if !battler.fainted?
       battle.pbResumeBattleBGM
       PBDebug.log("[Midbattle Global] low HP music ended")

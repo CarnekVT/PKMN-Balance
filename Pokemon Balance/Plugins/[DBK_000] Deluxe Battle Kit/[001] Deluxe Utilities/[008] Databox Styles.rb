@@ -156,7 +156,7 @@ class Battle::Scene::PokemonDataBox
       @contents = Bitmap.new(@databoxBitmap.width, @databoxBitmap.height)
       self.bitmap  = @contents
       self.visible = false
-      self.z       = 150+((@battler.index/ 2) * 5)
+      self.z       = 150 + ((@battler.index / 2) * 5)
       pbSetSmallFont(self.bitmap)
     else
       dx_initializeOtherGraphics(viewport)
@@ -252,7 +252,7 @@ class Battle::Scene::PokemonDataBox
     end
     refresh
   end
-
+  
   #-----------------------------------------------------------------------------
   # Utility for setting values for each databox element based on style.
   #-----------------------------------------------------------------------------

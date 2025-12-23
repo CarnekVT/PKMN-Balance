@@ -26,7 +26,7 @@ class Battle::Scene
         @sprites["info_icon#{b.index}"].pokemon = b.displayPokemon
         @sprites["info_icon#{b.index}"].visible = @enhancedUIToggle == :move
         @sprites["info_icon#{b.index}"].x = Graphics.width - 32 - (idx * 64)
-        @sprites["info_icon#{b.index}"].y = 68
+        @sprites["info_icon#{b.index}"].y = 48
         if b.dynamax?
           @sprites["info_icon#{b.index}"].set_dynamax_icon_pattern
         elsif b.tera?
@@ -50,7 +50,7 @@ class Battle::Scene
     @enhancedUIOverlay.clear
     return if @enhancedUIToggle != :move
     xpos = 0
-    ypos = 94
+    ypos = 78
     move = battler.moves[cw.index].clone
     if specialAction == :zmove && cw.mode == 2
       move = move.convert_zmove(battler, @battle, cw.index, false)
@@ -194,13 +194,13 @@ class Battle::Scene
     displayChance   = (chance == 0) ? "---" : chance.ceil.to_s + "%"
     textPos.push(
       [move.name,       xpos + 10,  ypos + 12, :left,   BASE_LIGHT, SHADOW_LIGHT, :outline],
-      [_INTL("Pod:"),    xpos + 256, ypos + 40, :left,   BASE_LIGHT, SHADOW_LIGHT],
+      [_INTL("Pow"),    xpos + 256, ypos + 40, :left,   BASE_LIGHT, SHADOW_LIGHT],
       [displayPower,    xpos + 309, ypos + 40, :center, powBase,    powShadow],
-      [_INTL("Pre:"),    xpos + 348, ypos + 40, :left,   BASE_LIGHT, SHADOW_LIGHT],
+      [_INTL("Acc"),    xpos + 348, ypos + 40, :left,   BASE_LIGHT, SHADOW_LIGHT],
       [displayAccuracy, xpos + 401, ypos + 40, :center, accBase,    accShadow],
-      [_INTL("Pri:"),    xpos + 442, ypos + 40, :left,   BASE_LIGHT, SHADOW_LIGHT],
+      [_INTL("Pri"),    xpos + 442, ypos + 40, :left,   BASE_LIGHT, SHADOW_LIGHT],
       [displayPriority, xpos + 484, ypos + 40, :center, priBase,    priShadow],
-      [_INTL("Efect:"),    xpos + 428, ypos + 12, :left,   BASE_LIGHT, SHADOW_LIGHT],
+      [_INTL("Eff"),    xpos + 428, ypos + 12, :left,   BASE_LIGHT, SHADOW_LIGHT],
       [displayChance,   xpos + 484, ypos + 12, :center, effBase,    effShadow]
     )
     textPos.push([bonus[0], xpos + 8, ypos + 132, :left, bonus[1], bonus[2], :outline]) if bonus
@@ -214,7 +214,7 @@ class Battle::Scene
   #-----------------------------------------------------------------------------
   def pbDrawMoveFlagIcons(xpos, ypos, move, imagePos)
     flagX = xpos + 6
-    flagY = ypos + 32
+    flagY = ypos + 35
     icons = 0
     flags = move.flags.clone
     if GameData::Target.get(move.target).targets_foe
@@ -284,7 +284,6 @@ class Battle::Scene
     target = (@battle.pbOpposingBattlerCount == 1) ? battler.pbDirectOpposing(true) : nil
     #---------------------------------------------------------------------------
     # Bonus text and modifiers for ability changes to move.
-    #---------------------------------------------------------------------------
     if battler.abilityActive?
       5.times do |i|
         break if bonus
@@ -294,7 +293,7 @@ class Battle::Scene
           next if type == move.type
           newType = Battle::AbilityEffects.triggerModifyMoveBaseType(battler.ability, battler, move, move.type)
           next if newType != type
-          bonus = [_INTL("Tipo cambiado por la habilidad {1}.", battler.abilityName), BASE_RAISED, SHADOW_RAISED]
+          bonus = [_INTL("Type changed by the {1} ability.", battler.abilityName), BASE_RAISED, SHADOW_RAISED]
           power *= 1.2 if move.powerBoost
           move.powerBoost = false
         #-----------------------------------------------------------------------
@@ -335,16 +334,15 @@ class Battle::Scene
           )
           power *= powMults[:power_multiplier]
           if power > oldPower
-            bonus = [_INTL("Poder potenciado por la habilidad {1}.", battler.abilityName), BASE_RAISED, SHADOW_RAISED]
+            bonus = [_INTL("Power boosted by the {1} ability.", battler.abilityName), BASE_RAISED, SHADOW_RAISED]
           elsif power < oldPower
-            bonus = [_INTL("Poder debilitado por la habilidad {1}.", battler.abilityName), BASE_LOWERED, SHADOW_LOWERED]
+            bonus = [_INTL("Power weakened by the {1} ability.", battler.abilityName), BASE_LOWERED, SHADOW_LOWERED]
           end
         end
       end
     end
     #---------------------------------------------------------------------------
     # Bonus text and modifiers for held item changes to move.
-    #---------------------------------------------------------------------------
     if battler.item && battler.itemActive?
       if ![0, 100].include?(acc)  # Held items that alter accuracy.
         oldAcc = acc
@@ -378,30 +376,28 @@ class Battle::Scene
     end
     #---------------------------------------------------------------------------
     # Special note for Mega Launcher + Heal Pulse.
-    #---------------------------------------------------------------------------
     if battler.hasActiveAbility?(:MEGALAUNCHER) && move.healingMove? && move.pulseMove?
-      bonus = [_INTL("Curación aumentada por la habilidad {1}.", battler.abilityName), BASE_RAISED, SHADOW_RAISED]
+      bonus = [_INTL("Healing boosted by the {1} ability.", battler.abilityName), BASE_RAISED, SHADOW_RAISED]
     end
     #---------------------------------------------------------------------------
     # Bonus text for moves that utilize special battle mechanics.
-    #---------------------------------------------------------------------------
     if showTera && move.damagingMove?
-	    bonus = [_INTL("Poder aumentado por la Teracristalización."), BASE_RAISED, SHADOW_RAISED]
+	    bonus = [_INTL("Power boosted by Terastallization."), BASE_RAISED, SHADOW_RAISED]
     elsif defined?(move.zMove?) && move.zMove? && move.has_zpower?
       effect, stage = move.get_zpower_effect
       case effect
-      when "HealUser"    then text = _INTL("Poder Z: Restaura completamente los PS del usuario.")
-      when "HealSwitch"  then text = _INTL("Poder Z: Restaura completamente los PS del Pokémon que entra al combate.")
-      when "CriticalHit" then text = _INTL("Poder Z: Sube la probabilidad de ataques críticos del usuario.")
-      when "ResetStats"  then text = _INTL("Poder Z: Reinicia las características reducidas del usuario.")
-      when "FollowMe"    then text = _INTL("Poder Z: El usuario se vuelve el centro de atención.")
+      when "HealUser"    then text = _INTL("Z-Power: Fully restores the user's HP.")
+      when "HealSwitch"  then text = _INTL("Z-Power: Fully restores an incoming Pokémon's HP.")
+      when "CriticalHit" then text = _INTL("Z-Power: Raises the user's critical hit rate.")
+      when "ResetStats"  then text = _INTL("Z-Power: Resets the user's lowered stat stages.")
+      when "FollowMe"    then text = _INTL("Z-Power: The user becomes the center of attention.")
       else
         if stage
           stat = (effect == "AllStats") ? "stats" : GameData::Stat.get(effect.to_sym).name
           case stage
-          when "3" then text = _INTL("Poder Z: Aumentó drásticamente su {1}.", stat)
-          when "2" then text = _INTL("Poder Z: Aumentó drásticamente su {1}.", stat)
-          else          text = _INTL("Poder Z: Aumentó su {1}.", stat)
+          when "3" then text = _INTL("Z-Power: Drastically raises the user's {1}.", stat)
+          when "2" then text = _INTL("Z-Power: Sharply raises the user's {1}.", stat)
+          else          text = _INTL("Z-Power: Raises the user's {1}.", stat)
           end
         end
       end

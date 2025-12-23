@@ -169,7 +169,7 @@ class Battle::Move
       when :FIRE
         multipliers[:final_damage_multiplier] *= 1.5
       when :WATER
-        if @function_code == "IncreasePowerInSunWeather"
+        if @function_code = "IncreasePowerInSunWeather"
           multipliers[:final_damage_multiplier] *= 1.5
         else
           multipliers[:final_damage_multiplier] /= 2
@@ -507,7 +507,7 @@ class Battle::AI::AIMove
     if user.ability_active?
       case user.ability_id
       when :AERILATE, :GALVANIZE, :PIXILATE, :REFRIGERATE
-        multipliers[:power_multiplier] *= 1.2 if type == :NORMAL   # NOTE: Not calc_type.
+        multipliers[:power_multiplier] *= 1.2 if type == :NORMAL
       when :ANALYTIC
         if rough_priority(user) <= 0
           user_faster = false
@@ -588,7 +588,7 @@ class Battle::AI::AIMove
         Battle::ItemEffects.triggerDamageCalcFromUser(
           user.item, user.battler, target.battler, @move, multipliers, base_dmg, calc_type
         )
-        user.effects[PBEffects::GemConsumed] = nil   # Untrigger consuming of Gems
+        user.effects[PBEffects::GemConsumed] = nil
       end
     end
     if target.item_active? && target.item && !target.item.is_berry?
@@ -602,9 +602,6 @@ class Battle::AI::AIMove
   # Calculates damage multipliers from other sources.
   #-----------------------------------------------------------------------------
   def calc_other_mults(user, target, base_dmg, calc_type, is_critical, multipliers)
-    # Me First - n/a because can't predict the move Me First will use
-    # Helping Hand - n/a
-    # Charge
     if @ai.trainer.medium_skill? &&
        user.effects[PBEffects::Charge] > 0 && calc_type == :ELECTRIC
       multipliers[:power_multiplier] *= 2
