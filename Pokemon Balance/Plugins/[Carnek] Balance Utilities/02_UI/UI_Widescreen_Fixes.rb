@@ -650,13 +650,14 @@ end
 #-------------------------------------------------------------------------------
 class PokemonSummary_Scene
   # Se ajusta la posición vertical del icono del objeto.
-  def pbStartScene(party, partyindex, inbattle = false, page=1)
+  def pbStartScene(party, partyindex, inbattle = false, page=1, allow_learn_moves = true)
     @viewport = Viewport.new(0, 0, Graphics.width, Graphics.height)
     @viewport.z = 99999
     @party      = party
     @partyindex = partyindex
     @pokemon    = @party[@partyindex]
     @inbattle   = inbattle
+    @allow_learn_moves = allow_learn_moves
     @page = page
     @typebitmap    = AnimatedBitmap.new(_INTL("Graphics/UI/types"))
     @markingbitmap = AnimatedBitmap.new("Graphics/UI/Summary/markings")
@@ -723,33 +724,38 @@ end
 # Ajustes para la Pantalla de Resumen (Continuación)
 #-------------------------------------------------------------------------------
 class PokemonSummary_Scene
-  alias widescreen_drawPage drawPage unless method_defined?(:widescreen_drawPage)
-  def drawPage(page)
-    widescreen_drawPage(page)
-    # ... (código original de drawPage)
-    # Al final del método, justo antes del "end", añade esto:
-    
-    # --- INICIO DE LA MODIFICACIÓN PARA TEXTO CONFIGURABLE ---
-    # Redibuja el nombre del Pokémon y el objeto usando las coordenadas del módulo.
-    overlay = @sprites["overlay"].bitmap
-    
-    # Nombre del Pokémon
-    pokename_pos = WidescreenUI::SUMMARY_TEXT_POKENAME_POS
-    textpos = [[_INTL("{1}", @pokemon.name), pokename_pos[0], pokename_pos[1], 0, NAME_BASE_COLOR, NAME_SHADOW_COLOR]]
-    
-    # Nivel del Pokémon
-    level_pos = WidescreenUI::SUMMARY_TEXT_LEVEL_POS
-    level_text = _INTL("Nv. {1}", @pokemon.level)
-    textpos.push([level_text, level_pos[0], level_pos[1], 0, TEXT_BASE_COLOR, TEXT_SHADOW_COLOR])
+  NAME_BASE_COLOR = Color.new(248, 248, 248)
+  NAME_SHADOW_COLOR = Color.new(104, 104, 104)
+  TEXT_BASE_COLOR = Color.new(248, 248, 248)
+  TEXT_SHADOW_COLOR = Color.new(104, 104, 104)
 
-    # Nombre del objeto
-    if @pokemon.hasItem?
-      itemname_pos = WidescreenUI::SUMMARY_TEXT_ITEM_POS
-      textpos.push([_INTL("{1}", @pokemon.itemName), itemname_pos[0], itemname_pos[1], 0, TEXT_BASE_COLOR, TEXT_SHADOW_COLOR])
-    end
-    pbDrawTextPositions(overlay, textpos)
-    # --- FIN DE LA MODIFICACIÓN ---
-  end
+  # alias widescreen_drawPage drawPage unless method_defined?(:widescreen_drawPage)
+  # def drawPage(page)
+  #   widescreen_drawPage(page)
+  #   # ... (código original de drawPage)
+  #   # Al final del método, justo antes del "end", añade esto:
+  #   
+  #   # --- INICIO DE LA MODIFICACIÓN PARA TEXTO CONFIGURABLE ---
+  #   # Redibuja el nombre del Pokémon y el objeto usando las coordenadas del módulo.
+  #   overlay = @sprites["overlay"].bitmap
+  #   
+  #   # Nombre del Pokémon
+  #   pokename_pos = WidescreenUI::SUMMARY_TEXT_POKENAME_POS
+  #   textpos = [[_INTL("{1}", @pokemon.name), pokename_pos[0], pokename_pos[1], 0, NAME_BASE_COLOR, NAME_SHADOW_COLOR]]
+  #   
+  #   # Nivel del Pokémon
+  #   level_pos = WidescreenUI::SUMMARY_TEXT_LEVEL_POS
+  #   level_text = _INTL("Nv. {1}", @pokemon.level)
+  #   textpos.push([level_text, level_pos[0], level_pos[1], 0, TEXT_BASE_COLOR, TEXT_SHADOW_COLOR])
+  #
+  #   # Nombre del objeto
+  #   if @pokemon.hasItem?
+  #     itemname_pos = WidescreenUI::SUMMARY_TEXT_ITEM_POS
+  #     textpos.push([_INTL("{1}", @pokemon.itemName), itemname_pos[0], itemname_pos[1], 0, TEXT_BASE_COLOR, TEXT_SHADOW_COLOR])
+  #   end
+  #   pbDrawTextPositions(overlay, textpos)
+  #   # --- FIN DE LA MODIFICACIÓN ---
+  # end
 end
 
 #===============================================================================

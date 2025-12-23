@@ -78,6 +78,7 @@ Category = Semilla
 Pokedex = Según parece, la flor de Venusaur adquiere unos colores muy vivos con una buena nutrición y mucho sol. El aroma delicado de esta flor calma los ánimos.
 Generation = 1
 Flags = HasGenderedSprites
+GoldenForm = 1
 #-------------------------------
 [CHARMANDER]
 Name = Charmander
