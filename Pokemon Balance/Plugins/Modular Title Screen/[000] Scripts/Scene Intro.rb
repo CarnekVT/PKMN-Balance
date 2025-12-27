@@ -2,7 +2,7 @@
 #  New animated and modular Title Screen for Pokemon Essentials
 #    by Luka S.J.
 #
-#  ONLY FOR Essentials v19.x
+#  FOR Essentials v21.1
 # ----------------
 #  Adds new visual styles to the Pokemon Essentials title screen, and animates
 #  depending on the styles selected.
@@ -11,6 +11,9 @@
 #  resource. So please be kind enough to give credit when using it.
 #===============================================================================
 class Scene_Intro
+  SPLASH_IMAGES = ["splash1"]
+  FADE_TICKS = 8
+  SECONDS_PER_SPLASH = 2
   #-----------------------------------------------------------------------------
   # load the title screen
   #-----------------------------------------------------------------------------
@@ -92,18 +95,18 @@ class Scene_Intro
   # cycle splash images
   #-----------------------------------------------------------------------------
   def cyclePics
-    pics = IntroEventScene::SPLASH_IMAGES
-    frames = (Graphics.frame_rate * (IntroEventScene::FADE_TICKS/20.0)).ceil
+    pics = Scene_Intro::SPLASH_IMAGES
+    frames = (Graphics.frame_rate * (Scene_Intro::FADE_TICKS/20.0)).ceil
     sprite = Sprite.new
     sprite.opacity = 0
     for i in 0...pics.length
-      bitmap = pbBitmap("Graphics/Titles/#{pics[i]}")
+      bitmap = RPG::Cache.load_bitmap("", "Graphics/Titles/#{pics[i]}")
       sprite.bitmap = bitmap
       frames.times do
         sprite.opacity += 255.0/frames
         pbWait(0.05)
       end
-      pbWait((IntroEventScene::SECONDS_PER_SPLASH * Graphics.frame_rate / 100).ceil)
+      pbWait((Scene_Intro::SECONDS_PER_SPLASH * Graphics.frame_rate / 100).ceil)
       frames.times do
         sprite.opacity -= 255.0/frames
         pbWait(0.05)

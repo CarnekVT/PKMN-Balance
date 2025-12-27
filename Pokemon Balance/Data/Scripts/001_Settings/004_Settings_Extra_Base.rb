@@ -69,10 +69,8 @@ module Settings
   # especies nuevas.
   SHOW_TYPE_EFFECTIVENESS_FOR_NEW_SPECIES = false
 
-  # Cuando un Pokemon es debilitado todos sus sprites se veran grisados
-  # Al curarlo vuelven a su color original
-  GREY_OUT_FAINTED = true
-  
+
+
 ################################################################################
 #  POKÉDEX AVANZADA
 ################################################################################
@@ -256,11 +254,9 @@ MAPAS_SIN_REFLEJO = []
 REGIONAL_SPECIES = [:RATTATA,:RATICATE,:RAICHU,:SANDSHREW,:SANDSLASH,:VULPIX,:NINETALES,:DIGLETT,:DUGTRIO,
                     :MEOWTH,:PERSIAN,:GEODUDE,:GRAVELER,:GOLEM,:PONYTA,:RAPIDASH,:SLOWPOKE,:SLOWBRO,:FARFETCHD,:GRIMER,:MUK,
                     :EXEGGUTOR,:MAROWAK,:WEEZING,:MRMIME,:ARTICUNO,:ZAPDOS,:MOLTRES,:SLOWKING,:CORSOLA,
-                    :ZIGZAGOON,:LINOONE,:DARUMAKA,:DARMANITAN,:YAMASK,:STUNFISK,:LYCANROC, :GROWLITHE,:ARCANINE,
-                    :VOLTORB,:ELECTRODE,:TAUROS,:TYPHLOSION,:WOOPER,:QWILFISH,:SNEASEL,:SAMUROTT,
-                    :LILLIGANT,:ZORUA,:ZOROARK,:BRAVIARY,:SLIGGOO,:GOODRA,:BERGMITE,:AVALUGG,:DECIDUEYE,
-                    :PIKACHU, :URSALUNA, :FLABEBE, :FLOETTE, :FLORGES, :SHELLOS, :GASTRODON, :BURMY, :WORMADAM,
-                    :ORICORIO, :BASCULIN, :SQUAWKABILLY, :VIVILLON]
+                    :ZIGZAGOON,:LINOONE, :DARUMAKA,:DARMANITAN,:YAMASK,:STUNFISK,:LYCANROC, :GROWLITHE,:ARCANINE,
+                    :VOLTORB,:ELECTRODE,:TAUROS,:CYNDAQUIL,:QUILAVA,:TYPHLOSION,:WOOPER,:QWILFISH,:SNEASEL,:OSHAWOTT,:DEWOTT,:SAMUROTT,
+                    :PETILIL,:LILLIGANT,:ZORUA,:ZOROARK,:RUFFLET,:BRAVIARY,:GOOMY,:SLIGGOO,:GOODRA,:BERGMITE,:AVALUGG,:ROWLET,:DARTRIX,:DECIDUEYE]
 
 #######################################################################################
 # LISTADO DE FORMAS DE POKÉMON NO PERMITIDAS

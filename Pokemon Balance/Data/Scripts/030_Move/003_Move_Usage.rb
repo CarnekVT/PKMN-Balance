@@ -197,6 +197,10 @@ class Battle::Move
     end
     # Disguise/Ice Face takes the damage
     return if target.damageState.disguise || target.damageState.iceFace
+    # Critical hit evolution tracking
+    if target.damageState.critical
+      user.pokemon.critical_hit_evolution(1) if user.pbOwnedByPlayer?
+    end
     # Target takes the damage
     if damage >= target.hp
       damage = target.hp

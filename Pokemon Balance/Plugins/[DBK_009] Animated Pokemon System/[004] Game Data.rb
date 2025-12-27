@@ -223,7 +223,7 @@ module GameData
     # Rewritten to consider female sprites with separate metrics.
     #---------------------------------------------------------------------------
     def apply_metrics_to_sprite(sprite, index, shadow = false)
-      female = (sprite.pkmn) ? sprite.pkmn.female? : false
+      female = (sprite.respond_to?(:pkmn) && sprite.pkmn) ? sprite.pkmn.female? : false
       metrics_data = GameData::SpeciesMetrics.get_species_form(@species, @form, female)
       metrics_data.apply_metrics_to_sprite(sprite, index, shadow)
     end

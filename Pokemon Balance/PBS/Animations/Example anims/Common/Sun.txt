@@ -1,0 +1,13 @@
+﻿# Consulta la documentación en la wiki para aprender cómo editar este archivo.
+#-------------------------------
+[Common,Sun]
+Name = Example anim
+NoUser = true
+NoTarget = true
+<Particle 0>
+    Graphic = PRAS- Sunny Day
+    Focus = Foreground
+    SetOpacity = 0,0
+    MoveOpacity = 0,5,64
+    MoveOpacity = 10,5,0
+<SE>

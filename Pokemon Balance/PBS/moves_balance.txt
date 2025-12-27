@@ -1,0 +1,421 @@
+﻿[GLACIALFROST]
+Name = Viento Ártico
+Type = ICE
+Category = Status
+Accuracy = 85
+TotalPP = 15
+Target = NearOther
+FunctionCode = FreezeTarget
+Flags = CanProtect,CanMirrorMove
+Description = Irradia un aura congelante que deja helado del objetivo.
+#-------------------------------
+[MIGRATION]
+Name = Migración
+Type = FLYING
+Category = Physical
+Power = 70
+Accuracy = 100
+TotalPP = 20
+Target = NearOther
+FunctionCode = SwitchOutUserDamagingMove
+Flags = Contact,CanProtect,CanMirrorMove
+Description = Tras atacar, vuelve a toda prisa para dar paso a otro Pokémon del equipo.
+#-------------------------------
+[CARNICRUNCH]
+Name = Carnibocado
+Type = GRASS
+Category = Physical
+Power = 65
+Accuracy = 100
+TotalPP = 10
+EffectChance = 20
+Target = NearOther
+FunctionCode = PoisonParalyzeOrSleepTarget
+Flags = Contact,CanProtect,CanMirrorMove,Biting
+Description = Muerde despiadadamente al objetivo. Puede paralizar, dormir o envenenar.
+#-------------------------------
+[CORRODE]
+Name = Corrobomba
+Type = POISON
+Category = Special
+Power = 80
+Accuracy = 100
+TotalPP = 15
+Target = NearOther
+FunctionCode = PoisonTargetSuperEffectiveAgainstSteel
+Flags = CanProtect,CanMirrorMove
+Description = Deteriora súbitamente al objetivo e incluso puede envenenarlo. Es supereficaz contra Pokémon de tipo Acero.
+#-------------------------------
+[AQUAFANG]
+Name = Hidrocolmillo
+Type = WATER
+Category = Physical
+Power = 75
+Accuracy = 100
+TotalPP = 10
+EffectChance = 20
+Target = NearOther
+FunctionCode = ConfuseTarget
+Flags = Contact,CanProtect,CanMirrorMove,Biting
+Description = Usa colmillos envuletos en agua para morder. Puede confundir al objetivo.
+#-------------------------------
+[SNOWFALL]
+Name = Aluvión
+Type = ICE
+Category = Physical
+Power = 85
+Accuracy = 100
+TotalPP = 15
+EffectChance = 20
+Target = NearOther
+FunctionCode = LowerTargetAttack1
+Flags = CanProtect,CanMirrorMove
+Description = El usuario una gran bola de nieve para dañar al objetivo. Puede reducir el Ataque.
+#-------------------------------
+[GOLDENBURST]
+Name = Metralla Dorada
+Type = STEEL
+Category = Physical
+Power = 95
+Accuracy = 85
+TotalPP = 15
+EffectChance = 30
+Target = NearOther
+FunctionCode = FlinchTarget
+Flags = Contact,CanProtect,CanMirrorMove
+Description = El usuario se rasca para dispersar los fragmentos dorados y dañar al objetivo. Puede hacer retroceder.
+#-------------------------------
+[ROACHET]
+Name = Cucarobala
+Type = ROCK
+Category = Physical
+Power = 55
+Accuracy = 100
+TotalPP = 15
+EffectChance = 10
+Target = NearOther
+FunctionCode = FlinchTarget
+Flags = CanProtect,CanMirrorMove
+Description = Lanza un proyectil hecho de roca para dañar al objetivo. Puede retroceder.
+#-------------------------------
+[FAIRYDANCE]
+Name = Danza Feérica
+Type = FAIRY
+Category = Status
+Accuracy = 0
+TotalPP = 10
+Target = User
+FunctionCode = RaiseUserSpAtkSpd1
+Flags = Snatch,Dance
+Description = Al danzar en batalla, el usuario mejora su Ataque Esp. y aumenta su Velocidad.
+#-------------------------------
+[POLLINATE]
+Name = Polibomba
+Type = BUG
+Category = Special
+Power = 70
+Accuracy = 100
+TotalPP = 15
+EffectChance = 100
+Target = NearOther
+FunctionCode = LowerTargetSpeed2IfHoneyTerrain
+Flags = CanProtect,CanMirrorMove,Powder
+Description = El usuario lanza una lluvia de polen al objetivo. Si hay campo de Miel, la velocidad del objetivo baja 2 niveles.
+#-------------------------------
+[STALACTITE]
+Name = Estalactita
+Type = ROCK
+Category = Special
+Power = 15
+Accuracy = 90
+TotalPP = 20
+Target = NearOther
+FunctionCode = HitTwoToFiveTimes
+Flags = CanProtect,CanMirrorMove
+Description = Ataca de 2 a 5 veces con piedras que caen desde el cielo.
+#-------------------------------
+[SPICYBOMB]
+Name = Bomba Picante
+Type = GRASS
+Category = Special
+Power = 70
+Accuracy = 100
+TotalPP = 10
+EffectChance = 20
+Target = NearOther
+FunctionCode = BurnTarget
+Flags = CanProtect,CanMirrorMove,Bomb
+Description = Lanza unas semillas al enemigo que pueden causar quemaduras.
+#-------------------------------
+[SOULABSORB]
+Name = Absorbe Almas
+Type = GHOST
+Category = Special
+Power = 75
+Accuracy = 100
+TotalPP = 10
+Target = NearOther
+FunctionCode = HealUserByHalfOfDamageDone
+Flags = CanProtect,CanMirrorMove
+Description = El usuario absorbe el alma al oponente en el rival robandole energía.
+#-------------------------------
+[HEATGRANADE]
+Name = Granada Calor
+Type = FIRE
+Category = Special
+Power = 120
+Accuracy = 100
+TotalPP = 15
+EffectChance = 10
+Target = NearOther
+FunctionCode = RecoilThirdOfDamageDealt
+Flags = CanProtect,CanMirrorMove,Bomb
+Description = Una gran bola de fuego cae sobre el objetivo y estalla. Recibes un poco de daño.
+#-------------------------------
+[STINKBOMB]
+Name = Bomba Fétida
+Type = POISON
+Category = Special
+Power = 80
+Accuracy = 95
+TotalPP = 10
+EffectChance = 30
+Target = NearOther
+FunctionCode = LowerTargetAccuracy1
+Flags = CanProtect,CanMirrorMove,Bomb
+Description = Rocía al oponente una bomba repulsiva con probabilidad de cegarlo. Puede bajar la presición.
+#-------------------------------
+[PHANTOMAMORE]
+Name = Amorío Espectral
+Type = GHOST
+Category = Special
+Power = 85
+Accuracy = 100
+TotalPP = 15
+EffectChance = 15
+Target = NearOther
+FunctionCode = LowerTargetSpAtk1IfOppositeGender
+Flags = CanProtect,CanMirrorMove
+Description = Daña gravemente al objetivo. Si es del sexo opuesto, reduce su Ataque Esp.
+#-------------------------------
+[SPIRITUALSUN]
+Name = Sol Espiritual
+Type = GHOST
+Category = Physical
+Power = 70
+Accuracy = 100
+TotalPP = 5
+EffectChance = 20
+Target = NearOther
+FunctionCode = DamageTargetStartSunWeather
+Flags = Contact,CanProtect,CanMirrorMove
+Description = Su espírittu se rodea del poder del sol para atacar al objetivo. Puede intensificar la luz solar.
+#-------------------------------
+[PLUNGE]
+Name = Pica Gélida
+Type = ICE
+Category = Physical
+Power = 40
+Accuracy = 95
+TotalPP = 20
+Target = NearOther
+FunctionCode = PowerHigherWithConsecutiveUse
+Flags = Contact,CanProtect,CanMirrorMove
+Description = Ataque embistiendo con el cuerpo que crece en intensidad si se usa repetidas veces.
+#-------------------------------
+[MAGICSTRIKE]
+Name = Golpe Mágico
+Type = FAIRY
+Category = Physical
+Power = 55
+Accuracy = 100
+TotalPP = 10
+EffectChance = 15
+Target = NearOther
+FunctionCode = ConfuseTarget
+Flags = Contact,CanProtect,CanMirrorMove
+Description = Ataque mágico que dañan al objetivo. Puede confundir.
+#-------------------------------
+[STEAMSURGE]
+Name = Rizo Vapor
+Type = FAIRY
+Category = Special
+Power = 70
+Accuracy = 100
+TotalPP = 25
+Target = NearOther
+FunctionCode = DoublePowerInMistyTerrain
+Flags = CanProtect,CanMirrorMove
+Description = Ataca con una ola de vapor al rival. La potencia se duplica si hay un campo de niebla.
+#-------------------------------
+[JAWSPEAR]
+Name = Lanza Maxilar
+Type = BUG
+Category = Physical
+Power = 70
+Accuracy = 100
+TotalPP = 10
+Target = NearOther
+FunctionCode = None
+Flags = Contact,CanProtect,CanMirrorMove,HighCriticalHitRate,Biting
+Description = Movimiento de gran potencia que daña al objetivo con su mandíbula. Puede hacer crítico.
+#-------------------------------
+[DELIRIUMPASSION]
+Name = Pasión Delirio
+Type = FAIRY
+Category = Status
+Accuracy = 0
+TotalPP = 5
+Target = User
+FunctionCode = RaiseStatsBasedOnSpeciesLoseHP
+Flags = Snatch,Dance
+Description = El usuario baila para aumentar sus estadísticas brutalmente a cambio de sus PS.
+#-------------------------------
+[ASTRALGLEAM]
+Name = Destello Astral
+Type = PSYCHIC
+Category = Physical
+Power = 90
+Accuracy = 90
+TotalPP = 10
+EffectChance = 20
+Target = NearOther
+FunctionCode = LowerTargetAccuracy1
+Flags = CanProtect,CanMirrorMove
+Description = Desprende un destello con el poder de los astros dañando al objetivo. Puede bajar la Precisión.
+#-------------------------------
+[SPIRALSTRIKE]
+Name = Golpe Espiral
+Type = FLYING
+Category = Physical
+Power = 50
+Accuracy = 100
+TotalPP = 20
+EffectChance = 100
+Target = NearOther
+FunctionCode = RaiseUserSpeed1
+Flags = Contact,CanProtect,CanMirrorMove
+Description = Ráfaga que golpea al objetivo y aumentan la Velocidad del atacante.
+#-------------------------------
+[MAGICPHOTON]
+Name = Fotón Mágico
+Type = FAIRY
+Category = Special
+Power = 40
+Accuracy = 100
+TotalPP = 10
+EffectChance = 100
+Target = NearOther
+Priority = 3
+FunctionCode = FlinchTargetFailsIfNotUserFirstTurn
+Flags = CanProtect,CanMirrorMove
+Description = Destello rápido que hace retroceder al rival. Solo sirve en el primer turno.
+#-------------------------------
+[HONEYTERRAIN]
+Name = Campo de Miel
+Type = BUG
+Category = Status
+Accuracy = 0
+TotalPP = 10
+Target = BothSides
+FunctionCode = StartHoneyTerrain
+Description = Durante cinco turnos, crea un campo de miel en el terreno de combate. Hace que todos los Pokémon estén adheridos al suelo.
+#-------------------------------
+[LIQUIDIZE]
+Name = Liquidar
+Type = POISON
+Category = Status
+Accuracy = 75
+TotalPP = 10
+Target = NearOther
+FunctionCode = BadPoisonTargetIgnoreType
+Flags = CanProtect,CanMirrorMove
+Description = Envenena gravemente ignorando los tipos del objetivo.
+#-------------------------------
+[MAGICSPARKLE]
+Name = Chispa Mágica
+Type = FAIRY
+Category = Special
+Power = 60
+Accuracy = 100
+TotalPP = 5
+EffectChance = 100
+Target = NearOther
+FunctionCode = LowerTargetDefSpDef1InMistyTerrain
+Flags = CanProtect,CanMirrorMove
+Description = El usuario ataca con una chispa feerica. Si está el Campo de Niebla, reduce ambas defensas del objetivo.
+#-------------------------------
+[PROTONCHARGE]
+Name = Carga Protón
+Type = ELECTRIC
+Category = Physical
+Power = 80
+Accuracy = 90
+TotalPP = 10
+EffectChance = 20
+Target = NearOther
+FunctionCode = RaiseUserSpeed1
+Flags = Contact,CanProtect,CanMirrorMove
+Description = El usuario se envuelve en una bola de energia electrificada para dañar al oponente. Puede subir la Velocidad.
+#-------------------------------
+[LEAPINGBUBBLE]
+Name = Burburrebote
+Type = WATER
+Category = Special
+Power = 95
+Accuracy = 100
+TotalPP = 10
+Target = NearOther
+FunctionCode = HealUserByHalfOfDamageDone
+Flags = CanProtect,CanMirrorMove
+Description = Burbuja corrosiva que drena salud al rival.
+#-------------------------------
+[FLORALTOXINE]
+Name = Toxina Floral
+Type = POISON
+Category = Special
+Power = 90
+Accuracy = 90
+TotalPP = 10
+EffectChance = 100
+Target = NearOther
+FunctionCode = DamageTargetStartLeechSeed
+Flags = CanProtect,CanMirrorMove
+Description = Ataca al objetivo y planta parásitos que absorben PS del rival en cada turno.
+#-------------------------------
+[FLASHSTEP]
+Name = Golpe Fugaz
+Type = PSYCHIC
+Category = Physical
+Power = 70
+Accuracy = 100
+TotalPP = 5
+Priority = 1
+Target = NearOther
+FunctionCode = FailsIfTargetActed
+Flags = Contact,CanProtect,CanMirrorMove
+Description = Usa toda su capacidad para predecir el próximo ataque. Falla si el objetivo no ataca directamente.
+#-------------------------------
+[MANTICPOWER]
+Name = Fuerza Mántica
+Type = PSYCHIC
+Category = Physical
+Power = 80
+Accuracy = 100
+TotalPP = 15
+EffectChance = 20
+Target = NearOther
+FunctionCode = ParalyzeBurnOrFreezeTarget
+Flags = Contact,CanProtect,CanMirrorMove
+Description = Golpea al oponente en un nervio. Puede quemar, paralizar o helar.
+#-------------------------------
+[CONVERSIONZ]
+Name = Coversión Z
+Type = NORMAL
+Category = Status
+Accuracy = 0
+TotalPP = 5
+Target = User
+FunctionCode = RaiseUserMainStats1LoseThirdOfTotalHP
+Flags = Snatch
+Description = El usuario aumenta todas sus características a cambio de sus PS.

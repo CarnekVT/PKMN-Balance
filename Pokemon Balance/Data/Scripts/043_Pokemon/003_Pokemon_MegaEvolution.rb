@@ -1,5 +1,4 @@
 class Pokemon
-  attr_accessor :previous_form   # For tracking form changes
   #=============================================================================
   # Mega Evolution
   # NOTE: These are treated as form changes in Essentials.
@@ -7,7 +6,7 @@ class Pokemon
   def getMegaForm
     ret = 0
     GameData::Species.each do |data|
-      next if data.species != @species || (data.unmega_form != form_simple && data.unmega_form != -2) || data.has_flag?("cantMegaEvolve")
+      next if data.species != @species || data.unmega_form != form_simple
       if data.mega_stone && hasItem?(data.mega_stone)
         ret = data.form
         break
@@ -34,19 +33,12 @@ class Pokemon
 
   def makeMega
     megaForm = self.getMegaForm
-    if megaForm > 0
-      @previous_form = self.form
-      self.form = megaForm
-    end
+    self.form = megaForm if megaForm > 0
   end
 
   def makeUnmega
     unmegaForm = self.getUnmegaForm
-    if unmegaForm >= 0
-      self.form = unmegaForm
-    elsif unmegaForm == -2 && @previous_form && @previous_form >= 0
-      self.form = @previous_form  
-    end
+    self.form = unmegaForm if unmegaForm >= 0
   end
 
   def megaName

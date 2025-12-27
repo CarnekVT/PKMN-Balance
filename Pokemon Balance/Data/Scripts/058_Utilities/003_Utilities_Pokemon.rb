@@ -22,7 +22,7 @@ def pbStorePokemon(pkmn, allow_change_party = true)
   end
   pkmn.record_first_moves
   if $player.party_full? 
-    if allow_change_party && $PokemonSystem.sendtoboxes == 0
+    if allow_change_party
       pbShowUserStoreActions(pkmn)
     else
       stored_box = $PokemonStorage.pbStoreCaught(pkmn)
@@ -59,7 +59,7 @@ def pbShowUserStoreActions(pkmn)
       box_name   = $PokemonStorage[stored_box].name
       
       pbMessage(_INTL("¡{1} se ha enviado a la Caja \"{2}\"!", send_pkmn.name, box_name))
-      pbMessage(_INTL("¡{1} se ha añadido al equipo!", pkmn.name))
+      pbMessage(_INTL("¡{1} fue añadido al equipo!", pkmn.name))
       break
     when 1
       stored_box = $PokemonStorage.pbStoreCaught(pkmn)

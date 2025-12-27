@@ -366,14 +366,7 @@ class Interpreter
   end
 
   def pbGetPokemon(id)
-    var_value = pbGet(id)
-    return nil if var_value.nil?
-    if var_value.is_a?(Array)
-      box = var_value[0]
-      index = var_value[1]
-      return $PokemonStorage[box][index]
-    end
-    return $player.party[var_value]
+    return $player.party[pbGet(id)]
   end
 
   def pbSetEventTime(*arg)

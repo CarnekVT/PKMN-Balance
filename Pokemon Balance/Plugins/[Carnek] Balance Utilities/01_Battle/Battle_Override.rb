@@ -1,6 +1,5 @@
-def pbCalcDamageMultipliers(user, target, numTargets, type, baseDmg, multipliers)
-  # Drowsy
-  if target.status == :DROWSY
-    multipliers[:final_damage_multiplier] *= 4 / 3.0
+class Battle
+  def canSwitch
+    return @rules["canSwitch"].nil? ? true : @rules["canSwitch"]
   end
-end  
+end

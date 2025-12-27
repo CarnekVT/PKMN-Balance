@@ -243,7 +243,7 @@ class MTS_Element_OL5
     @sprites = {}
     # creates the background layer
     @sprites["ol"] = Sprite.new(@viewport)
-    @sprites["ol"].bitmap = pbBitmap("Graphics/MODTS/Overlays/static001")
+    @sprites["ol"].bitmap = RPG::Cache.load_bitmap("", "Graphics/MODTS/Overlays/static001")
     @sprites["ol"].z = z.nil? ? 200 : z
     # creates overlay shine
     @sprites["s"] = Sprite.new(@viewport)
@@ -292,7 +292,7 @@ class MTS_Element_OL6
     # creates all the star particles
     for i in 0...128
       @sprites["s#{i}"] = Sprite.new(@viewport)
-      @sprites["s#{i}"].bitmap = pbBitmap(sprintf("Graphics/MODTS/Particles/star%03d",rand(7)+1))
+      @sprites["s#{i}"].bitmap = RPG::Cache.load_bitmap("", sprintf("Graphics/MODTS/Particles/star%03d",rand(7)+1))
       @sprites["s#{i}"].ox = @sprites["s#{i}"].bitmap.width/2
       @sprites["s#{i}"].oy = @sprites["s#{i}"].bitmap.height/2
       zm = [0.4,0.4,0.5,0.6,0.7][rand(5)]
@@ -410,7 +410,7 @@ class MTS_Element_OLX
     @sprites = {}
     # creates the background layer
     @sprites["ol"] = Sprite.new(@viewport)
-    @sprites["ol"].bitmap = pbBitmap("Graphics/MODTS/Overlays/#{file}")
+    @sprites["ol"].bitmap = RPG::Cache.load_bitmap("", "Graphics/MODTS/Overlays/#{file}")
     @sprites["ol"].online_bitmap("http://luka-sj.com/ast/unsec/doofbg.png") if defined?(firstApr?) && firstApr?
     @sprites["ol"].z = z.nil? ? 100 : z
   end
@@ -449,5 +449,31 @@ class MTS_Element_OLX
   # checks if disposed
   def disposed?; return @disposed; end
   # end
+end
+#===============================================================================
+# ScrollingSprite compatibility for v21.1
+#===============================================================================
+class ScrollingSprite < Sprite
+  attr_accessor :speed
+  attr_accessor :direction
+  def initialize(viewport)
+    super(viewport)
+    @speed = 1
+    @direction = 1
+  end
+  def setBitmap(filename, tile = false)
+    self.bitmap = RPG::Cache.load_bitmap("", filename)
+    if tile
+      self.src_rect = Rect.new(0, 0, self.bitmap.width, self.bitmap.height)
+    end
+  end
+  def update
+    self.x += @speed * @direction
+    if self.x > self.bitmap.width
+      self.x = 0
+    elsif self.x < -self.bitmap.width
+      self.x = 0
+    end
+  end
 end
 #===============================================================================

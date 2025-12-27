@@ -75,7 +75,6 @@ class Game_Map
 
   def updateTileset
     tileset = $data_tilesets[@map.tileset_id]
-    return if !tileset
     @tileset_name    = tileset.tileset_name
     @autotile_names  = tileset.autotile_names
     @panorama_name   = tileset.panorama_name

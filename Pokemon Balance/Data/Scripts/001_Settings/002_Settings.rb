@@ -358,11 +358,6 @@ module Settings
   # Desactivar si no quieres mostrar las MOs en el menú de la D (Objetos registrados).
   SHOW_HMS_IN_SPECIAL_MENU = true
 
-  # Si se permite el uso de ratón/táctil en los menús de batalla (comandos,
-  # movimientos y selección de objetivos). Si está en false, solo se podrá
-  # usar el teclado/mando para navegar por los menús.
-  ENABLE_MOUSE_INPUT_IN_BATTLE = false
-
   #=============================================================================
   
   # Par de IDs de mapas, en los que el mensaje con el nombre de la zona no se 
@@ -579,16 +574,7 @@ module Settings
   # Desactiva el sonido de "bump" al chocarte con cosas.
   DISABLE_BUMP_SOUND = false
   #=============================================================================
-  
-  # Cuando hayas completado el almacenamiento de las cajas, si intentas guardar
-  # más Pokémon, se añadirán más cajas automáticamente.
-  STORAGE_EXTEND_ON_FULL = false
 
-  # Limite de cuantas totales puede haber si STORAGE_EXTEND_ON_FULL
-  # Este numero deberia ser mayor a NUM_STORAGE_BOXES
-  MAX_STORAGE_BOXES_EXTEND = 70
-
-  #=============================================================================
   # Aquí van los créditos de tu juego, en un array. Puedes poner las líneas 
   # dentro de un _INTL() para que sea fácil de traducirlas a otros idiomas.
   # Para que una línea se separe en dos columnas, pon "<s>" entre ellas.
@@ -682,7 +668,7 @@ end
 module Essentials
   VERSION = "21.1"
   ERROR_TEXT = ""
-  MKXPZ_VERSION = "2.4.2/c9378cf"
+  MKXPZ_VERSION = "2.4.2/68a344a"
 end
 
 

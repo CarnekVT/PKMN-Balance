@@ -137,7 +137,6 @@ class Battle::Scene
       @sprites["dataBox_#{i}"].initializeDataBoxGraphic(@battle.pbSideSize(i))
       @sprites["dataBox_#{i}"].refresh
     end
-    pbUpdateHazardSprites if respond_to?(:pbUpdateHazardSprites)
   end
 
   #=============================================================================

@@ -170,13 +170,13 @@ class MTS_Element_BG3
     @fpIndex = 0
     # creates the background
     @sprites["bg1"] = Sprite.new(@viewport)
-    @sprites["bg1"].bitmap = pbBitmap("Graphics/MODTS/Backgrounds/clouded")
+    @sprites["bg1"].bitmap = RPG::Cache.load_bitmap("", "Graphics/MODTS/Backgrounds/clouded")
     @sprites["bg1"].center!
     @sprites["bg1"].x = @viewport.rect.width/2
     @sprites["bg1"].y = @viewport.rect.height/2
     # creates additional set of graphic
     @sprites["bg2"] = Sprite.new(@viewport)
-    @sprites["bg2"].bitmap = pbBitmap("Graphics/MODTS/Particles/ring003")
+    @sprites["bg2"].bitmap = RPG::Cache.load_bitmap("", "Graphics/MODTS/Particles/ring003")
     @sprites["bg2"].center!
     @sprites["bg2"].x = @viewport.rect.width/2
     @sprites["bg2"].y = @viewport.rect.height/2

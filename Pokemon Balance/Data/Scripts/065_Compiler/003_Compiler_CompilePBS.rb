@@ -1,5 +1,141 @@
+#===============================================================================
+#
+#===============================================================================
 module Compiler
+  @@categories[:pbs_files] = {
+    :should_compile => proc { |compiling| next should_compile_pbs_files? },
+    :header_text    => proc { next _INTL("Compilando archivos PBS") },
+    :skipped_text   => proc { next _INTL("No compilado") },
+    :compile        => proc {
+      # Delete old data files in preparation for recompiling
+      get_all_pbs_data_filenames_to_compile.each do |filename|
+        begin
+          File.delete(File.join("Data", filename[0])) if FileTest.exist?(File.join("Data", filename[0]))
+        rescue SystemCallError
+        end
+      end
+      text_files = get_all_pbs_files_to_compile
+      compile_pbs_files(text_files)
+    }
+  }
+
   module_function
+
+  def get_all_pbs_data_filenames_to_compile
+    ret = GameData.get_all_data_filenames
+    ret += [   # Extra .dat files for data that isn't a GameData class
+      ["map_connections.dat", true],
+      ["regional_dexes.dat", true],
+      ["trainer_lists.dat", true]
+    ]
+    return ret
+  end
+
+  def get_all_pbs_files_to_compile
+    # Get the GameData classes and their respective base PBS filenames
+    ret = GameData.get_all_pbs_base_filenames
+    ret.merge!({
+      :BattleFacility => "battle_facility_lists",
+      :Connection     => "map_connections",
+      :RegionalDex    => "regional_dexes"
+    })
+    ret.each { |key, val| ret[key] = [val] }   # [base_filename, ["PBS/file.txt", etc.]]
+    # Look through all PBS files and match them to a GameData class based on
+    # their base filenames
+    text_files_keys = ret.keys.sort! { |a, b| ret[b][0].length <=> ret[a][0].length }
+    Dir.chdir("PBS/") do
+      Dir.glob("*.txt") do |f|
+        base_name = File.basename(f, ".txt")
+        text_files_keys.each do |key|
+          next if base_name != ret[key][0] && !f.start_with?(ret[key][0] + "_")
+          ret[key][1] ||= []
+          ret[key][1].push("PBS/" + f)
+          break
+        end
+      end
+    end
+    return ret
+  end
+
+  def should_compile_pbs_files?
+    # If no PBS folder exists, create one and fill it, then recompile
+    if !FileTest.directory?("PBS")
+      Dir.mkdir("PBS") rescue nil
+      GameData.load_all
+      write_all_pbs_files
+      return true
+    end
+    # Get all data files and PBS files to be checked for their last modified times
+    data_files = get_all_pbs_data_filenames_to_compile
+    text_files = get_all_pbs_files_to_compile
+    # Check data files for their latest modify time
+    latest_data_write_time = 0
+    data_files.each do |filename|   # filename = [string, boolean (whether mandatory)]
+      if FileTest.exist?("Data/" + filename[0])
+        begin
+          File.open("Data/#{filename[0]}") do |file|
+            latest_data_write_time = [latest_data_write_time, file.mtime.to_i].max
+          end
+        rescue SystemCallError
+          return true
+        end
+      elsif filename[1]
+        return true
+      end
+    end
+    # Check PBS files for their latest modify time
+    latest_text_edit_time = 0
+    text_files.each_value do |value|
+      next if !value || !value[1].is_a?(Array)
+      value[1].each do |filepath|
+        begin
+          File.open(filepath) { |file| latest_text_edit_time = [latest_text_edit_time, file.mtime.to_i].max }
+        rescue SystemCallError
+        end
+      end
+    end
+    # Decide to compile if a PBS file was edited more recently than any .dat files
+    return (latest_text_edit_time >= latest_data_write_time)
+  end
+
+  def compile_pbs_files(text_files)
+    modify_pbs_file_contents_before_compiling
+    compile_town_map(*text_files[:TownMap][1])
+    compile_connections(*text_files[:Connection][1])
+    compile_types(*text_files[:Type][1])
+    compile_abilities(*text_files[:Ability][1])
+    compile_moves(*text_files[:Move][1])                       # Depends on Type
+    compile_items(*text_files[:Item][1])                       # Depends on Move
+    compile_berry_plants(*text_files[:BerryPlant][1])          # Depends on Item
+    compile_pokemon(*text_files[:Species][1])                  # Depends on Move, Item, Type, Ability
+    compile_pokemon_forms(*text_files[:Species1][1])           # Depends on Species, Move, Item, Type, Ability
+    compile_pokemon_metrics(*text_files[:SpeciesMetrics][1])   # Depends on Species
+    compile_shadow_pokemon(*text_files[:ShadowPokemon][1])     # Depends on Species
+    compile_regional_dexes(*text_files[:RegionalDex][1])       # Depends on Species
+    compile_ribbons(*text_files[:Ribbon][1])
+    compile_encounters(*text_files[:Encounter][1])             # Depends on Species
+    compile_trainer_types(*text_files[:TrainerType][1])
+    compile_trainers(*text_files[:Trainer][1])                 # Depends on Species, Item, Move
+    compile_trainer_lists                                      # Depends on TrainerType
+    compile_metadata(*text_files[:Metadata][1])                # Depends on TrainerType
+    compile_map_metadata(*text_files[:MapMetadata][1])
+    compile_dungeon_tilesets(*text_files[:DungeonTileset][1])
+    compile_dungeon_parameters(*text_files[:DungeonParameters][1])
+    compile_phone(*text_files[:PhoneMessage][1])               # Depends on TrainerType
+  end
+
+  #-----------------------------------------------------------------------------
+  # Generic methods used when compiling PBS files.
+  #-----------------------------------------------------------------------------
+  def compile_pbs_file_message_start(filename)
+    # The `` around the file's name turns it cyan
+    Console.echo_li(_INTL("Compilando archivo PBS`{1}`...", filename.split("/").last))
+  end
+
+  def process_pbs_file_message_end
+    Console.echo_done(true)
+    Graphics.update
+  end
 
   def compile_PBS_file_generic(game_data, *paths)
     if game_data.const_defined?(:OPTIONAL) && game_data::OPTIONAL
@@ -98,9 +234,9 @@ module Compiler
     MessageTypes.setMessagesAsHash(MessageTypes::REGION_LOCATION_DESCRIPTIONS, interest_names)
   end
 
-  #=============================================================================
-  # Compile map connections
-  #=============================================================================
+  #-----------------------------------------------------------------------------
+  # Compile map connections.
+  #-----------------------------------------------------------------------------
   def compile_connections(*paths)
     hashenum = {
       "N" => "N", "North" => "N",
@@ -310,6 +446,16 @@ module Compiler
     # Convert height and weight to integer values of tenths of a unit
     hash[:height] = [(hash[:height] * 10).round, 1].max if hash[:height]
     hash[:weight] = [(hash[:weight] * 10).round, 1].max if hash[:weight]
+    # Ensure evolutions have a parameter if they need one (don't need to ensure
+    # the parameter makes sense; that happens below)
+    if hash[:evolutions]
+      hash[:evolutions].each do |evo|
+        FileLineData.setSection(hash[:id].to_s, "Evolution", "Evolution = #{evo[0]},#{evo[1]}")   # For error reporting
+        param_type = GameData::Evolution.get(evo[1]).parameter
+        next if evo[2] || param_type.nil?
+        raise _INTL("El método de Evolución {1} requiere un parámetro, pero no se proporcionó ninguno.", evo[1]) + "\n" + FileLineData.linereport
+      end
+    end
     # Record all evolutions as not being prevolutions
     if hash[:evolutions].is_a?(Array)
       hash[:evolutions].each { |evo| evo[3] = false }
@@ -767,6 +913,12 @@ module Compiler
   end
 
   def validate_compiled_trainer_type(hash)
+    # Ensure valid Poké Ball
+    if hash[:poke_ball]
+      if !GameData::Item.get(hash[:poke_ball]).is_poke_ball?
+        raise _INTL("Valor '{1}' no es una Poké Ball definida.", hash[:poke_ball]) + "\n" + FileLineData.linereport
+      end
+    end
   end
 
   def validate_all_compiled_trainer_types
@@ -1268,56 +1420,4 @@ module Compiler
     end
     MessageTypes.setMessagesAsHash(MessageTypes::PHONE_MESSAGES, messages)
   end
-
-  #=============================================================================
-  # Compile battle animations
-  #=============================================================================
-  def compile_animations
-    Console.echo_li(_INTL("Compilando animaciones..."))
-    begin
-      pbanims = load_data("Data/PkmnAnimations.rxdata")
-    rescue
-      pbanims = PBAnimations.new
-    end
-    changed = false
-    move2anim = [{}, {}]
-#    anims = load_data("Data/Animations.rxdata")
-#    for anim in anims
-#      next if !anim || anim.frames.length == 1
-#      found = false
-#      for i in 0...pbanims.length
-#        if pbanims[i] && pbanims[i].id == anim.id
-#          found = true if pbanims[i].array.length > 1
-#          break
-#        end
-#      end
-#      pbanims[anim.id] = pbConvertRPGAnimation(anim) if !found
-#    end
-    idx = 0
-    pbanims.length.times do |i|
-      echo "." if idx % 100 == 0
-      Graphics.update if idx % 500 == 0
-      idx += 1
-      next if !pbanims[i]
-      if pbanims[i].name[/^OppMove\:\s*(.*)$/]
-        if GameData::Move.exists?($~[1])
-          moveid = GameData::Move.get($~[1]).id
-          changed = true if !move2anim[0][moveid] || move2anim[1][moveid] != i
-          move2anim[1][moveid] = i
-        end
-      elsif pbanims[i].name[/^Move\:\s*(.*)$/]
-        if GameData::Move.exists?($~[1])
-          moveid = GameData::Move.get($~[1]).id
-          changed = true if !move2anim[0][moveid] || move2anim[0][moveid] != i
-          move2anim[0][moveid] = i
-        end
-      end
-    end
-    if changed
-      save_data(move2anim, "Data/move2anim.dat")
-      save_data(pbanims, "Data/PkmnAnimations.rxdata")
-    end
-    process_pbs_file_message_end
-  end
 end
-

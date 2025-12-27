@@ -276,7 +276,7 @@ class Battle
     return @decision
   end
 
-  def pbStartBattleCore(battle_loop = true)
+  def pbStartBattleCore
     # Set up the battlers on each side
     sendOuts = pbSetUpSides
     @battleAI.create_ai_objects
@@ -313,8 +313,8 @@ class Battle
     # Abilities upon entering battle
     pbOnAllBattlersEnteringBattle
     # Main battle loop
-    pbBattleLoop if battle_loop
-  end 
+    pbBattleLoop
+  end
 
   #=============================================================================
   # Main battle loop
@@ -502,7 +502,6 @@ class Battle
       next if !b
       pbCancelChoice(b.index)   # Restore unused items to Bag
       Battle::AbilityEffects.triggerOnSwitchOut(b.ability, b, true) if b.abilityActive?
-      b.pokemon.makeUnmega if b.mega? 
     end
     pbParty(0).each_with_index do |pkmn, i|
       next if !pkmn

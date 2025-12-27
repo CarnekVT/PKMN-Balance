@@ -114,10 +114,6 @@ class PokemonSummary_Scene
     pbUpdateSpriteHash(@sprites)
   end
 
-  def gray_out_fainted_pokemon
-    @sprites["pokeicon"].make_grey_if_fainted = @pokemon.fainted?
-  end
-
   def pbStartScene(party, partyindex, inbattle = false, page=1, allow_learn_moves = true)
     @viewport = Viewport.new(0, 0, Graphics.width, Graphics.height)
     @viewport.z = 99999
@@ -132,14 +128,12 @@ class PokemonSummary_Scene
     @sprites = {}
     @sprites["background"] = IconSprite.new(0, 0, @viewport)
     @sprites["pokemon"] = PokemonSprite.new(@viewport)
-    @sprites["pokemon"].make_grey_if_fainted = @pokemon.fainted?
     @sprites["pokemon"].setOffset(PictureOrigin::CENTER)
     @sprites["pokemon"].x = 104
     @sprites["pokemon"].y = 206
     @sprites["pokemon"].setPokemonBitmap(@pokemon)
     @sprites["pokeicon"] = PokemonIconSprite.new(@pokemon, @viewport)
     @sprites["pokeicon"].setOffset(PictureOrigin::CENTER)
-    @sprites["pokeicon"].make_grey_if_fainted = @pokemon.fainted?
     @sprites["pokeicon"].x       = 46
     @sprites["pokeicon"].y       = 92
     @sprites["pokeicon"].visible = false
@@ -202,7 +196,6 @@ class PokemonSummary_Scene
     pbSetSystemFont(@sprites["overlay"].bitmap)
     @sprites["pokeicon"] = PokemonIconSprite.new(@pokemon, @viewport)
     @sprites["pokeicon"].setOffset(PictureOrigin::CENTER)
-    @sprites["pokeicon"].make_grey_if_fainted = @pokemon.fainted?
     @sprites["pokeicon"].x       = 46
     @sprites["pokeicon"].y       = 92
     @sprites["movesel"] = MoveSelectionSprite.new(@viewport, !move_to_learn.nil?)
@@ -314,9 +307,7 @@ class PokemonSummary_Scene
       return
     end
     @sprites["pokemon"].setPokemonBitmap(@pokemon)
-    @sprites["pokemon"].make_grey_if_fainted = @pokemon.fainted?
     @sprites["pokeicon"].pokemon = @pokemon
-    @sprites["pokeicon"].make_grey_if_fainted = @pokemon.fainted?
     @sprites["itemicon"].item = @pokemon.item_id
     overlay = @sprites["overlay"].bitmap
     overlay.clear
@@ -642,6 +633,41 @@ class PokemonSummary_Scene
                              _INTL("Huye rápido.")]
       }
       memo += black_text_tag + characteristics[best_stat][best_iv % 5] + "\n"
+    end
+    # Write evolution info
+    species_data = GameData::Species.get(@pokemon.species)
+    evolutions = species_data.get_evolutions(true)
+    if evolutions.length > 0
+      evo_text = "\nEvoluciones:\n"
+      grouped_evos = evolutions.group_by { |evo| evo[0] }
+      grouped_evos.each do |species_id, evos|
+        new_species = GameData::Species.get(species_id)
+        method_names = evos.map do |evo|
+          method = GameData::Evolution.get(evo[1])
+          method_name = method.real_name
+          if method.id == :Counter
+            if method.parameter == 1000
+              method_name = "Caminar #{method.parameter} pasos"
+            elsif method.parameter == 294
+              method_name = "Recibir daño por retroceso #{method.parameter} veces"
+            else
+              case new_species.id
+              when :ANNIHILAPE then move_id = :RAGEFIST
+              when :OVERQWIL then move_id = :BARBBARRAGE
+              when :WYRDEER then move_id = :PSYSHIELDBASH
+              end
+              if move_id
+                move_name = GameData::Move.get(move_id).name
+                method_name = "Usar #{move_name} #{method.parameter} veces"
+              end
+            end
+          end
+          method_name
+        end
+        combined_method = method_names.join(" y ")
+        evo_text += "#{new_species.name}: #{combined_method}\n"
+      end
+      memo += black_text_tag + evo_text
     end
     # Write all text
     drawFormattedTextEx(overlay, 232, 86, 268, memo)

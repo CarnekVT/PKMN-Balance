@@ -551,10 +551,10 @@ class Game_Event < Game_Character
     return if @map_id != $game_player.map_id
     __hotfixes__check_event_trigger_touch(dir)
   end
-  alias __hotfixes__pbCheckEventTriggerAfterTurning pbCheckEventTriggerAfterTurning unless method_defined?(:__hotfixes__pbCheckEventTriggerAfterTurning)
-  def pbCheckEventTriggerAfterTurning
+  alias __hotfixes__check_event_trigger_after_turning check_event_trigger_after_turning unless method_defined?(:__hotfixes__check_event_trigger_after_turning)
+  def check_event_trigger_after_turning
     return if @map_id != $game_player.map_id
-    return __hotfixes__pbCheckEventTriggerAfterTurning
+    return __hotfixes__check_event_trigger_after_turning
   end
   def onEvent?
     return @map_id == $game_player.map_id && at_coordinate?($game_player.x, $game_player.y)
@@ -712,4 +712,52 @@ end
 def pbFacingEachOther(event1, event2)
   return false if event1.map_id != event2.map_id
   return pbEventFacesPlayer?(event1, event2, 1) && pbEventFacesPlayer?(event2, event1, 1)
+end
+
+#===============================================================================
+# Fixed status assignment to accept symbols for v21.1 compatibility
+#===============================================================================
+class Pokemon
+  alias __hotfixes__status= status= unless method_defined?(:__hotfixes__status=)
+
+  def status=(value)
+    if value.is_a?(Symbol)
+      status_data = GameData::Status.try_get(value)
+      value = status_data ? status_data.id_number : 0
+    end
+    __hotfixes__status=(value)
+  end
+end
+
+#===============================================================================
+# Fixed triggerCriticalCalcFromUser argument count mismatch in v21.1
+#===============================================================================
+module Battle::AbilityEffects
+  class << self
+    alias __hotfixes__triggerCriticalCalcFromUser triggerCriticalCalcFromUser unless method_defined?(:__hotfixes__triggerCriticalCalcFromUser)
+    alias __hotfixes__triggerCriticalCalcFromTarget triggerCriticalCalcFromTarget unless method_defined?(:__hotfixes__triggerCriticalCalcFromTarget)
+
+    def triggerCriticalCalcFromUser(ability, user, target, crit_stage)
+      __hotfixes__triggerCriticalCalcFromUser(ability, user, target, crit_stage)
+    end
+
+    def triggerCriticalCalcFromTarget(ability, user, target, crit_stage)
+      __hotfixes__triggerCriticalCalcFromTarget(ability, user, target, crit_stage)
+    end
+  end
+end
+
+module Battle::ItemEffects
+  class << self
+    alias __hotfixes__triggerCriticalCalcFromUser triggerCriticalCalcFromUser unless method_defined?(:__hotfixes__triggerCriticalCalcFromUser)
+    alias __hotfixes__triggerCriticalCalcFromTarget triggerCriticalCalcFromTarget unless method_defined?(:__hotfixes__triggerCriticalCalcFromTarget)
+
+    def triggerCriticalCalcFromUser(item, user, target, crit_stage)
+      __hotfixes__triggerCriticalCalcFromUser(item, user, target, crit_stage)
+    end
+
+    def triggerCriticalCalcFromTarget(item, user, target, crit_stage)
+      __hotfixes__triggerCriticalCalcFromTarget(item, user, target, crit_stage)
+    end
+  end
 end

@@ -1,6 +1,42 @@
 module Compiler
   module_function
 
+  def write_all_pbs_files
+    Console.echo_h1(_INTL("Escribiendo todos los archivos PBS"))
+    write_town_map
+    write_connections
+    write_types
+    write_abilities
+    write_moves
+    write_items
+    write_berry_plants
+    write_pokemon
+    write_pokemon_forms
+    write_pokemon_metrics
+    write_shadow_pokemon
+    write_regional_dexes
+    write_ribbons
+    write_encounters
+    write_trainer_types
+    write_trainers
+    write_trainer_lists
+    write_metadata
+    write_map_metadata
+    write_dungeon_tilesets
+    write_dungeon_parameters
+    write_phone
+    echoln ""
+    Console.echo_h2(_INTL("Se rescribieron todos los archivos PBS exitosamente"), text: :green)
+  end
+
+  #-----------------------------------------------------------------------------
+  # Generic methods used when writing PBS files.
+  #-----------------------------------------------------------------------------
+  def write_pbs_file_message_start(filename)
+    # The `` around the file's name turns it cyan
+    Console.echo_li(_INTL("Escribiendo archivo PBS `{1}`...", filename.split("/").last))
+  end
+
   def get_all_PBS_file_paths(game_data)
     ret = []
     game_data.each { |element| ret.push(element.pbs_file_suffix) if !ret.include?(element.pbs_file_suffix) }
@@ -68,12 +104,62 @@ module Compiler
   # Save Town Map data to PBS file
   #=============================================================================
   def write_town_map
-    write_PBS_file_generic(GameData::TownMap)
+    paths = get_all_PBS_file_paths(GameData::TownMap)
+    schema = GameData::TownMap.schema
+    sub_schema = GameData::TownMap.sub_schema
+    idx = 0
+    paths.each do |path|
+      write_pbs_file_message_start(path[0])
+      File.open(path[0], "wb") do |f|
+        add_PBS_header_to_file(f)
+        # Write each element in turn
+        GameData::TownMap.each do |element|
+          next if element.pbs_file_suffix != path[1]
+          echo "." if idx % 100 == 0
+          Graphics.update if idx % 500 == 0
+          idx += 1
+          f.write("\#-------------------------------\r\n")
+          if schema["SectionName"]
+            f.write("[")
+            pbWriteCsvRecord(element.get_property_for_PBS("SectionName"), f, schema["SectionName"])
+            f.write("]\r\n")
+          else
+            f.write("[#{element.id}]\r\n")
+          end
+          # Write each town map property
+          schema.each_key do |key|
+            next if ["SectionName", "Point"].include?(key)
+            val = element.get_property_for_PBS(key)
+            next if val.nil?
+            f.write(sprintf("%s = ", key))
+            pbWriteCsvRecord(val, f, schema[key])
+            f.write("\r\n")
+          end
+          # Write each point in turn
+          element.points.each_with_index do |point, i|
+            # Write position/name
+            val = element.get_point_property_for_PBS("Point", i)
+            f.write("Point = ")
+            pbWriteCsvRecord(val, f, schema["Point"])
+            f.write("\r\n")
+            # Write other point properties
+            sub_schema.each_key do |key|
+              val = element.get_point_property_for_PBS(key, i)
+              next if val.nil?
+              f.write(sprintf("    %s = ", key))
+              pbWriteCsvRecord(val, f, sub_schema[key])
+              f.write("\r\n")
+            end
+          end
+        end
+      end
+      process_pbs_file_message_end
+    end
   end
 
-  #=============================================================================
-  # Save map connections to PBS file
-  #=============================================================================
+  #-----------------------------------------------------------------------------
+  # Save map connections to PBS file.
+  #-----------------------------------------------------------------------------
   def normalize_connection(conn)
     ret = conn.clone
     if conn[1].negative? != conn[4].negative?   # Exactly one is negative
@@ -787,36 +873,4 @@ module Compiler
   def write_phone
     write_PBS_file_generic(GameData::PhoneMessage)
   end
-
-  #=============================================================================
-  # Save all data to PBS files
-  #=============================================================================
-  def write_all
-    Console.echo_h1(_INTL("Writing all PBS files"))
-    write_town_map
-    write_connections
-    write_types
-    write_abilities
-    write_moves
-    write_items
-    write_berry_plants
-    write_pokemon
-    write_pokemon_forms
-    write_pokemon_metrics
-    write_shadow_pokemon
-    write_regional_dexes
-    write_ribbons
-    write_encounters
-    write_trainer_types
-    write_trainers
-    write_trainer_lists
-    write_metadata
-    write_map_metadata
-    write_dungeon_tilesets
-    write_dungeon_parameters
-    write_phone
-    echoln ""
-    Console.echo_h2(_INTL("Successfully rewrote all PBS files"), text: :green)
-  end
 end
-

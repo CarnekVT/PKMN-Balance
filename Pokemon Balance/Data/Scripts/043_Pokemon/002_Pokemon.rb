@@ -1077,17 +1077,7 @@ class Pokemon
     return nil if hasAbility?(:BATTLEBOND)
     species_data.get_evolutions(true).each do |evo|   # [new_species, method, parameter, boolean]
       next if evo[3]   # Prevolution
-      new_species = evo[0]
-      # Check if evolution method includes "Form" and extract form number
-      if evo[1].to_s.include?("Form")
-        # Extract form number from method name (e.g., "LevelNightForm1" -> 1)
-        if evo[1].to_s =~ /Form(\d+)$/
-          form_number = $1.to_i
-          # Build species ID with form (e.g., :LYCANROC_1)
-          new_species = GameData::Species.get_species_form(evo[0], form_number).id
-        end
-      end
-      ret = yield self, new_species, evo[1], evo[2]   # pkmn, new_species, method, parameter
+      ret = yield self, evo[0], evo[1], evo[2]   # pkmn, new_species, method, parameter
       return ret if ret
     end
     return nil
@@ -1214,6 +1204,11 @@ class Pokemon
         @evo_move_count[move] += qty
         break
       end
+      if evo[1] == :Counter && move == :COUNTER
+        @evo_counter_count = 0 if !@evo_counter_count
+        @evo_counter_count += qty
+        break
+      end
     end
   end
   
@@ -1251,7 +1246,7 @@ class Pokemon
   end
   
   def set_evo_crest_count(item, value)
-    init_crest_count(item)
+    init_evo_crest_count(item)
     @evo_crest_count[item] = value
   end
   
@@ -1295,6 +1290,48 @@ class Pokemon
   
   def evo_step_count=(value)
     @evo_step_count = value
+  end
+
+  #-----------------------------------------------------------------------------
+  # Counter evolution utilities.
+  #-----------------------------------------------------------------------------
+  def counter_evolution(qty = 1)
+    species_data.get_evolutions.each do |evo|
+      if evo[1] == :Counter
+        @evo_counter_count = 0 if !@evo_counter_count
+        @evo_counter_count += qty
+        break
+      end
+    end
+  end
+
+  def evo_counter_count
+    return @evo_counter_count || 0
+  end
+
+  def evo_counter_count=(value)
+    @evo_counter_count = value
+  end
+
+  #-----------------------------------------------------------------------------
+  # Critical hits evolution utilities.
+  #-----------------------------------------------------------------------------
+  def critical_hit_evolution(qty = 1)
+    species_data.get_evolutions.each do |evo|
+      if evo[1] == :AfterBattleCounter
+        @evo_critical_hits = 0 if !@evo_critical_hits
+        @evo_critical_hits += qty
+        break
+      end
+    end
+  end
+
+  def evo_critical_hits
+    return @evo_critical_hits || 0
+  end
+
+  def evo_critical_hits=(value)
+    @evo_critical_hits = value
   end
   
 
@@ -1343,6 +1380,8 @@ class Pokemon
     @evo_crest_count  = {}
     @evo_recoil_count = 0
     @evo_step_count   = 0
+    @evo_counter_count = 0
+    @evo_critical_hits = 0
     GameData::Stat.each_main do |s|
       @iv[s.id]       = rand(IV_STAT_LIMIT + 1)
       @ev[s.id]       = 0
@@ -1507,7 +1546,11 @@ GameData::Evolution.register({
 # Tracks steps taken to trigger walking evolutions for the lead Pokemon.
 #-------------------------------------------------------------------------------
 EventHandlers.add(:on_player_step_taken, :evolution_steps, proc {
-  $player.first_able_pokemon.walking_evolution if $player.party_count > 0 && $player.first_able_pokemon
+  if $player.party_count > 0 && $player.first_able_pokemon
+    pkmn = $player.first_able_pokemon
+    pkmn.walking_evolution
+    pkmn.counter_evolution(1)
+  end
 })
 
 #-------------------------------------------------------------------------------

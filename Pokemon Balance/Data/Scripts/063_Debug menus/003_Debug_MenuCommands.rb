@@ -1273,10 +1273,26 @@ MenuHandlers.add(:debug_menu, :editors_menu, {
   "description" => _INTL("Editar animaciones de combate, tags de terreno, datos de mapas, etc.")
 })
 
-MenuHandlers.add(:debug_menu, :animation_editor, {
-  "name"        => _INTL("Editor de animaciones de combate"),
+
+MenuHandlers.add(:debug_menu, :use_pc, {
+  "name"        => _INTL("Nuevo Editor de animaciones"),
   "parent"      => :editors_menu,
-  "description" => _INTL("Editar the battle animations."),
+  "description" => _INTL("Editar las animaciones de combate."),
+  "effect"      => proc {
+    Graphics.resize_screen(AnimationEditor::WINDOW_WIDTH, AnimationEditor::WINDOW_HEIGHT)
+    pbSetResizeFactor(1)
+    screen = AnimationEditor::AnimationSelector.new
+    screen.run
+    Graphics.resize_screen(Settings::SCREEN_WIDTH, Settings::SCREEN_HEIGHT)
+    pbSetResizeFactor($PokemonSystem.screensize)
+    $game_map&.autoplay
+  }
+})
+
+MenuHandlers.add(:debug_menu, :animation_editor, {
+  "name"        => _INTL("Antiguo Editor de animaciones de combate"),
+  "parent"      => :editors_menu,
+  "description" => _INTL("Editar las animaciones de combate en el editor antiguo."),
   "effect"      => proc {
     pbFadeOutIn { pbAnimationEditor }
   }
@@ -1382,7 +1398,7 @@ MenuHandlers.add(:debug_menu, :create_pbs_files, {
     loop do
       cmd = pbShowCommands(nil, cmds, -1, cmd)
       case cmd
-      when 0  then Compiler.write_all
+      when 0  then Compiler.write_all_pbs_files
       when 1  then Compiler.write_abilities
       when 2  then Compiler.write_trainer_lists
       when 3  then Compiler.write_berry_plants

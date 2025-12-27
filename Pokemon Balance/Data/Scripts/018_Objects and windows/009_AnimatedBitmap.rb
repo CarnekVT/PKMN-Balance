@@ -53,7 +53,7 @@ class PngAnimatedBitmap
       raise "Recuento de frames no válido en #{filename}" if numFrames <= 0
       raise "Duración de frames no válida en #{filename}" if duration <= 0
       if panorama.width % numFrames != 0
-        raise _INTL("El ancho del bitmap (#{panorama.width}) no es divisible por el recuento de fotogramas: #{filename}")
+        raise _INTL("El ancho del bitmap (#{panorama.width}) no es divisible por el recuento de frames: #{filename}")
       end
       @frame_duration = duration
       subWidth = panorama.width / numFrames

@@ -125,7 +125,6 @@ class Window_PokemonBag < Window_DrawableCommand
   attr_accessor :sorting
   attr_accessor :party1sel
   attr_accessor :party2sel
-  attr_accessor :filterlist
 
   def initialize(bag, filterlist, pocket, x, y, width, height)
     @bag        = bag
@@ -1172,13 +1171,8 @@ class PokemonBag_Scene
             if option != -1 && option < sort_keys.length
               sorted_pocket = sort_pocket(sort_keys[option], thispocket, itemwindow.pocket)
               if sorted_pocket && !sorted_pocket.empty?
-                @bag.pockets[itemwindow.pocket] = sorted_pocket
-                thispocket = @bag.pockets[itemwindow.pocket]
-                # Refresh filter list if filtering is active
-                if @filterlist
-                  pbRefreshFilter
-                  itemwindow.filterlist = @filterlist
-                end
+                thispocket = sorted_pocket
+                @bag.pockets[itemwindow.pocket] = thispocket
                 pbPlayDecisionSE
                 pbRefresh
               end

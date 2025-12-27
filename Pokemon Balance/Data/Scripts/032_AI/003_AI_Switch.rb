@@ -189,7 +189,7 @@ Battle::AI::Handlers::ShouldSwitch.add(:zero_to_hero_ability,
         "SwitchOutUserDamagingMove",         # U-Turn/Volt Switch
         "SwitchOutUserPassOnEffects",        # Baton Pass
         "LowerTargetAtkSpAtk1SwitchOutUser", # Parting Shot
-        "SwitchOutUserStartHailWeather",     # Chilly Reception
+        "StartHailWeatherSwitchOutUser",     # Chilly Reception
         "UserMakeSubstituteSwitchOut"        # Shed Tail
       ]
     hasSwitchMove = false

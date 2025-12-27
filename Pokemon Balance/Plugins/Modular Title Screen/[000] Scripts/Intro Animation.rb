@@ -289,7 +289,7 @@ class MTS_INTRO_ANIM3
     @sprites["black"].color = Color.new(255,255,255,0)
     # sapphire layer
     @sprites["saph"] = Sprite.new(@viewport)
-    @sprites["saph"].bitmap = pbBitmap("Graphics/MODTS/Intros/sapphire")
+    @sprites["saph"].bitmap = RPG::Cache.load_bitmap("", "Graphics/MODTS/Intros/sapphire")
     @sprites["saph"].z = 900
     @sprites["saph"].opacity = 0
     @sprites["saph"].color = Color.new(255,255,255,0)

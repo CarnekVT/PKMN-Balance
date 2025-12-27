@@ -149,6 +149,10 @@ class Game_Event < Game_Character
     start
   end
 
+  def check_event_trigger_after_turning
+    pbCheckEventTriggerAfterTurning
+  end
+
   def check_event_trigger_touch(dir)
     return if $game_system.map_interpreter.running?
     return if @trigger != 2   # Event touch

@@ -114,7 +114,7 @@ class Battle::Scene::PokemonDataBox < Sprite
     @contents = Bitmap.new(@databoxBitmap.width, @databoxBitmap.height)
     self.bitmap  = @contents
     self.visible = false
-    self.z       = 150 + ((@battler.index / 2) * 5)
+    self.z       = 10150 + ((@battler.index / 2) * 5)
     pbSetSystemFont(self.bitmap)
   end
 
@@ -473,7 +473,7 @@ class Battle::Scene::AbilitySplashBar < Sprite
     # Position the bar
     self.x       = (side == 0) ? -Graphics.width / 2 : Graphics.width
     self.y       = (side == 0) ? 180 : 80
-    self.z       = 120
+    self.z       = 1020
     self.visible = false
   end
 
@@ -613,9 +613,9 @@ class Battle::Scene::BattlerSprite < RPG::Sprite
     return if !@_iconBitmap
     pbSetOrigin
     if @index.even?
-      self.z = 50 + (5 * @index / 2)
+      self.z = 1100 + (100 * @index / 2)
     else
-      self.z = 50 - (5 * (@index + 1) / 2)
+      self.z = 1000 - (100 * (@index + 1) / 2)
     end
     # Set original position
     p = Battle::Scene.pbBattlerPosition(@index, @sideSize)
@@ -707,7 +707,7 @@ class Battle::Scene::BattlerShadowSprite < RPG::Sprite
   def pbSetPosition
     return if !@_iconBitmap
     pbSetOrigin
-    self.z = 3
+    self.z = -198
     # Set original position
     p = Battle::Scene.pbBattlerPosition(@index, @sideSize)
     self.x = p[0]

@@ -43,7 +43,7 @@ class MTS_Element_FX1
     for j in 0...16
       next if j > @fpIndex/2
       if @sprites["r#{j}"].opacity <= 0
-        bmp = pbBitmap("Graphics/MODTS/Particles/ray001")
+        bmp = RPG::Cache.load_bitmap("", "Graphics/MODTS/Particles/ray001")
         w = rand(65) + 16
         @sprites["r#{j}"].bitmap = Bitmap.new(w,bmp.height)
         @sprites["r#{j}"].bitmap.stretch_blt(@sprites["r#{j}"].bitmap.rect,bmp,bmp.rect)
@@ -88,7 +88,7 @@ class MTS_Element_FX2
     # initializes the required sprites
     for j in 0...20
       @sprites["s#{j}"] = Sprite.new(@viewport)
-      @sprites["s#{j}"].bitmap = pbBitmap("Graphics/MODTS/Particles/smoke001")
+      @sprites["s#{j}"].bitmap = RPG::Cache.load_bitmap("", "Graphics/MODTS/Particles/smoke001")
       @sprites["s#{j}"].center!
       @sprites["s#{j}"].x = self.x
       @sprites["s#{j}"].y = self.y
@@ -162,7 +162,7 @@ class MTS_Element_FX3
     # creates vacuum waves
     for j in 0...3
       @sprites["ec#{j}"] = Sprite.new(@viewport)
-      @sprites["ec#{j}"].bitmap = pbBitmap("Graphics/MODTS/Particles/ring002")
+      @sprites["ec#{j}"].bitmap = RPG::Cache.load_bitmap("", "Graphics/MODTS/Particles/ring002")
       @sprites["ec#{j}"].center!
       @sprites["ec#{j}"].x = self.x
       @sprites["ec#{j}"].y = self.y
@@ -227,7 +227,7 @@ class MTS_Element_FX4
     for i in 0...8; rangle.push((360/8)*i +  15); end
     for j in 0...8
       @sprites["r#{j}"] = Sprite.new(@viewport)
-      @sprites["r#{j}"].bitmap = pbBitmap("Graphics/MODTS/Particles/ray002")
+      @sprites["r#{j}"].bitmap = RPG::Cache.load_bitmap("", "Graphics/MODTS/Particles/ray002")
       @sprites["r#{j}"].ox = 0
       @sprites["r#{j}"].oy = @sprites["r#{j}"].bitmap.height/2
       @sprites["r#{j}"].opacity = 0
@@ -295,7 +295,7 @@ class MTS_Element_FX5
     r = 256
     for j in 0...16
       @sprites["s#{j}"] = Sprite.new(@viewport)
-      @sprites["s#{j}"].bitmap = pbBitmap("Graphics/MODTS/Particles/shine001")
+      @sprites["s#{j}"].bitmap = RPG::Cache.load_bitmap("", "Graphics/MODTS/Particles/shine001")
       @sprites["s#{j}"].center!
       @sprites["s#{j}"].x = self.x
       @sprites["s#{j}"].y = self.y
@@ -367,7 +367,7 @@ class MTS_Element_FX6
     @sprites = {}
     # initializes particles
     @sprites["shine2"] = Sprite.new(@viewport)
-    @sprites["shine2"].bitmap = pbBitmap("Graphics/MODTS/Particles/shine002")
+    @sprites["shine2"].bitmap = RPG::Cache.load_bitmap("", "Graphics/MODTS/Particles/shine002")
     @sprites["shine2"].center!
     @sprites["shine2"].x = self.x
     @sprites["shine2"].y = self.y
@@ -418,8 +418,11 @@ class MTS_Element_FX7
     @sprites = {}
     # initializes particles
     @sprites["shine"] = Sprite.new(@viewport)
-    @sprites["shine"].bitmap = pbBitmap("Graphics/MODTS/Particles/shine003")
-    @sprites["shine"].center!
+    @sprites["shine"].bitmap = RPG::Cache.load_bitmap("", "Graphics/MODTS/Particles/shine003")
+    @sprites["shine"].ox = @sprites["shine"].bitmap.width / 2
+    @sprites["shine"].oy = @sprites["shine"].bitmap.height / 2
+    @sprites["shine"].x = (@viewport.rect.width - @sprites["shine"].bitmap.width) / 2
+    @sprites["shine"].y = (@viewport.rect.height - @sprites["shine"].bitmap.height) / 2
     @sprites["shine"].x = self.x
     @sprites["shine"].y = self.y
     @sprites["shine"].z = z.nil? ? 30 : z
@@ -471,7 +474,7 @@ class MTS_Element_FX8
     for i in 0...6
       @shine["f#{i}"] = Sprite.new(@viewport)
       @shine["f#{i}"].z = z.nil? ? 50 : z
-      @shine["f#{i}"].bitmap = pbBitmap(sprintf("Graphics/MODTS/Particles/flare%03d",i+1))
+      @shine["f#{i}"].bitmap = RPG::Cache.load_bitmap("", sprintf("Graphics/MODTS/Particles/flare%03d",i+1))
       @shine["f#{i}"].center!
       @shine["f#{i}"].x = 0
       @shine["f#{i}"].y = 0
@@ -483,7 +486,7 @@ class MTS_Element_FX8
     for i in 0...3
       @shine["s#{i}"] = Sprite.new(@viewport)
       @shine["s#{i}"].z = z.nil? ? 50 : z
-      @shine["s#{i}"].bitmap = pbBitmap("Graphics/MODTS/Particles/ray003")
+      @shine["s#{i}"].bitmap = RPG::Cache.load_bitmap("", "Graphics/MODTS/Particles/ray003")
       @shine["s#{i}"].oy = @shine["s#{i}"].bitmap.height/2
       @shine["s#{i}"].angle = 290 + [-10,32,10][i]
       @shine["s#{i}"].zoom_x = 0
@@ -560,7 +563,7 @@ class MTS_Element_FX9
     @sprites = {}
     # creates all the electricity particles
     @sprites["ele"] = Sprite.new(@viewport)
-    @sprites["ele"].bitmap = pbBitmap("Graphics/MODTS/Overlays/special001")
+    @sprites["ele"].bitmap = RPG::Cache.load_bitmap("", "Graphics/MODTS/Overlays/special001")
     @sprites["ele"].src_rect.height = 72
     @sprites["ele"].src_rect.y = 72*(rand(@sprites["ele"].bitmap.height/72))
     @sprites["ele"].center!
@@ -572,7 +575,7 @@ class MTS_Element_FX9
     # left group
     for i in 0...16
       @sprites["l#{i}"] = Sprite.new(@viewport)
-      @sprites["l#{i}"].bitmap = pbBitmap("Graphics/MODTS/Particles/special001")
+      @sprites["l#{i}"].bitmap = RPG::Cache.load_bitmap("", "Graphics/MODTS/Particles/special001")
       @sprites["l#{i}"].center!
       @sprites["l#{i}"].opacity = 0
       @sprites["l#{i}"].z = z.nil? ? 30 : z
@@ -580,7 +583,7 @@ class MTS_Element_FX9
     # right group
     for i in 0...16
       @sprites["r#{i}"] = Sprite.new(@viewport)
-      @sprites["r#{i}"].bitmap = pbBitmap("Graphics/MODTS/Particles/special001")
+      @sprites["r#{i}"].bitmap = RPG::Cache.load_bitmap("", "Graphics/MODTS/Particles/special001")
       @sprites["r#{i}"].center!
       @sprites["r#{i}"].opacity = 0
       @sprites["r#{i}"].z = z.nil? ? 30 : z
@@ -671,7 +674,7 @@ class MTS_Element_FX10
     for k in 0...@amt*2
       i = (@amt*2 - 1) - k
       @sprites["f#{i}"] = Sprite.new(@viewport)
-      @sprites["f#{i}"].bitmap = pbBitmap("Graphics/MODTS/Particles/special003")
+      @sprites["f#{i}"].bitmap = RPG::Cache.load_bitmap("", "Graphics/MODTS/Particles/special003")
       @sprites["f#{i}"].src_rect.width /= 4
       @sprites["f#{i}"].src_rect.x = rand(4)*@sprites["f#{i}"].src_rect.width
       @sprites["f#{i}"].ox = @sprites["f#{i}"].src_rect.width/2
@@ -750,7 +753,7 @@ class MTS_Element_FX11
     @sprites = {}
     # initializes the required sprites
     @sprites["cir"] = Sprite.new(@viewport)
-    @sprites["cir"].bitmap = pbBitmap("Graphics/MODTS/Particles/radial002")
+    @sprites["cir"].bitmap = RPG::Cache.load_bitmap("", "Graphics/MODTS/Particles/radial002")
     @sprites["cir"].center!
     @sprites["cir"].x = self.x
     @sprites["cir"].y = self.y
@@ -804,7 +807,7 @@ class MTS_Element_FX12
       width = 16 + rand(48)
       height = 16 + rand(16)
       @sprites["p#{j}"].bitmap = Bitmap.new(width,height)
-      bmp = pbBitmap("Graphics/MODTS/Particles/special004")
+      bmp = RPG::Cache.load_bitmap("", "Graphics/MODTS/Particles/special004")
       @sprites["p#{j}"].bitmap.stretch_blt(Rect.new(0,0,width,height),bmp,Rect.new(0,0,bmp.width,bmp.height))
       @sprites["p#{j}"].bitmap.hue_change(rand(360))
       @sprites["p#{j}"].ox = width/2
@@ -923,5 +926,24 @@ class MTS_Element_FX13
   # checks if disposed
   def disposed?; return @disposed; end
   # end
+end
+#===============================================================================
+#  sprite compatibility
+#===============================================================================
+class Sprite
+  attr_accessor :id
+  def center!
+    self.ox = self.bitmap.width / 2
+    self.oy = self.bitmap.height / 2
+    vw = @viewport ? @viewport.rect.width : Graphics.width
+    vh = @viewport ? @viewport.rect.height : Graphics.height
+    self.x = (vw - self.bitmap.width) / 2
+    self.y = (vh - self.bitmap.height) / 2
+  end
+  def id; nil; end
+  def id?(val); false; end
+end
+class Integer
+  def delta(type); self; end
 end
 #===============================================================================

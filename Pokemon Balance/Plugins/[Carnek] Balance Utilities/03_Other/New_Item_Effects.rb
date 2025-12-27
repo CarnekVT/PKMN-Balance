@@ -53,45 +53,6 @@ ItemHandlers::UseInBattle.add(:POKEFLUTE, proc { |item, battler, battle|
   battle.pbDisplay(_INTL("¡Todos los Pokémon se despertaron con la melodía!"))
 })
 
-Battle::ItemEffects::StatusCure.add(:LUMBERRY,
-  proc { |item, battler, battle, forced|
-    next false if !forced && !battler.canConsumeBerry?
-    next false if battler.status == :NONE &&
-                  battler.effects[PBEffects::Confusion] == 0
-    itemName = GameData::Item.get(item).name
-    PBDebug.log("[Item triggered] #{battler.pbThis}'s #{itemName}") if forced
-    battle.pbCommonAnimation("EatBerry", battler) if !forced
-    oldStatus = battler.status
-    oldConfusion = (battler.effects[PBEffects::Confusion] > 0)
-    battler.pbCureStatus(forced)
-    battler.pbCureConfusion
-    if forced
-      battle.pbDisplay(_INTL("¡{1} ya no está confuso!", battler.pbThis)) if oldConfusion
-    else
-      case oldStatus
-      when :SLEEP
-        battle.pbDisplay(_INTL("¡{1} se ha despertado con {2}!", battler.pbThis, itemName))
-      when :POISON
-        battle.pbDisplay(_INTL("¡{1} se ha curado del envenienmiento con {2}!", battler.pbThis, itemName))
-      when :BURN
-        battle.pbDisplay(_INTL("¡{1} se ha curado de las quemaduras con {2}!", battler.pbThis, itemName))
-      when :PARALYSIS
-        battle.pbDisplay(_INTL("¡{1} se ha curado de la parálisis con {2}!", battler.pbThis, itemName))
-      when :FROZEN
-        battle.pbDisplay(_INTL("¡{1} se ha descongelado con {2}!", battler.pbThis, itemName))
-      when :FROSTBITE
-        battle.pbDisplay(_INTL("¡{1} se ha curado de la helada con {2}!", battler.pbThis, itemName))
-      when :DROWSY
-        battle.pbDisplay(_INTL("¡{1} se ha despertado con {2}!", battler.pbThis, itemName))
-      end
-      if oldConfusion
-        battle.pbDisplay(_INTL("¡{1} ya no está confuso gracias a {2}!", battler.pbThis, itemName))
-      end
-    end
-    next true
-  }
-)
-
 Battle::ItemEffects::StatusCure.add(:CHESTOBERRY,
   proc { |item, battler, battle, forced|
     next false if !forced && !battler.canConsumeBerry?

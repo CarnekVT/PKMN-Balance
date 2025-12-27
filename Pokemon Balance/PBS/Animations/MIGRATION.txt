@@ -1,0 +1,81 @@
+﻿# Consulta la documentación en la wiki para aprender cómo editar este archivo.
+#-------------------------------
+[Move,MIGRATION]
+Name = UserMIGRATION
+<User>
+    MoveY = 0,3,15,EaseIn
+    MoveY = 3,2,20,EaseIn
+    MoveY = 5,1,25,EaseIn
+    MoveY = 6,2,0,EaseOut
+    MoveY = 8,1,-5,EaseOut
+    MoveY = 9,3,-10,EaseOut
+    MoveY = 12,3,-5,EaseIn
+    MoveY = 15,2,5,EaseIn
+    MoveY = 17,1,10,EaseIn
+    MoveY = 18,2,15,EaseIn
+    MoveY = 20,4,10,EaseOut
+    MoveY = 24,5,20,EaseIn
+    SetOpacity = 27,94
+    MoveOpacity = 27,2,0,EaseBoth
+    MoveY = 29,4,-340,EaseOut
+    MoveY = 33,2,-190,EaseIn
+    SetY = 51,-312
+    SetOpacity = 51,66
+    MoveOpacity = 51,2,178,EaseIn
+    MoveY = 51,12,5,EaseIn
+    MoveOpacity = 53,2,255,EaseIn
+    MoveY = 63,2,10,EaseIn
+    MoveY = 65,3,0,EaseIn
+<FlyBall>
+    Graphic = !-Carnek-Fly01
+    Focus = User
+    SetY = 29,49
+    SetZoomX = 29,83
+    SetZoomY = 29,64
+    MoveY = 29,2,56,EaseIn
+    MoveZoomY = 29,2,44,EaseBoth
+    MoveZoomX = 29,4,53,EaseIn
+    MoveY = 31,2,-56,EaseBoth
+    MoveZoomY = 31,2,144,EaseIn
+    MoveY = 33,2,-348,EaseBoth
+    MoveZoomX = 33,2,45,EaseIn
+    MoveZoomY = 33,2,153,EaseIn
+    MoveY = 35,2,-241,EaseIn
+    MoveAngle = 35,2,60,EaseIn
+    SetX = 37,105
+    SetZoomY = 37,96
+    MoveX = 37,2,209,EaseIn
+    MoveY = 37,2,-153,EaseIn
+    MoveZoomY = 37,2,85,EaseBoth
+    SetZoomX = 39,47
+    MoveX = 39,2,228,EaseIn
+    MoveY = 39,2,-144,EaseIn
+    MoveZoomX = 39,2,54,EaseIn
+    MoveZoomY = 39,2,76,EaseIn
+    MoveX = 41,2,218,EaseBoth
+    MoveY = 41,2,-146,EaseIn
+    MoveZoomX = 41,2,59,EaseIn
+    MoveZoomY = 41,2,64,EaseIn
+    MoveX = 43,2,234,EaseIn
+    MoveZoomX = 43,2,67,EaseIn
+    MoveZoomY = 43,2,48,EaseIn
+    MoveX = 45,4,193,EaseIn
+    MoveY = 45,4,-186,EaseIn
+    MoveZoomX = 45,4,39,EaseIn
+    MoveZoomY = 45,4,79,EaseIn
+    SetAngle = 49,48
+    MoveX = 49,2,60,EaseIn
+    MoveY = 49,2,-298,EaseIn
+    SetOpacity = 52,0
+<Target>
+    SetToneBlue = 39,80
+    MoveX = 39,2,18,EaseIn
+    MoveToneBlue = 39,2,156,EaseIn
+    MoveX = 41,2,8,EaseIn
+    MoveToneBlue = 41,2,52,EaseIn
+    MoveX = 43,2,16,EaseIn
+    MoveToneBlue = 43,2,188,EaseIn
+    MoveX = 45,2,0,EaseBoth
+    MoveToneBlue = 45,2,64,EaseIn
+    MoveToneBlue = 47,2,0,EaseIn
+<SE>

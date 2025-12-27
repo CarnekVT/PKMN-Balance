@@ -143,7 +143,7 @@ class ModularTitleScreen
     #---------------------------------------------------------------------------
     # setting up gstart splash text
     @sprites["start"] = Sprite.new(@viewport)
-    @sprites["start"].bitmap = pbBitmap("Graphics/MODTS/start")
+    @sprites["start"].bitmap = RPG::Cache.load_bitmap("", "Graphics/MODTS/start")
     @sprites["start"].center!
     @sprites["start"].x = @viewport.rect.width/2
     @sprites["start"].x = ModularTitle::START_POS[0] if ModularTitle::START_POS[0].is_a?(Numeric)
@@ -202,7 +202,7 @@ class ModularTitleScreen
     end
     # loads data
     bgm = $data_system.title_bgm.name if bgm.nil?
-    @totalFrames = (getPlayTime("Audio/BGM/"+bgm).floor - 1) * Graphics.frame_rate
+    @totalFrames = nil   # Make BGM loop infinitely
     pbBGMPlay(bgm)
   end
   # function to restart the game when BGM times out

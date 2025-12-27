@@ -18,7 +18,7 @@ class Battle::AI
     if @trainer.high_skill? && @user.can_switch_lax?
       badMoves = false
       if max_score <= MOVE_USELESS_SCORE
-        badMoves = user.can_attack?
+        badMoves = @user.can_attack?
         badMoves = true if !badMoves && pbAIRandom(100) < 25
       elsif max_score < MOVE_BASE_SCORE * move_score_threshold && user_battler.turnCount > 2
         badMoves = true if pbAIRandom(100) < 80
@@ -487,5 +487,31 @@ class Battle::Scene
     faintAnim.dispose
     dataBoxAnim.dispose
     @sprites["pokemon_#{battler.index}"].src_rect.height = old_height
+  end
+end
+
+#===============================================================================
+# Fixed pbCanStartWeather? argument count mismatch in v21.1
+#===============================================================================
+class Battle
+  alias __hotfixes__pbCanStartWeather pbCanStartWeather? unless method_defined?(:__hotfixes__pbCanStartWeather)
+
+  def pbCanStartWeather?(weather, duration = 5)
+    __hotfixes__pbCanStartWeather(weather, duration)
+  end
+end
+
+#===============================================================================
+# Fixed TypeError: nil can't be coerced into Integer in crit_stage_bonuses
+# when user.effects[PBEffects::FocusEnergy] is nil.
+#===============================================================================
+class Battle::Move
+  def crit_stage_bonuses(user)
+    bonus = 0
+    bonus += critical_hit_bonus
+    bonus += (user.effects[PBEffects::FocusEnergy] || 0)
+    bonus += 1 if @id == :SPACIALREND && user.isSpecies?(:PALKIA) && user.form == 1
+    bonus += 1 if user.inHyperMode? && @type == :SHADOW
+    return bonus
   end
 end

@@ -164,11 +164,6 @@ class Battle::Battler
 
   def inHyperMode?; return false; end
 
-  def affectedByAdditionalEffects?
-    return false if hasActiveItem?(:COVERTCLOAK)
-    return true
-  end
-
   #=============================================================================
   # Display-only properties
   #=============================================================================
@@ -373,7 +368,6 @@ class Battle::Battler
     return self.ability == check_ability
   end
   alias hasWorkingAbility hasActiveAbility?
-  alias has_active_ability? hasActiveAbility?
 
   # Applies to both losing self's ability (i.e. being replaced by another) and
   # having self's ability be negated.
@@ -488,7 +482,6 @@ class Battle::Battler
     return false if hasActiveAbility?(:KLUTZ, ignoreFainted)
     return true
   end
-  alias item_active? itemActive?
 
   def hasActiveItem?(check_item, ignore_fainted = false)
     return false if !itemActive?(ignore_fainted)

@@ -97,50 +97,64 @@ WildItemUncommon = PECHABERRY
 [PIKACHU,2]
 FormName = Forma Coqueta
 Abilities = LIGHTNINGROD
+Evolutions = RAICHU,None,
 #-------------------------------
 [PIKACHU,3]
 FormName = Forma Aristócrata
 Abilities = LIGHTNINGROD
+Evolutions = RAICHU,None,
 #-------------------------------
 [PIKACHU,4]
 FormName = Forma Enmascarada
 Abilities = LIGHTNINGROD
+Evolutions = RAICHU,None,
 #-------------------------------
 [PIKACHU,5]
 FormName = Forma Erudita
 Abilities = LIGHTNINGROD
+Evolutions = RAICHU,None,
 #-------------------------------
 [PIKACHU,6]
 FormName = Forma Superstar
 Abilities = LIGHTNINGROD
+Evolutions = RAICHU,None,
 #-------------------------------
 [PIKACHU,7]
 FormName = Forma Roquera
 Abilities = LIGHTNINGROD
+Evolutions = RAICHU,None,
 #-------------------------------
 [PIKACHU,8]
 FormName = Forma Gorra Original
+Evolutions = RAICHU,None,
 #-------------------------------
 [PIKACHU,9]
 FormName = Forma Gorra Hoenn
+Evolutions = RAICHU,None,
 #-------------------------------
 [PIKACHU,10]
 FormName = Forma Gorra Sinnoh
+Evolutions = RAICHU,None,
 #-------------------------------
 [PIKACHU,11]
 FormName = Forma Gorra Teselia
+Evolutions = RAICHU,None,
 #-------------------------------
 [PIKACHU,12]
 FormName = Forma Gorra Kalos
+Evolutions = RAICHU,None,
 #-------------------------------
 [PIKACHU,13]
 FormName = Forma Gorra Alola
+Evolutions = RAICHU,None,
 #-------------------------------
 [PIKACHU,14]
 FormName = Forma Gorra Compañero
+Evolutions = RAICHU,None,
 #-------------------------------
 [PIKACHU,15]
 FormName = Forma Gorra Trotamundos
+Evolutions = RAICHU,None,
 #-------------------------------
 [RAICHU,1]
 FormName = Forma Alola
@@ -210,7 +224,7 @@ BaseStats = 73,67,75,109,81,100
 EVs = SPEED,2
 Abilities = SNOWCLOAK
 HiddenAbilities = SNOWWARNING
-Moves = 0,DAZZLINGGLEAM,1,IMPRISON,1,NASTYPLOT,1,ICEBEAM,1,ICESHARD,1,CONFUSERAY,1,SAFEGUARD
+Moves = -1,NASTYPLOT,-1,SPITE,-1,CONFUSERAY,-1,AURORABEAM,-1,EXTRASENSORY,-1,ICEBEAM,-1,MIST,-1,AURORAVEIL,-1,POWDERSNOW,-1,DISABLE,-1,ICESHARD,-1,FREEZEDRY,0,DAZZLINGGLEAM,1,BLIZZARD,1,ICYWIND,1,TAILWHIP,1,IMPRISON
 TutorMoves = AGILITY,AQUATAIL,ATTRACT,AURORAVEIL,AVALANCHE,BLIZZARD,BODYSLAM,CALMMIND,CAPTIVATE,CHARM,CONFIDE,COVET,DARKPULSE,DAZZLINGGLEAM,DIG,DOUBLEEDGE,DOUBLETEAM,DRAININGKISS,DREAMEATER,ENCORE,ENDURE,FACADE,FAKETEARS,FOULPLAY,FROSTBREATH,FRUSTRATION,GIGAIMPACT,HAIL,HEADBUTT,HEALBELL,HEX,HIDDENPOWER,HYPERBEAM,ICEBEAM,ICYWIND,IMPRISON,IRONTAIL,LASERFOCUS,MIMIC,MISTYTERRAIN,NASTYPLOT,NATURALGIFT,PAINSPLIT,PAYBACK,POWERSWAP,PROTECT,PSYCHUP,PSYSHOCK,RAINDANCE,REST,RETURN,ROAR,ROLEPLAY,ROUND,SAFEGUARD,SECRETPOWER,SLEEPTALK,SNORE,SOLARBEAM,SPITE,STOREDPOWER,SUBSTITUTE,SWAGGER,SWIFT,TAILSLAP,TRIPLEAXEL,WEATHERBALL,WONDERROOM,ZENHEADBUTT,BATONPASS,CHILLINGWATER,CONFUSERAY,DISARMINGVOICE,HELPINGHAND,ICICLESPEAR,PLAYROUGH,SNOWSCAPE,TAKEDOWN
 Color = Blue
 Pokedex = En su pelaje se crean cristales de hielo con los que cubre al enemigo. Quien lo enfada acaba congelado al instante.
@@ -423,7 +437,7 @@ Pokedex = Este es el aspecto de los Farfetch'd que habitan en Galar. Son guerrer
 Generation = 8
 Flags = InheritFormWithEverStone
 WildItemCommon = LEEK
-Evolutions = SIRFETCHD,BattleDealCriticalHit,3
+Evolutions = SIRFETCHD,AfterBattleCounter,3
 #-------------------------------
 [GRIMER,1]
 FormName = Forma Alola
@@ -1402,7 +1416,7 @@ TutorMoves = ALLYSWITCH,ATTRACT,BRUTALSWING,CALMMIND,CAPTIVATE,CONFIDE,DARKPULSE
 Pokedex = Yamask ha sido poseído por una tabla de arcilla sobre la que pesa una maldición. Se dice que absorbe y se nutre de rencor e inquina.
 Generation = 8
 Flags = InheritFormWithEverStone
-Evolutions = RUNERIGUS,EventAfterDamageTaken,2
+Evolutions = RUNERIGUS,AfterBattleCounterMakeReady,49,RUNERIGUS,EventReady,2
 #-------------------------------
 [DEERLING,1]
 FormName = Forma Verano
@@ -1816,7 +1830,6 @@ Pokedex = Convoca a los muertos con su danza de ensueño. De su malicia extrae p
 Abilities = OWNTEMPO
 HiddenAbilities = OWNTEMPO
 Flags = InheritFormFromMother
-Evolutions = LYCANROC,LevelEvening,25
 #-------------------------------
 [LYCANROC,1]
 FormName = Forma Nocturna
@@ -2456,7 +2469,7 @@ EggMoves = ACIDSPRAY,AQUAJET,AQUATAIL,ASTONISH,BUBBLEBEAM,FLAIL,HAZE,SELFDESTRUC
 Pokedex = Segrega veneno a través de las agujas, razón por la que los pescadores lo odian. Los ejemplares de otras regiones presentan una forma diferente.
 Generation = 8
 Flags = InheritFormWithEverStone
-Evolutions = OVERQWIL,LevelUseMoveCount,BARBBARRAGE
+Evolutions = OVERQWIL,Counter,20
 #-------------------------------
 [SNEASEL,1]
 FormName = Forma Hisui
@@ -2984,7 +2997,7 @@ Pokedex = La megaevolución le dio a su piel un aspecto blancuzco y un tacto dur
 Generation = 9
 #-------------------------------
 [EELEKTROSS,1]
-FormName = Mega Elektross
+FormName = Mega Eelektross
 MegaStone = EELEKTROSSITE
 BaseStats = 85,145,80,80,135,90
 Abilities = SPEEDBOOST
@@ -3036,7 +3049,7 @@ Pokedex = Hace girar un enorme shuriken a tal velocidad que queda suspendido en 
 Generation = 9
 #-------------------------------
 [PYROAR,1]
-FormName = Mega Pyorar
+FormName = Mega Pyroar
 MegaStone = PYROARITE
 BaseStats = 86,88,92,126,129,86
 Abilities = ADAPTABILITY
@@ -3126,7 +3139,6 @@ Generation = 9
 [ZYGARDE,4]
 FormName = Mega Zygarde
 MegaStone = ZYGARDITE
-UnmegaForm = 2
 BaseStats = 74,65,67,92,125,128
 Abilities = POWERCONSTRUCT
 HiddenAbilities = POWERCONSTRUCT

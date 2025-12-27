@@ -386,14 +386,13 @@ UIActionHandlers.add(UI::MoveReminder::SCREEN_ID, :learn, {
   :effect => proc { |screen|
     # move Array len 2
     # Possible values
-    # [:MOVE_ID, "Nv X."]
+    # [:MOVE_ID, nil]
     # [:MOVE_ID, "TM"]
     # [:MOVE_ID, "HM"]
     move = screen.move
     if screen.show_confirm_message(_INTL("¿Enseñar {1}?", GameData::Move.get(move[0]).name))
-      is_machine = ["TM", "HM"].include?(move[1]) ? true : false
-      relearn = is_machine ? false : true
-      if pbLearnMove(screen.pokemon, move[0], false, is_machine, relearn)
+      is_machine = move[1] ? true : false
+      if pbLearnMove(screen.pokemon, move[0], false, is_machine)
         $stats.moves_taught_by_reminder += 1 if !is_machine
         $stats.moves_taught_by_item += 1 if is_machine
         if screen.mode == :normal

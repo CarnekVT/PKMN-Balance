@@ -21,7 +21,6 @@ module GameData
 
     def initialize(hash)
       @id                   = hash[:id]
-      @real_name            = hash[:id].to_s      || "Sin nombre"
       @parameter            = hash[:parameter]
       @any_level_up         = hash[:any_level_up] || false
       @level_up_proc        = hash[:level_up_proc]
@@ -30,6 +29,25 @@ module GameData
       @after_battle_proc    = hash[:after_battle_proc]
       @event_proc           = hash[:event_proc]
       @after_evolution_proc = hash[:after_evolution_proc]
+      @real_name            = hash[:real_name] || @id.to_s
+      if @parameter
+        case @id
+        when :Counter
+          @real_name = "Usar movimientos específicos #{@parameter} veces"
+        when :LevelWalk
+          @real_name = "Caminar #{@parameter} pasos"
+        when :LevelRecoilDamage
+          @real_name = "Recibir daño por retroceso #{@parameter} veces"
+        when :LevelCoins
+          @real_name = "Tener #{@parameter} Monedas de Gimmighoul y subir un nivel."
+        when :AfterBattleCounter
+          @real_name = "Asestar #{@parameter} golpes críticos en batalla"
+        when :AfterBattleCounterMakeReady
+          @real_name = "Recibir #{@parameter} de daño en una batalla"
+        when :EventReady
+          @real_name = "Evento especial (#{@parameter})"
+        end
+      end
     end
 
     alias name real_name
@@ -704,17 +722,79 @@ GameData::Evolution.register({
 
 
 GameData::Evolution.register({
-  :id                   => :CableLinkItem,
-  :parameter            => :Item,
-  :use_item_proc => proc { |pkmn, parameter, item|
-    item_aux   = GameData::Item.get(item)
-    check_item = GameData::Item.get(:LINKINGCORD)
-    next (item_aux == check_item && pkmn.hasItem?(parameter))
-  },
-  :after_evolution_proc => proc { |pkmn, new_species, parameter, evo_species|
-    next false if evo_species != new_species || !pkmn.hasItem?(parameter)
-    pkmn.item = nil   # Item is now consumed
-    next true
-  }
-})
+   :id                   => :CableLinkItem,
+   :parameter            => :Item,
+   :use_item_proc => proc { |pkmn, parameter, item|
+     item_aux   = GameData::Item.get(item)
+     check_item = GameData::Item.get(:LINKINGCORD)
+     next (item_aux == check_item && pkmn.hasItem?(parameter))
+   },
+   :after_evolution_proc => proc { |pkmn, new_species, parameter, evo_species|
+     next false if evo_species != new_species || !pkmn.hasItem?(parameter)
+     pkmn.item = nil   # Item is now consumed
+     next true
+   }
+ })
+
+GameData::Evolution.register({
+   :id            => :Counter,
+   :parameter     => Integer,
+   :any_level_up  => true,   # Needs any level up
+   :level_up_proc => proc { |pkmn, parameter|
+     next pkmn.evo_counter_count >= parameter
+   },
+   :after_evolution_proc => proc { |pkmn, new_species, parameter, evo_species|
+     next false if evo_species != new_species || pkmn.evo_counter_count < parameter
+     pkmn.evo_counter_count = 0
+     next true
+   }
+ })
+
+GameData::Evolution.register({
+   :id            => :LevelCoins,
+   :parameter     => Integer,
+   :any_level_up  => true,   # Needs any level up
+   :level_up_proc => proc { |pkmn, parameter|
+     next $bag.quantity(:GIMMIGHOULCOIN) >= parameter
+   },
+   :after_evolution_proc => proc { |pkmn, new_species, parameter, evo_species|
+     next false if evo_species != new_species || $bag.quantity(:GIMMIGHOULCOIN) < parameter
+     $bag.remove(:GIMMIGHOULCOIN, parameter)
+     next true
+   }
+ })
+
+GameData::Evolution.register({
+   :id                => :AfterBattleCounter,
+   :parameter         => Integer,
+   :after_battle_proc => proc { |pkmn, party_index, parameter|
+     next pkmn.evo_critical_hits >= parameter
+   },
+   :after_evolution_proc => proc { |pkmn, new_species, parameter, evo_species|
+     next false if evo_species != new_species || pkmn.evo_critical_hits < parameter
+     pkmn.evo_critical_hits = 0
+     next true
+   }
+ })
+
+GameData::Evolution.register({
+   :id                => :AfterBattleCounterMakeReady,
+   :parameter         => Integer,
+   :after_battle_proc => proc { |pkmn, party_index, parameter|
+     if $game_temp.party_direct_damage_taken &&
+        $game_temp.party_direct_damage_taken[party_index] &&
+        $game_temp.party_direct_damage_taken[party_index] >= parameter
+       pkmn.ready_to_evolve = true
+     end
+     next false
+   }
+ })
+
+GameData::Evolution.register({
+   :id         => :EventReady,
+   :parameter  => Integer,
+   :event_proc => proc { |pkmn, parameter, value|
+     next value == parameter && pkmn.ready_to_evolve
+   }
+ })
 

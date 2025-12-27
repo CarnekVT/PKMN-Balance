@@ -52,15 +52,15 @@ class MTS_Element_Logo
     @sprites["glow2"].visible = @glow > 0
     @sprites["glow2"].opacity = 0
       # draw bitmap ------------------------------------------------------------
-      bmp = pbBitmap("Graphics/MODTS/logo2")
-      bmp = Bitmap.online_bitmap("http://luka-sj.com/ast/unsec/doof.png") if defined?(firstApr?) && firstApr?
+      bmp = RPG::Cache.load_bitmap("", "Graphics/MODTS/logo2")
+      # bmp = Bitmap.online_bitmap("http://luka-sj.com/ast/unsec/doof.png") if defined?(firstApr?) && firstApr?
       @sprites["logo2"].bitmap = Bitmap.new(bmp.width+@outline*2,bmp.height+@outline*2)
       @sprites["logo2"].bitmap.blt(@outline,@outline,bmp,bmp.rect)
-      @sprites["logo2"].create_outline(Color.new(255,255,255,128),@outline) if @outline > 0
+      # @sprites["logo2"].create_outline(Color.new(255,255,255,128),@outline) if @outline > 0
       # draw outside glow ------------------------------------------------------
       @sprites["glow2"].bitmap = Bitmap.new(bmp.width+16,bmp.height+16)
       @sprites["glow2"].bitmap.blt(8,8,bmp,bmp.rect)
-      @sprites["glow2"].glow(Color.new(252,242,209),35,false)
+      # @sprites["glow2"].glow(Color.new(252,242,209),35,false)
       bmp.dispose
       # logo metrics -----------------------------------------------------------
       @sprites["logo2"].z = 999
@@ -77,14 +77,14 @@ class MTS_Element_Logo
     @sprites["glow1"].visible = @glow > 0
     @sprites["glow1"].opacity = 0
       # draw bitmap ------------------------------------------------------------
-      bmp = pbBitmap("Graphics/MODTS/logo1")
+      bmp = RPG::Cache.load_bitmap("", "Graphics/MODTS/logo1")
       @sprites["logo1"].bitmap = Bitmap.new(bmp.width+@outline*2,bmp.height+@outline*2)
       @sprites["logo1"].bitmap.blt(@outline,@outline,bmp,bmp.rect)
-      @sprites["logo1"].create_outline(Color.new(255,255,255,128),@outline) if @outline > 0
+      # @sprites["logo1"].create_outline(Color.new(255,255,255,128),@outline) if @outline > 0
       # draw outside glow ------------------------------------------------------
       @sprites["glow1"].bitmap = Bitmap.new(bmp.width+16,bmp.height+16)
       @sprites["glow1"].bitmap.blt(8,8,bmp,bmp.rect)
-      @sprites["glow1"].glow(Color.new(252,242,209),35,false)
+      # @sprites["glow1"].glow(Color.new(252,242,209),35,false)
       bmp.dispose
       # logo metrics -----------------------------------------------------------
       @sprites["logo1"].z = 999
@@ -97,7 +97,7 @@ class MTS_Element_Logo
       @sprites["glow1"].oy = @sprites["glow1"].bitmap.height - 6
     # creates logo shine -------------------------------------------------------
     @sprites["shine"] = Sprite.new(@viewport)
-    bmp = pbBitmap("Graphics/MODTS/logo3")
+    bmp = RPG::Cache.load_bitmap("", "Graphics/MODTS/logo3")
     @sprites["shine"].bitmap = Bitmap.new(bmp.width+@outline*2,bmp.height+@outline*2)
     @sprites["shine"].bitmap.blt(@outline,@outline,bmp,bmp.rect)
     @sprites["shine"].z = 999
@@ -112,7 +112,7 @@ class MTS_Element_Logo
       for i in 0...12
         @sprites["s#{i}"] = Sprite.new(@viewport)
         @sprites["s#{i}"].z = 999
-        @sprites["s#{i}"].bitmap = pbBitmap("Graphics/MODTS/Particles/special002")
+        @sprites["s#{i}"].bitmap = RPG::Cache.load_bitmap("", "Graphics/MODTS/Particles/special002")
         @sprites["s#{i}"].center!
         @sprites["s#{i}"].zoom_x = 0
         @sprites["s#{i}"].zoom_y = 0

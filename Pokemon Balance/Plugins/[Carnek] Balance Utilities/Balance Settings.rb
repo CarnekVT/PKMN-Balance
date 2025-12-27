@@ -15,10 +15,10 @@ module Settings
   # Cuando está en true efectos que normalmente congelan generaran 
   # la congelacion de Hisui
   #-----------------------------------------------------------------------------
-  FREEZE_EFFECTS_CAUSE_FROSTBITE = true
   SLEEP_EFFECTS_CAUSE_DROWSY     = true
-  
-  
+  FREEZE_EFFECTS_CAUSE_FROSTBITE = true
+
+
   ENABLE_SKIP_TEXT = false
 
 ################################################################################

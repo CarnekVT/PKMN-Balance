@@ -1,3 +1,6 @@
+#===============================================================================
+#
+#===============================================================================
 module Compiler
   SCRIPT_REPLACEMENTS = [
     ["Kernel.",                      ""],
@@ -61,13 +64,50 @@ module Compiler
     ["pbHasType?",                   "$player.has_pokemon_of_type?"]
   ]
 
+    @@categories[:import_new_maps] = {
+    :should_compile => proc { |compiling| next !new_maps_to_import.nil? },
+    :header_text    => proc { next _INTL("Importando nuevos mapas") },
+    :skipped_text   => proc { next _INTL("No se encontraron nuevos mapas") },
+    :compile        => proc { import_new_maps }
+  }
+
+  # @@categories[:create_missing_map_metadata] = {
+  #   :should_compile => proc { |compiling| next true },
+  #   :header_text    => proc { next _INTL("Creando metadatos para mapas que no tengan") },
+  #   :skipped_text   => proc { next _INTL("No se encontraron nada") },
+  #   :compile        => proc { create_missing_map_metadata }
+  # }
+
+  @@categories[:map_data] = {
+    :should_compile => proc { |compiling| next true },
+    :header_text    => proc { next _INTL("Modificando eventos de mapa") },
+    :skipped_text   => proc { next _INTL("No se modificaron") },
+    :compile        => proc { compile_trainer_events }
+  }
+
+  @@categories[:messages] = {
+    :should_compile => proc { |compiling| next compiling.include?(:pbs_files) || compiling.include?(:map_data) },
+    :header_text    => proc { next _INTL("Buscando mensajes para traducciones") },
+    :skipped_text   => proc { next _INTL("No se encontraron") },
+    :compile        => proc {
+      Console.echo_li(_INTL("Buscando mensajes..."))
+      Translator.gather_script_and_event_texts
+      Console.echo_done(true)
+      Console.echo_li(_INTL("Guardando mensajes..."))
+      MessageTypes.save_default_messages
+      MessageTypes.load_default_messages if FileTest.exist?("Data/messages_core.dat")
+      Console.echo_done(true)
+    }
+  }
+
   module_function
 
   #=============================================================================
   # Add new map files to the map tree.
-  #=============================================================================
-  def import_new_maps
-    return false if !$DEBUG
+  #-----------------------------------------------------------------------------
+
+  def new_maps_to_import
+    return nil if !$DEBUG
     mapfiles = {}
     # Get IDs of all maps in the Data folder
     Dir.chdir("Data") do
@@ -82,6 +122,19 @@ module Compiler
     mapinfos.each_key do |id|
       next if !mapinfos[id]
       mapfiles.delete(id) if mapfiles[id]
+      maxOrder = [maxOrder, mapinfos[id].order].max
+    end
+    return (mapfiles.empty?) ? nil : mapfiles
+  end
+
+  def import_new_maps
+    mapfiles = new_maps_to_import
+    return false if !mapfiles
+    # Get maxOrder to add new maps at
+    maxOrder = 0
+    mapinfos = pbLoadMapInfos
+    mapinfos.each_key do |id|
+      next if !mapinfos[id]
       maxOrder = [maxOrder, mapinfos[id].order].max
     end
     # Import maps not found in mapinfos
@@ -102,11 +155,37 @@ module Compiler
       save_data(mapinfos, "Data/MapInfos.rxdata")
       $game_temp.map_infos = nil
       pbMessage(_INTL("{1} nuevo(s) mapa(s) copiado(s) en la carpeta de Datos se importaron con éxito.", count))
+      Console.echo_warn(_INTL("Los datos de RMXP fueron alterados. Cierra RMXP ahora sin guardar para asegurar que los cambios se apliquen."))
     end
     return imported
   end
 
-  #=============================================================================
+  #-----------------------------------------------------------------------------
+  # Add new map metadata entries for maps that don't have it.
+  #-----------------------------------------------------------------------------
+  # def create_missing_map_metadata
+  #   GameData.load_all
+  #   map_infos = pbLoadMapInfos
+  #   added_count = 0
+  #   map_infos.each_key do |map_id|
+  #     next if !map_infos[map_id]
+  #     next if GameData::MapMetadata.exists?(map_id)
+  #     data_hash = {
+  #       :id        => map_id,
+  #       :real_name => map_infos[map_id].name,
+  #     }
+  #     GameData::MapMetadata.register(data_hash)
+  #     added_count += 1
+  #   end
+  #   if added_count == 0
+  #     Console.echoln_li(@@categories[:create_missing_map_metadata][:skipped_text].call)
+  #     return
+  #   end
+  #   Console.echoln_li(_INTL("Created metadata for {1} map(s).", new_maps.length))
+  #   Compiler.write_map_metadata
+  # end
+
+  #-----------------------------------------------------------------------------
   # Generate and modify event commands.
   #=============================================================================
   def generate_move_route(commands)
@@ -272,9 +351,8 @@ module Compiler
     event.pages.push(page)
   end
 
-  #=============================================================================
-  #
-  #=============================================================================
+  #-----------------------------------------------------------------------------
+
   def safequote(x)
     x = x.gsub(/\"\#\'\\/) { |a| "\\" + a }
     x = x.gsub(/\t/, "\\t")
@@ -333,7 +411,7 @@ module Compiler
     end
 
     def mapFilename(mapID)
-      return sprintf("Data/map%03d.rxdata", mapID)
+      return sprintf("Data/Map%03d.rxdata", mapID)
     end
 
     def getMap(mapID)
@@ -946,7 +1024,7 @@ module Compiler
     if thisEvent.pages[0].graphic.character_name == "" &&
        thisEvent.pages[0].list.length <= 12 &&
        thisEvent.pages[0].list.any? { |cmd| cmd.code == 201 } &&   # Transfer Player
-#       mapData.isPassable?(mapID,thisEvent.x,thisEvent.y+1) &&
+#       mapData.isPassable?(mapID, thisEvent.x, thisEvent.y + 1) &&
        mapData.isPassable?(mapID, thisEvent.x, thisEvent.y) &&
        !mapData.isPassable?(mapID, thisEvent.x - 1, thisEvent.y) &&
        !mapData.isPassable?(mapID, thisEvent.x + 1, thisEvent.y) &&
@@ -1701,10 +1779,10 @@ module Compiler
     return changed
   end
 
-  #=============================================================================
-  # Main compiler method for events
-  #=============================================================================
-  def compile_trainer_events(_mustcompile)
+  #-----------------------------------------------------------------------------
+  # Main compiler method for events.
+  #-----------------------------------------------------------------------------
+  def compile_trainer_events
     mapData = MapData.new
     t = System.uptime
     Graphics.update
@@ -1773,4 +1851,3 @@ module Compiler
     end
   end
 end
-

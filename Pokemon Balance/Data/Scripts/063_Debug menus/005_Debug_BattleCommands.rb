@@ -18,9 +18,9 @@ MenuHandlers.add(:battle_debug_menu, :list_player_battlers, {
       battlers.push(b)
       text = "[#{b.index}] #{b.name}"
       if b.pbOwnedByPlayer?
-        text += " (tuyo)"
+        text += " (yours)"
       else
-        text += " (aliado)"
+        text += " (ally's)"
       end
       cmds.push(text)
     end

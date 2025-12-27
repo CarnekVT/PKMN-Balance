@@ -779,9 +779,7 @@ def _INTL(*arg)
   end
   string = string.clone
   (1...arg.length).each do |i|
-    text_aux = arg[i].to_s.dup
-    text_aux.force_encoding(Encoding::UTF_8)
-    string.gsub!(/\{#{i}\}/, text_aux)
+    string.gsub!(/\{#{i}\}/, arg[i].to_s)
   end
   return string
 end

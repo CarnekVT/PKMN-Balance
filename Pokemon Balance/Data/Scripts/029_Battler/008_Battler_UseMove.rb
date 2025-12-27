@@ -344,7 +344,7 @@ class Battle::Battler
       end
     end
     # Protean
-    if user.hasActiveAbility?([:LIBERO, :PROTEAN]) && !user.abilityUsedThisSwitchIn? &&
+    if user.hasActiveAbility?([:LIBERO, :PROTEAN]) &&
        !move.callsAnotherMove? && !move.snatched &&
        user.pbHasOtherType?(move.calcType) && !GameData::Type.get(move.calcType).pseudo_type
       @battle.pbShowAbilitySplash(user)
@@ -352,7 +352,6 @@ class Battle::Battler
       typeName = GameData::Type.get(move.calcType).name
       @battle.pbDisplay(_INTL("¡{1} ha cambiado a tipo {2}!", user.pbThis, typeName))
       @battle.pbHideAbilitySplash(user)
-      user.markAbilityUsedThisSwitchIn if Settings::MECHANICS_GENERATION >= 9
       # NOTE: The GF games say that if Curse is used by a non-Ghost-type
       #       Pokémon which becomes Ghost-type because of Protean, it should
       #       target and curse itself. I think this is silly, so I'm making it
@@ -519,6 +518,10 @@ class Battle::Battler
     @battle.allBattlers.each { |b| @battle.successStates[b.index].updateSkill }
     # Shadow Pokémon triggering Hyper Mode
     pbHyperMode if @battle.choices[@index][0] != :None   # Not if self is replaced
+    # Counter evolution tracking
+    if [:RAGEFIST, :BARBBARRAGE, :PSYSHIELDBASH].include?(move.id)
+      user.counter_evolution(1)
+    end
     # End of move usage
     pbEndTurn(choice)
     # Instruct
